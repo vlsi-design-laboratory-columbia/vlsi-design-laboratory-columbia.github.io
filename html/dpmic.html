@@ -1,46 +1,112 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>microGPU Project</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>dpmic - EE6350 Spring 2025</title>
   <style>
-    body {font-family: Arial, Helvetica, sans-serif; margin: 0; background: #f7f9fc; color: #1a1a1a;}
-    header {background: #0d1b2a; color: #fff; padding: 28px; text-align: center;}
-    h1 {margin: 0;}
-    .section {padding: 32px; max-width: 900px; margin: auto;}
-    .block {background: #ffffff; padding: 20px; margin: 14px 0; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);}    
-    h2, h3 {color: #0d1b2a; margin-top: 0;}
-    a {color: #1b263b;}
+    body {font-family: Arial, Helvetica, sans-serif; margin:0; background:#f7f9fc; color:#1a1a1a; line-height:1.6;}
+    header {background:#0d1b2a; color:#fff; padding:40px; text-align:center;}
+    .nav-buttons {
+      background:rgba(255,255,255,0.95);
+      backdrop-filter:blur(10px);
+      padding:12px 20px;
+      text-align:center;
+      position:sticky;
+      top:0;
+      z-index:100;
+      box-shadow:0 1px 3px rgba(0,0,0,0.08);
+      border-bottom:1px solid rgba(13,27,42,0.1);
+    }
+    .nav-buttons a {
+      display:inline-block;
+      color:#0d1b2a;
+      padding:6px 16px;
+      margin:0 4px;
+      border-radius:20px;
+      text-decoration:none;
+      font-size:0.9em;
+      font-weight:500;
+      transition:all 0.2s ease;
+      border:1px solid transparent;
+    }
+    .nav-buttons a:hover {
+      background:#f0f4f8;
+      border-color:#0d1b2a;
+    }
+    .container {max-width:900px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+    h1, h2 {color:#0d1b2a;}
+    .group-name {
+      font-size:1.5em;
+      font-weight:600;
+      margin-top:12px;
+      color:#ffffff !important;
+    }
+    img {max-width:100%; height:auto; border-radius:8px; margin:20px 0; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+    .back {display:inline-block; margin:20px 0; color:#0d1b2a; text-decoration:none; font-weight:bold;}
+    .back:hover {text-decoration:underline;}
+    section {scroll-margin-top:80px;}
   </style>
 </head>
 <body>
-  <header>
-    <h1>DPMIC Project</h1>
-    <p>EE6350 VLSI Design Lab, Spring 2025</p>
-    <p><a href="index.html" style="color:#fff; text-decoration:underline;">← Back to Homepage</a></p>
-  </header>
+<header>
+  <h1 style="color: white;">dpmic Project</h1>
+  <p>EE6350 VLSI Design Lab – Spring 2025</p>
+</header>
 
-  <div class="section">
-    <div class="block"><h3>Introduction</h3><p>Write content here…</p></div>
-    <div class="block"><h3>System Architecture</h3><p>Write content here…</p></div>
-    <div class="block"><h3>Design Flow</h3><p>Write content here…</p></div>
-    <div class="block"><h3>Software & Testing Flow</h3><p>Write content here…</p></div>
-    <div class="block"><h3>PCB Design</h3><p>Write content here…</p></div>
+<nav class="nav-buttons">
+  <a href="#overview">Overview</a>
+  <a href="#chip-photo">Chip Photo</a>
+  <a href="#block-diagram">Block Diagram</a>
+  <a href="#measurements">Measurements</a>
+  <a href="#demo">Demo Video</a>
+  <a href="#team">Team</a>
+</nav>
 
-    <div class="block">
-      <h3>Demonstration</h3>
-      <p>
-        Write content here…<br><br>
-        <img src="Figures/Figure.jpg" alt="Project Figure" style="max-width:100%; border-radius:8px;" /><br><br>
-        <iframe width="100%" height="400" src="https://www.youtube.com/embed/rGpk3MRSOx4?start=1" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </p>
-    </div>
-
-    <div class="block"><h3>Chip Specifications</h3><p>Write content here…</p></div>
-    <div class="block"><h3>Conclusions</h3><p>Write content here…</p></div>
-    <div class="block"><h3>References</h3><p>Write content here…</p></div>
-    <div class="block"><h3>Acknowledgments</h3><p>Write content here…</p></div>
-  </div>
+<div class="container">
+  <a class="back" href="../index.html">← Back to all projects</a>
+  
+  <section id="overview">
+    <h2>Project Overview</h2>
+    <p>
+      A GPU implemented in SystemVerilog and fabricated in TSMC 65 nm.
+      Features a simple rasterizer, texture unit, and RISC-V compatible control core.
+    </p>
+  </section>
+  
+  <section id="chip-photo">
+    <h2>Chip Photo & Layout</h2>
+    <img src="../images/dpmic/chip_photo.jpg" alt="dpmic die photo">
+    <img src="../images/dpmic/layout.png" alt="Full chip layout">
+  </section>
+  
+  <section id="block-diagram">
+    <h2>Block Diagram</h2>
+    <img src="../images/dpmic/block_diagram.png" alt="dpmic block diagram">
+  </section>
+  
+  <section id="measurements">
+    <h2>Measurement Results</h2>
+    <img src="../images/dpmic/scope_render.png" alt="Scope capture of rendered frame">
+    <img src="../images/dpmic/power_measurement.jpg" alt="Power measurement">
+  </section>
+  
+  <section id="demo">
+    <h2>Demo Video</h2>
+    <iframe width="100%" height="400" src="https://www.youtube.com/embed/rGpk3MRSOx4?start=1" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </section>
+  
+  <section id="team">
+    <h2>Team</h2>
+    <ul>
+      <li>John Doe</li>
+      <li>Jane Smith</li>
+      <li>Alex Kim</li>
+      <li>Maria Garcia</li>
+    </ul>
+  </section>
+  
+  <a class="back" href="../index.html">← Back to all projects</a>
+</div>
 </body>
 </html>
