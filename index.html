@@ -8,7 +8,9 @@
     body {font-family: Arial, Helvetica, sans-serif; margin: 0; background: #f7f9fc; color: #1a1a1a;}
     header {background: #0d1b2a; color: #fff; padding: 32px; text-align: center;}
     h1 {margin: 0;}
-    .groups {max-width: 700px; margin: 40px auto; padding: 20px;}
+    .container {max-width: 800px; margin: 40px auto; padding: 20px;}
+    .section {margin-bottom: 50px;}
+    h2 {color: #0d1b2a; border-bottom: 2px solid #0d1b2a; padding-bottom: 8px;}
     a.group-link {
       display: block;
       background: #ffffff;
@@ -19,8 +21,10 @@
       color: #0d1b2a;
       font-size: 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: background 0.2s;
     }
     a.group-link:hover {background: #e8edf3;}
+    .previous {font-size: 18px;}
   </style>
 </head>
 <body>
@@ -29,13 +33,29 @@
     <p>Projects Demo</p>
   </header>
 
-  <div class="groups">
-    <a class="group-link" href="html/microgpu.html">microGPU_spring2025</a>
-    <a class="group-link" href="html/soc.html">SoC_spring2025</a>
-    <a class="group-link" href="html/nanologic.html">NanoLogic_spring2025</a>
-    <a class="group-link" href="html/simo.html">SIMO_spring2025</a>
-    <a class="group-link" href="html/dpmic.html">DPMIC_spring2025</a>
-  </div>
+  <div class="container">
 
+    <!-- Spring 2025 Projects -->
+    <div class="section">
+      <h2>Spring 2025 Projects</h2>
+      <a class="group-link" href="html/microgpu.html">microGPU_spring2025</a>
+      <a class="group-link" href="html/soc.html">SoC_spring2025</a>
+      <a class="group-link" href="html/nanologic.html">NanoLogic_spring2025</a>
+      <a class="group-link" href="html/simo.html">SIMO_spring2025</a>
+      <a class="group-link" href="html/dpmic.html">DPMIC_spring2025</a>
+    </div>
+
+    <!-- Previous Years -->
+    <div class="section">
+      <h2>Previous Years</h2>
+      <a class="group-link previous" href="https://www.ee.columbia.edu/~kinget/EE6350_S24/">
+        Spring 2024 Projects
+      </a>
+      <!-- Add more years here in the future, e.g.:
+      <a class="group-link previous" href="https://...">Spring 2023 Projects</a>
+      -->
+    </div>
+
+  </div>
 </body>
 </html>
