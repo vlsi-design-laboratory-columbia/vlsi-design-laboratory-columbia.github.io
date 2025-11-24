@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DPMIC - EE6350 Spring 2025</title>
+  <title>microGPU - EE6350 Spring 2025</title>
   <style>
     * {margin: 0; padding: 0; box-sizing: border-box;}
     
@@ -54,7 +54,7 @@
       position: relative;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 80px 40px 60px;
+      padding: 40px 40px 30px;
       text-align: center;
       z-index: 1;
     }
@@ -78,7 +78,7 @@
       font-size: 3.2em;
       font-weight: 600;
       letter-spacing: -0.5px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       color: #ffffff;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
@@ -88,9 +88,9 @@
     .header-meta {
       display: flex;
       justify-content: center;
-      gap: 24px;
+      gap: 20px;
       flex-wrap: wrap;
-      margin-top: 20px;
+      margin-top: 10px;
       font-size: 0.9em;
       opacity: 0.9;
     }
@@ -104,6 +104,39 @@
     .header-meta-item::before {
       content: '●';
       color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Author Info */
+    .author-info {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .authors-list {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .author-name {
+      font-size: 1em;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+      text-decoration: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: inline-block;
+    }
+    
+    .author-name:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.35);
+      transform: translateY(-1px);
     }
     
     /* Navigation - sleek and modern */
@@ -397,12 +430,19 @@
 <body>
 <header>
   <div class="header-content">
-    <div class="project-badge">VLSI Design Project</div>
-    <h1>DPMIC</h1>
+    <h1>microGPU</h1>
     <div class="header-meta">
       <span class="header-meta-item">EE6350 Spring 2025</span>
       <span class="header-meta-item">Columbia University</span>
       <span class="header-meta-item">TSMC 65nm</span>
+    </div>
+    
+    <div class="author-info">
+      <div class="authors-list">
+        <a href="mailto:email@columbia.edu" class="author-name">[Author Name 1]</a>
+        <a href="https://linkedin.com/in/username" target="_blank" class="author-name">[Author Name 2]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Author Name 3]</a>
+      </div>
     </div>
   </div>
 </header>
