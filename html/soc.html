@@ -5,108 +5,588 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SoC - EE6350 Spring 2025</title>
   <style>
-    body {font-family: Arial, Helvetica, sans-serif; margin:0; background:#f7f9fc; color:#1a1a1a; line-height:1.6;}
-    header {background:#0d1b2a; color:#fff; padding:40px; text-align:center;}
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    
+    :root {
+      --primary: #1e3a5f;
+      --primary-light: #2c5282;
+      --accent: #5d9cec;
+      --accent-light: #8ebaf5;
+      --columbia-blue: #b3d9ff;
+      --bg-light: #f8fafc;
+      --text-dark: #1a202c;
+      --text-gray: #4a5568;
+      --border: #e2e8f0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      background: #f7f9fc;
+      color: var(--text-dark);
+      line-height: 1.7;
+    }
+    
+    /* Header with gradient and modern design */
+    header {
+      background: linear-gradient(135deg, #5d9cec 0%, #7db3f5 50%, #9ec9f8 100%);
+      color: #ffffff;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Decorative background pattern */
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .header-content {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 40px 60px;
+      text-align: center;
+      z-index: 1;
+    }
+    
+    /* Project type badge */
+    .project-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    header h1 {
+      font-size: 3.2em;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+
+    
+    .header-meta {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+    
+    .header-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .header-meta-item::before {
+      content: '●';
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Navigation - sleek and modern */
     .nav-buttons {
-      background:rgba(255,255,255,0.95);
-      backdrop-filter:blur(10px);
-      padding:12px 20px;
-      text-align:center;
-      position:sticky;
-      top:0;
-      z-index:100;
-      box-shadow:0 1px 3px rgba(0,0,0,0.08);
-      border-bottom:1px solid rgba(13,27,42,0.1);
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--border);
     }
+    
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 40px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    
     .nav-buttons a {
-      display:inline-block;
-      color:#0d1b2a;
-      padding:6px 16px;
-      margin:0 4px;
-      border-radius:20px;
-      text-decoration:none;
-      font-size:0.9em;
-      font-weight:500;
-      transition:all 0.2s ease;
-      border:1px solid transparent;
+      display: inline-block;
+      color: var(--text-dark);
+      padding: 8px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9em;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
     }
+    
     .nav-buttons a:hover {
-      background:#f0f4f8;
-      border-color:#0d1b2a;
+      color: var(--accent);
+      background: var(--bg-light);
     }
-    .container {max-width:900px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-    h1, h2 {color:#0d1b2a;}
-    .group-name {
-      font-size:1.5em;
-      font-weight:600;
-      margin-top:12px;
-      color:#ffffff !important;
+    
+    /* Container */
+    .container {
+      max-width: 1000px;
+      margin: 50px auto;
+      padding: 60px 50px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
     }
-    img {max-width:100%; height:auto; border-radius:8px; margin:20px 0; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-    .back {display:inline-block; margin:20px 0; color:#0d1b2a; text-decoration:none; font-weight:bold;}
-    .back:hover {text-decoration:underline;}
-    section {scroll-margin-top:80px;}
+    
+    /* Back Link */
+    .back {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 40px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95em;
+      padding: 10px 18px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+    
+    .back:hover {
+      background: var(--bg-light);
+      border-color: var(--accent);
+      transform: translateX(-4px);
+    }
+    
+    .back::before {
+      content: '←';
+      margin-right: 8px;
+      font-size: 1.3em;
+      transition: transform 0.3s ease;
+    }
+    
+    .back:hover::before {
+      transform: translateX(-4px);
+    }
+    
+    /* Sections */
+    section {
+      scroll-margin-top: 100px;
+      margin-bottom: 70px;
+      padding-bottom: 50px;
+      border-bottom: 2px solid var(--bg-light);
+    }
+    
+    section:last-of-type {
+      border-bottom: none;
+    }
+    
+    h2 {
+      color: var(--primary);
+      font-size: 2.2em;
+      font-weight: 600;
+      margin-bottom: 24px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    
+    h3 {
+      color: var(--primary-light);
+      font-size: 1.5em;
+      font-weight: 600;
+      margin-top: 36px;
+      margin-bottom: 16px;
+    }
+    
+    .instruction-text {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-left: 4px solid #5d9cec;
+      padding: 16px 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      color: #1e3a5f;
+      font-size: 0.95em;
+      font-style: italic;
+    }
+    
+    p {
+      color: #4a5568;
+      font-size: 1.05em;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    
+    /* Images */
+    .image-placeholder {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
+      border-radius: 12px;
+      margin: 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed var(--border);
+      color: var(--text-light);
+      font-size: 1.1em;
+      font-weight: 500;
+    }
+    
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      margin: 24px 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      border: 1px solid var(--border);
+    }
+    
+    /* Video */
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      margin: 24px 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      border: 1px solid var(--border);
+    }
+    
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    /* Specs Table */
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .specs-table th,
+    .specs-table td {
+      padding: 18px 24px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .specs-table th {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      font-weight: 600;
+      font-size: 0.9em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .specs-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .specs-table tr:hover {
+      background: var(--bg-light);
+    }
+    
+    .specs-table td:first-child {
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    
+    /* Team Grid */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin: 30px 0;
+    }
+    
+    .team-member {
+      background: linear-gradient(135deg, var(--bg-light) 0%, #edf2f7 100%);
+      padding: 28px 24px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    
+    .team-member:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+      border-color: var(--accent);
+    }
+    
+    .team-member strong {
+      color: var(--primary);
+      font-size: 1.15em;
+      display: block;
+      margin-bottom: 8px;
+    }
+    
+    .team-member span {
+      color: var(--text-gray);
+      font-size: 0.9em;
+      display: block;
+    }
+    
+    /* Footer */
+    footer {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: rgba(255,255,255,0.95);
+      padding: 40px 20px;
+      text-align: center;
+      margin-top: 80px;
+    }
+    
+    footer p {
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 8px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {padding: 70px 30px 50px;}
+      header h1 {font-size: 2.2em;}
+      .header-subtitle {font-size: 1.1em;}
+      .container {padding: 40px 30px; margin: 30px 20px;}
+      h2 {font-size: 1.8em;}
+      .nav-container {padding: 12px 20px;}
+      .nav-buttons a {font-size: 0.85em; padding: 8px 16px;}
+      .image-placeholder {height: 250px; font-size: 0.95em;}
+    }
   </style>
 </head>
 <body>
 <header>
-  <h1 style="color: white;">SoC Project</h1>
-  <p>EE6350 VLSI Design Lab – Spring 2025</p>
+  <div class="header-content">
+    <div class="project-badge">VLSI Design Project</div>
+    <h1>SoC</h1>
+    <div class="header-meta">
+      <span class="header-meta-item">EE6350 Spring 2025</span>
+      <span class="header-meta-item">Columbia University</span>
+      <span class="header-meta-item">TSMC 65nm</span>
+    </div>
+  </div>
 </header>
 
 <nav class="nav-buttons">
-  <a href="#overview">Overview</a>
-  <a href="#chip-photo">Chip Photo</a>
-  <a href="#block-diagram">Block Diagram</a>
-  <a href="#measurements">Measurements</a>
-  <a href="#demo">Demo Video</a>
-  <a href="#team">Team</a>
+  <div class="nav-container">
+    <a href="#introduction">Introduction</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#design-flow">Design Flow</a>
+    <a href="#software">Software & Testing</a>
+    <a href="#pcb">PCB Design</a>
+    <a href="#demo">Demonstration</a>
+    <a href="#specs">Specifications</a>
+    <a href="#conclusions">Conclusions</a>
+    <a href="#references">References</a>
+    <a href="#acknowledgments">Acknowledgments</a>
+  </div>
 </nav>
 
 <div class="container">
-  <a class="back" href="../index.html">← Back to all projects</a>
+  <a class="back" href="../index.html">Back to all projects</a>
   
-  <section id="overview">
-    <h2>Project Overview</h2>
-    <p>
-      A GPU implemented in SystemVerilog and fabricated in TSMC 65 nm.
-      Features a simple rasterizer, texture unit, and RISC-V compatible control core.
-    </p>
+  <section id="introduction">
+    <h2>Introduction</h2>
+    <p class="instruction-text">[Replace with project introduction: Describe the motivation, objectives, and overview of your chip design. Explain why this project is important and what problems it aims to solve.]</p>
+    <div class="image-placeholder">Insert chip photo or project overview image</div>
   </section>
   
-  <section id="chip-photo">
-    <h2>Chip Photo & Layout</h2>
-    <img src="../images/SoC/chip_photo.jpg" alt="SoC die photo">
-    <img src="../images/SoC/layout.png" alt="Full chip layout">
+  <section id="architecture">
+    <h2>System Architecture</h2>
+    <p class="instruction-text">[Replace with system architecture description: Explain the overall architecture, main functional blocks, and how they interact. Include block diagrams and architectural decisions.]</p>
+    
+    <h3>Main Components</h3>
+    <p class="instruction-text">[Describe each major component: processing cores, memory subsystems, I/O interfaces, control logic, etc.]</p>
+    
+    <div class="image-placeholder">Insert block diagram</div>
   </section>
   
-  <section id="block-diagram">
-    <h2>Block Diagram</h2>
-    <img src="../images/SoC/block_diagram.png" alt="SoC block diagram">
+  <section id="design-flow">
+    <h2>Design Flow</h2>
+    <p class="instruction-text">[Replace with design flow description: Detail the steps from RTL design to tape-out, including synthesis, place-and-route, verification, and signoff processes.]</p>
+    
+    <h3>RTL Design</h3>
+    <p class="instruction-text">[Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]</p>
+    
+    <h3>Physical Design</h3>
+    <p class="instruction-text">[Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]</p>
+    
+    <div class="image-placeholder">Insert layout screenshot</div>
   </section>
   
-  <section id="measurements">
-    <h2>Measurement Results</h2>
-    <img src="../images/SoC/scope_render.png" alt="Scope capture of rendered frame">
-    <img src="../images/SoC/power_measurement.jpg" alt="Power measurement">
+  <section id="software">
+    <h2>Software & Testing Flow</h2>
+    <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
+    
+    <h3>Software Development</h3>
+    <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
+    
+    <h3>Testing Methodology</h3>
+    <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
+  </section>
+  
+  <section id="pcb">
+    <h2>PCB Design</h2>
+    <p class="instruction-text">[Replace with PCB design description: Detail the test board architecture, power delivery, signal integrity considerations, and measurement infrastructure.]</p>
+    
+    <h3>Board Architecture</h3>
+    <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
+    
+    <h3>Power Distribution</h3>
+    <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
   </section>
   
   <section id="demo">
-    <h2>Demo Video</h2>
-    <iframe width="100%" height="400" src="https://www.youtube.com/embed/rGpk3MRSOx4?start=1" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <h2>Demonstration</h2>
+    <p class="instruction-text">[Replace with demonstration description: Show working examples, test results, and real-world performance of your chip.]</p>
+    
+    <div class="image-placeholder">Insert demonstration photo or screenshot</div>
+    
+    <h3>Video Demonstration</h3>
+    <div class="video-container">
+      <iframe src="https://www.youtube.com/embed/rGpk3MRSOx4?start=1" title="Project demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
   </section>
   
-  <section id="team">
-    <h2>Team</h2>
-    <ul>
-      <li>John Doe</li>
-      <li>Jane Smith</li>
-      <li>Alex Kim</li>
-      <li>Maria Garcia</li>
-    </ul>
+  <section id="specs">
+    <h2>Chip Specifications</h2>
+    <p class="instruction-text">[Replace with chip specifications: Provide detailed technical specifications and measured performance metrics.]</p>
+    
+    <table class="specs-table">
+      <tr>
+        <th>Parameter</th>
+        <th>Specification</th>
+      </tr>
+      <tr>
+        <td>Technology</td>
+        <td>[e.g., TSMC 65nm LP]</td>
+      </tr>
+      <tr>
+        <td>Die Size</td>
+        <td>[e.g., 2.5mm × 2.5mm]</td>
+      </tr>
+      <tr>
+        <td>Gate Count</td>
+        <td>[e.g., ~180,000 gates]</td>
+      </tr>
+      <tr>
+        <td>Operating Frequency</td>
+        <td>[e.g., 100 MHz]</td>
+      </tr>
+      <tr>
+        <td>Supply Voltage</td>
+        <td>[e.g., 1.2V core, 2.5V I/O]</td>
+      </tr>
+      <tr>
+        <td>Power Consumption</td>
+        <td>[e.g., 85 mW typical]</td>
+      </tr>
+      <tr>
+        <td>Performance Metric</td>
+        <td>[e.g., throughput, latency]</td>
+      </tr>
+      <tr>
+        <td>Package</td>
+        <td>[e.g., QFN-64]</td>
+      </tr>
+    </table>
   </section>
   
-  <a class="back" href="../index.html">← Back to all projects</a>
+  <section id="conclusions">
+    <h2>Conclusions</h2>
+    <p class="instruction-text">[Replace with conclusions: Summarize achievements, lessons learned, challenges overcome, and potential future improvements.]</p>
+    
+    <h3>Key Achievements</h3>
+    <p class="instruction-text">[List major accomplishments and successful design outcomes.]</p>
+    
+    <h3>Lessons Learned</h3>
+    <p class="instruction-text">[Discuss important insights gained during the design process.]</p>
+    
+    <h3>Future Work</h3>
+    <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
+  </section>
+  
+  <section id="references">
+    <h2>References</h2>
+    <p class="instruction-text">[Replace with references: List academic papers, technical manuals, and other resources cited in your project.]</p>
+    <ol style="margin-left: 25px; color: var(--text-gray);">
+      <li style="margin-bottom: 12px;">[Reference 1: Author, Title, Publication, Year]</li>
+      <li style="margin-bottom: 12px;">[Reference 2: Author, Title, Publication, Year]</li>
+      <li style="margin-bottom: 12px;">[Reference 3: Author, Title, Publication, Year]</li>
+    </ol>
+  </section>
+  
+  <section id="acknowledgments">
+    <h2>Acknowledgments</h2>
+    <p class="instruction-text">[Replace with acknowledgments: Thank advisors, sponsors, lab staff, and others who contributed to the project.]</p>
+    
+    <h3>Team Members</h3>
+    <div class="team-grid">
+      <div class="team-member">
+        <strong>[Name]</strong>
+        <span>[Role/Contribution]</span>
+      </div>
+      <div class="team-member">
+        <strong>[Name]</strong>
+        <span>[Role/Contribution]</span>
+      </div>
+      <div class="team-member">
+        <strong>[Name]</strong>
+        <span>[Role/Contribution]</span>
+      </div>
+      <div class="team-member">
+        <strong>[Name]</strong>
+        <span>[Role/Contribution]</span>
+      </div>
+    </div>
+  </section>
+  
+  <a class="back" href="../index.html">Back to all projects</a>
 </div>
+
+<footer>
+  <p>EE6350 VLSI Design Lab · Department of Electrical Engineering · Columbia University</p>
+  <p style="margin-top: 8px; font-size: 0.9em; opacity: 0.8;">Spring 2025</p>
+</footer>
 </body>
 </html>
