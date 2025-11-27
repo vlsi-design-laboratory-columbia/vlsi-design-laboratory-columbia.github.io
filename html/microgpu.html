@@ -726,6 +726,51 @@
 	  </ol>
 
       <h3>Frontend Design</h3>
+      The front design process focused on RTL designs and verifications. We started from using the open source project Tiniest-GPU [] to estimate the area and timing, and shifted to design our own versions with the new architecture that supports up to 2560 vertices and 1280 triangles. As described in the system architecture, IA, VS, RA, BF and Pixel modules are implemented from scratch and VGA controller is being modified so that it oeprates correctly with 250 MHz target clock frequency. Throughout the iterations, we have encounterd several timing issues at Post-APR stage, which enforced us to revisit the RTL. These modifications included replacing square root and division modules with DW library, adding synchronization logic for the output VGA control signals and color buses and breaking long stages so that setup timing can all be met.
+
+        <table class="specs-table">
+          <tr>
+            <th>Version</th>
+            <th>Features</th>
+          </tr>
+          <tr>
+            <td>0.0</td>
+            <td>Tiniest-GPU 2-Triangle Baseline</td>
+          </tr>
+          <tr>
+            <td>1.0 (Algorithm Prototyping) </td>
+            <td>Parallel computations with 8 vertices and 12 triangles</td>
+          </tr>
+          <tr>
+            <td>2.0 (Engine HW Design)</td>
+            <td>Multi-cycle version with pipelines with full functionalities</td>
+          </tr>
+          <tr>
+            <td>2.1</td>
+            <td>Integration with Scan Chain</td>
+          </tr>
+          <tr>
+            <td>2.2</td>
+            <td>Integration with SRAMs</td>
+          </tr>
+          <tr>
+            <td>2.3</td>
+            <td>Integration with Clock Generator</td>
+          </tr>
+          <tr>
+            <td>2.4</td>
+            <td>Integration with Test FSM</td>
+          </tr>
+          <tr>
+            <td>3.0 (Post-APR Changes)</td>
+            <td>Replacement with DW math modules</td>
+          </tr>
+          <tr>
+            <td>3.1</td>
+            <td>Post-APR timing issue fixes</td>
+          </tr>
+
+        </table>
       <h3>Backend Design</h3>
         <h4>Automatic Place & Route</h4>
         <h4>I/O Port Integration</h4>
