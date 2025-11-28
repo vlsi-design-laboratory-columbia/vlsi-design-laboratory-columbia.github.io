@@ -779,13 +779,37 @@
 
   <section id="software">
     <h2>Software & Testing Flow</h2>
+    <p class="instruction-text">For testing and demo purposes, we utilize a DE1-SOC FPGA board. The PCB and the FPGA modules are connected through the 40-pin GPIO buses.</p>
     <img src="../images/microgpu/demo_diagram.png" alt="microGPU test diagram">
-    <!-- TODO -->
       <h3>FPGA Transmitter</h3>
+      As the testing flow requires a lot of data transmision from 3D obejct model files, and real-time configuration of the rendering, we built a full SoC on FPGA. One part is the ARM Cortex A9 core on the FPGA and we used it to run a Linux OS that we can communicate with the hardware through kernel modules and read USB keyboard input for our application. The other part is the FPGA fabric, which implments the transmitters.
+      <br><br>
         <h4>Software</h4>
+        The software consists of three parts
+        <ol class="list">
+            <li> Kernel Driver: The driver includes the ioctl method that the userspace application can dispatch data to the transmitter and initiate one tranmission. It also contains the kernel module configuration files so that when the Linux system boots up, this kernel module can be loaded automatically</li>
+            <li> USB Driver: This is obtained from [] which is used to handle the USB communication with the keyboard.</li>
+            <li> Main Application:
+                <ul>
+                    <li>Starts from loading the 3D model file using methods shared across the software reference model and the testbench driver.</li>
+                    <li>Completes the scan chain loading sequence using the ioctl control functions</li>
+                    <li>Initializes the USB keyboard context and listens for keypress events in the main loop. After the user issues a command, it invokes corresponding UART transmitter configuration functions</li>
+                </ul>
+        </ol>
+        <br>
         <h4>Hardware</h4>
-          <h5>Clock Generator Parameters</h5>
+        The complete FPGA hardware is instantiated using Altera Qsys, where the FPGA transmitters are connected with the ARM core through Avalon Bus.
+        <br><br>
+        There are two custom transmitters implemented by the team on the FPGA fabric, one for the Scan Chain, and the other for UART.<br>
+        For the scan chain transmitter, there are 12 programmable register addresses that could be accessed by the kernel driver, which correspond to the 12 fileds in one scan chain request. There is also one register allocated for starting off the trasmission. This tranmitter toogles <i>phi</i>, <i>phib</i> and deserializes the packed scan chain word to signal <i>scan_in</i>. Overall, to complete one word transmission, it takes at least 91 cycles (12 + 78 + 1). However, as the SC_BIT_SHIFT and SC_LOAD stage need to drive signals to the GPIO and eventually to the chip through level shifters, these stages takes multiple (50) cycles for one bit change in our testing setup.
+        <br>
+        <img src="../images/microgpu/sc_wave.png" alt="Scan Chain Wave Form">
+        <br>
+        For the UART transmitter, there are 43 resigters as described in the IA module. After the write received to the address indicating a start, the UART tx will drive the signals following the protocol with 11520 bit/s baud rate which aligns with the chip rx.
+        <br>
+        All the FPGA hardware runs at 50 MHz.
       <h3>FPGA VGA DAC</h3>
+      On the FPGA, the VGA DAC is used to translate the digital pixel values and VGA synchronization signals produced by the chip into the analog voltage levels required by standard VGA displays.
       <h3>Testing Methodology</h3>
         <h4>Pre-silicon</h4>
         <h4>Post-silicon</h4>
