@@ -471,10 +471,10 @@
   <section id="introduction">
     <h2>Introduction</h2>
     <p class="instruction-text">
-    In modern automotive and industrial electronic systems, DC-DC converters have become increasingly important due to the rising demand for high efficiency and reliable operation across a wide load and environmental conditions. Traditional analog-controlled converters often struggle to balance fast transient response, stability, and digital integration requirements in advanced CMOS processes. These challenges motivate the design of a digitally assisted power converter that can achieve both high performance and high robustness.
+      In modern automotive and industrial electronic systems, DC-DC converters have become increasingly important due to the rising demand for high efficiency and reliable operation across a wide load and environmental conditions. Traditional analog-controlled converters often struggle to balance fast transient response, stability, and digital integration requirements in advanced CMOS processes. These challenges motivate the design of a digitally assisted power converter that can achieve both high performance and high robustness.
     </p>
     <p class="instruction-text">
-    This project aims to design a digital PID-controlled CMOS DC-DC buck converter featuring zero-crossing detection (ZCD) for enhanced switching efficiency (in DCM). The objective is to achieve stable regulation across a wide output range while minimizing switching loss, improving transient response, and enabling seamless integration with digital system-on-chip architectures. By leveraging a digital PID controller, the converter benefits from programmability, PVT tolerance, and predictable loop dynamics compared with traditional analog control methods.
+      This project aims to design a digital PID-controlled CMOS DC-DC buck converter featuring zero-crossing detection (ZCD) for enhanced switching efficiency (in DCM). The objective is to achieve stable regulation across a wide output range while minimizing switching loss, improving transient response, and enabling seamless integration with digital system-on-chip architectures. By leveraging a digital PID controller, the converter benefits from programmability, PVT tolerance, and predictable loop dynamics compared with traditional analog control methods.
     </p>
     <!-- <p class="instruction-text">[Replace with project introduction: Describe the motivation, objectives, and overview of your chip design. Explain why this project is important and what problems it aims to solve.]</p> -->
     <img src="../images/dpmic/die_photo.png">
@@ -483,7 +483,9 @@
   
   <section id="architecture">
     <h2>System Architecture</h2>
-    <p class="instruction-text">[Blocks designed in the proposed converter include flash ADC, power FETs, gate drivers, non-overlap dead-time generation, DCVS level shifters, a PID controller, digital PWM waveform generation, a zero-crossing detection (ZCD) module, scan chain logic, and clock generation blocks. The LCR output stage is implemented off-chip due to its large passive component requirements.]</p>
+    <p class="instruction-text">
+      Blocks designed in the proposed converter include flash ADC, power FETs, gate drivers, non-overlap dead-time generation, DCVS level shifters, a PID controller, digital PWM waveform generation, a zero-crossing detection (ZCD) module, scan chain logic, and clock generation blocks. The LCR output stage is implemented off-chip due to its large passive component requirements.
+    </p>
     <img src="../images/dpmic/block_diagram.png">
     
     <h3>Main Components</h3>
@@ -496,7 +498,7 @@
   <section id="design-flow">
     <h2>Design Flow</h2>
     <p class="instruction-text">[Replace with design flow description: Detail the steps from RTL design to tape-out, including synthesis, place-and-route, verification, and signoff processes.]</p>
-    
+    <img src="../images/dpmic/design_flow.png">
     <h3>RTL Design</h3>
     <p class="instruction-text">[Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]</p>
     
@@ -551,35 +553,39 @@
       </tr>
       <tr>
         <td>Technology</td>
-        <td>[e.g., TSMC 65nm LP]</td>
+        <td>TSMC 65nm</td>
       </tr>
       <tr>
         <td>Die Size</td>
-        <td>[e.g., 2.5mm × 2.5mm]</td>
+        <td>2mm × 2mm</td>
       </tr>
       <tr>
-        <td>Gate Count</td>
-        <td>[e.g., ~180,000 gates]</td>
+        <td>Input Voltage</td>
+        <td>2.5V</td>
       </tr>
       <tr>
-        <td>Operating Frequency</td>
-        <td>[e.g., 100 MHz]</td>
+        <td>Output Voltage</td>
+        <td>0.9~1.8V</td>
       </tr>
       <tr>
         <td>Supply Voltage</td>
-        <td>[e.g., 1.2V core, 2.5V I/O]</td>
+        <td>1V core, 2.5V I/O</td>
       </tr>
       <tr>
-        <td>Power Consumption</td>
-        <td>[e.g., 85 mW typical]</td>
+        <td>Output Voltage Ripple</td>
+        <td>10mV</td>
       </tr>
       <tr>
-        <td>Performance Metric</td>
-        <td>[e.g., throughput, latency]</td>
+        <td>Current Ripple</td>
+        <td>100mA</td>
+      </tr>
+      <tr>
+        <td>Switching Frequency</td>
+        <td>1MHz</td>
       </tr>
       <tr>
         <td>Package</td>
-        <td>[e.g., QFN-64]</td>
+        <td>QFP-64L</td>
       </tr>
     </table>
   </section>
@@ -615,19 +621,27 @@
     <h3>Team Members</h3>
     <div class="team-grid">
       <div class="team-member">
-        <strong>[Name]</strong>
+        <strong>Hongxin Xu</strong>
         <span>[Role/Contribution]</span>
       </div>
       <div class="team-member">
-        <strong>[Name]</strong>
+        <strong>Andi Li</strong>
         <span>[Role/Contribution]</span>
       </div>
       <div class="team-member">
-        <strong>[Name]</strong>
+        <strong>Ziyang Wang</strong>
         <span>[Role/Contribution]</span>
       </div>
       <div class="team-member">
-        <strong>[Name]</strong>
+        <strong>Sean Chou</strong>
+        <span>[Role/Contribution]</span>
+      </div>
+      <div class="team-member">
+        <strong>Haoran Zhao</strong>
+        <span>[Role/Contribution]</span>
+      </div>
+      <div class="team-member">
+        <strong>Yuxiao Ma</strong>
         <span>[Role/Contribution]</span>
       </div>
     </div>
