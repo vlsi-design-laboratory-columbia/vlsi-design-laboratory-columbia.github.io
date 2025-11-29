@@ -489,8 +489,13 @@
     <img src="../images/dpmic/block_diagram.png">
     
     <h3>Main Components</h3>
-    <p class="instruction-text">[Describe each major component: processing cores, memory subsystems, I/O interfaces, control logic, etc.]</p>
+    <p class="instruction-text">
+      The converter employs a flash ADC architecture to provide the high-speed conversion needed for fast control loops. Because a buck converter does not require high resolution, a 3-bit ADC was selected to balance performance, area, and complexity, resulting in a reasonable number of comparators. Each comparator uses a strong-arm latch topology, chosen for its high speed and low power consumption.
+    </p>
     <img src="../images/dpmic/adc_cmp.png">
+    <p class="instruction-text">
+      To further reduce comparison delay and input-referred offset, the input differential pair is upsized to improve transconductance and mitigate device mismatch. The remaining transistors in the latch are kept smaller than the input-pair to minimize parasitic capacitances, thereby lowering delay. Additionally, decoupling capacitors can be introduced to reduce clock feedthrough and kickback noise, improving overall comparator accuracy.
+    </p>
     <img src="../images/dpmic/levelshifter_deadtime_buffer.png">
     <!-- <div class="image-placeholder">Insert block diagram</div> -->
   </section>
@@ -504,6 +509,7 @@
     
     <h3>Physical Design</h3>
     <p class="instruction-text">[Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]</p>
+    <img src="../images/dpmic/floor_plan.png">
     <img src="../images/dpmic/chip_layout.png">
     <!-- <div class="image-placeholder">Insert layout screenshot</div> -->
   </section>
