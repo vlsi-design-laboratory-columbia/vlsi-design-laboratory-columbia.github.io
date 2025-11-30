@@ -432,16 +432,18 @@
   <div class="header-content">
     <h1>SoC</h1>
     <div class="header-meta">
-      <span class="header-meta-item">EE6350 Spring 2025</span>
-      <span class="header-meta-item">Columbia University</span>
+      <span class="header-meta-item">System On Chip</span>
+      <span class="header-meta-item">Vector Processing Unit</span>
       <span class="header-meta-item">TSMC 65nm</span>
     </div>
     
     <div class="author-info">
       <div class="authors-list">
-        <a href="mailto:email@columbia.edu" class="author-name">[Author Name 1]</a>
-        <a href="https://linkedin.com/in/username" target="_blank" class="author-name">[Author Name 2]</a>
-        <a href="mailto:email@columbia.edu" class="author-name">[Author Name 3]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Jiajun Jiang]</a>
+        <a href="https://www.linkedin.com/in/zhenningyang509/" target="_blank" class="author-name">[Zhenning Yang]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Yicheng Huang]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Zhuohao Chang]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Yu Jia]</a>
       </div>
     </div>
   </div>
@@ -475,7 +477,7 @@
   <section id="architecture">
     <h2>System Architecture</h2>
     <p class="instruction-text">[This diagram illustrates the architecture of our RISC-V based System-on-Chip (SoC). At its core, a RISC-V processor is paired with a dedicated Vector Processing Unit to handle accelerated parallel computations. These processing units communicate with system resources via a central AXI-Lite Interconnect. Essential external communication is handled through UART and SPI interfaces. Additionally, the design incorporates support infrastructure, including a Clock Generator, Finite State Machine (FSM), and a Scan Chain for hardware testing and debugging.]</p>
-    <!-- <img src="../images/soc/Chip_Raw_Labelled.jpg"> -->
+    <img src="../images/soc/SystemArch.jpg">
     <h3>Main Components</h3>
     <p class="instruction-text">[Describe each major component: processing cores, memory subsystems, I/O interfaces, control logic, etc.]</p>
     <div class="image-placeholder">Insert block diagram</div>
@@ -484,13 +486,21 @@
   <section id="design-flow">
     <h2>Design Flow</h2>
     <p class="instruction-text">[Replace with design flow description: Detail the steps from RTL design to tape-out, including synthesis, place-and-route, verification, and signoff processes.]</p>
+    <img src="../images/soc/Design Flow.jpg">
     
     <h3>RTL Design</h3>
     <p class="instruction-text">[Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]</p>
     
     <h3>Physical Design</h3>
     <p class="instruction-text">[Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]</p>
-    
+    <img src="../images/soc/Chip_Raw_Labelled.jpg">
+
+    <h4>PPA Arc</h4>
+
+    <h4>Packaging</h4>
+    <p class="instruction-text">[Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]</p>
+    <img src="../images/soc/04chip_TMUU65_C34B#1_WB.jpg">
+    <img src="../images/soc/04chip_TMUU65_C34B#1_WB_DIE_C.jpg">
     <div class="image-placeholder">Insert layout screenshot</div>
   </section>
   
