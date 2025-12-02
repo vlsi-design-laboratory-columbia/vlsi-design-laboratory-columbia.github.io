@@ -10,6 +10,7 @@
     :root {
       --primary: #1e3a5f;
       --primary-light: #2c5282;
+      --primary-light-light: #366297;
       --accent: #5d9cec;
       --accent-light: #8ebaf5;
       --columbia-blue: #b3d9ff;
@@ -259,6 +260,14 @@
       margin-top: 36px;
       margin-bottom: 16px;
     }
+
+    h4 {
+      color: var(--primary-light-light);
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
     
     .instruction-text {
       background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
@@ -485,11 +494,12 @@
   <section id="architecture">
     <h2>System Architecture</h2>
     <p class="instruction-text">
-      Blocks designed in the proposed converter include flash ADC, power FETs, gate drivers, non-overlap dead-time generation, DCVS level shifters, a PID controller, digital PWM waveform generation, a zero-crossing detection (ZCD) module, scan chain logic, and clock generation blocks. The LCR output stage is implemented off-chip due to its large passive component requirements.
+      Blocks designed in the proposed converter include flash ADC, power FETs, gate drivers, non-overlap dead-time generation, DCVS level shifters, a PID controller, a digital PWM waveform generator, a zero-crossing detection (ZCD) module, scan chain logic, and clock generation blocks. The LCR output stage is implemented off-chip due to its large passive component requirements.
     </p>
     <img src="../images/dpmic/block_diagram.png">
     
     <h3>Main Components</h3>
+
     <p class="instruction-text">
       The converter employs a flash ADC architecture to provide the high-speed conversion needed for fast control loops. Because a buck converter does not require high resolution, a 3-bit ADC was selected to balance performance, area, and complexity, resulting in a reasonable number of comparators. Each comparator uses a strong-arm latch topology, chosen for its high speed and low power consumption.
     </p>
@@ -499,6 +509,23 @@
     </p>
     <img src="../images/dpmic/levelshifter_deadtime_buffer.png">
     <!-- <div class="image-placeholder">Insert block diagram</div> -->
+
+    <h4>PID controller</h4>
+    <p class="instruction-text">
+      text inserted here
+    </p>
+
+
+    <h4>PWM Generator</h4>
+    <p class="instruction-text">
+      text inserted here
+    </p>
+
+    <h4>Scan Chain & Clock Generator</h4>
+    <p class="instruction-text">
+      text inserted here
+    </p>
+
   </section>
   
   <section id="design-flow">
