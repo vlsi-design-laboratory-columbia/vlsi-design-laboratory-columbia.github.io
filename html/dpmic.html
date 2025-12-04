@@ -531,7 +531,7 @@
       The scan chain is used for scanning in the PID coefficients and other control bits.
     </p>
     <p>
-      The Clock Generation outputs a 64MHz clock signal, which is used in the ADC and DPWM.
+      The clock generation outputs a 64MHz clock signal, which is used in the ADC and DPWM.
     </p>
 
   </section>
@@ -540,14 +540,21 @@
     <h2>Design Flow</h2>
     <p class="instruction-text">[Replace with design flow description: Detail the steps from RTL design to tape-out, including synthesis, place-and-route, verification, and signoff processes.]</p>
     <img src="../images/dpmic/design_flow.png">
-    <h3>RTL Design</h3>
-    <p class="instruction-text">[Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]</p>
-    
+    <h3>Schematic and RTL Design</h3>
+    <p>
+      [Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]
+    </p>
     <h3>Physical Design</h3>
-    <p class="instruction-text">[Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]</p>
+    <p>
+      [Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]
+    </p>
     <img src="../images/dpmic/floor_plan.png">
     <img src="../images/dpmic/chip_layout.png">
-    <!-- <div class="image-placeholder">Insert layout screenshot</div> -->
+    <p>
+      The top-level post-layout simulation results are shown as follows.
+    </p>
+    <img src="../images/dpmic/post_layout_sim.png">
+    <img src="../images/dpmic/efficiency.png">
   </section>
   
   <section id="software">
@@ -586,7 +593,9 @@
   
   <section id="specs">
     <h2>Chip Specifications</h2>
-    <p class="instruction-text">[Replace with chip specifications: Provide detailed technical specifications and measured performance metrics.]</p>
+    <p>
+      The chip specifications are listed in the following table.
+    </p>
     
     <table class="specs-table">
       <tr>
@@ -612,6 +621,10 @@
       <tr>
         <td>Supply Voltage</td>
         <td>1V core, 2.5V I/O</td>
+      </tr>
+      <tr>
+        <td>Maximum Load Current</td>
+        <td>500mA</td>
       </tr>
       <tr>
         <td>Output Voltage Ripple</td>
@@ -658,8 +671,21 @@
   
   <section id="acknowledgments">
     <h2>Acknowledgments</h2>
-    <p class="instruction-text">[Replace with acknowledgments: Thank advisors, sponsors, lab staff, and others who contributed to the project.]</p>
-    
+    <p>
+      We would like to thank everyone who supported us throughout this project and made this work possible.
+    </p>
+    <p>
+      We are especially grateful to our course advisor, Prof. Mingoo Seok, for giving us the invaluable opportunity to participate in this class and experience our first-ever tape-out. He proposed the project topic, met with us weekly to review our progress, and guided us with his technical expertise and extensive experience in chip design.
+    </p>
+    <p>
+      Special thanks go to Yichen Xu, who has a solid power management IC background and was consistently available to answer our questions and help us overcome critical challenges throughout the design process.
+    </p>
+    <p>
+      We also thank our teaching assistants, Mosom Jana, Da Won Kim, and Chuan-Tung Lin, for providing us with technical resources and insightful suggestions.
+    </p>
+    <p>
+      Finally, we would like to express our sincere appreciation to Apple Inc. for their generous support and sponsorship, without which this project would not have been possible. We further extend our gratitude to the Apple engineers who participated in our design reviews and offered invaluable feedback.
+    </p>
     <h3>Team Members</h3>
     <div class="team-grid">
       <div class="team-member">
