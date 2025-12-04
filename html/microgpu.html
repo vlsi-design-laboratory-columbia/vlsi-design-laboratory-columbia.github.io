@@ -823,8 +823,19 @@
     <h3>Schematic Design</h3> <p> Yuxi Zhang </p>
     <h3>Board Architecture</h3> <p> Zhelin Zhang </p>
     <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
-    <h3>Power Distribution</h3> <p> Yun-Rong Du </p>
+    <h3>Power Distribution</h3>
     <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
+    <p> Our <a href="https://www.mouser.com/ProductDetail/Texas-Instruments/TPS71701DCKR?qs=QZuYiDxzHahqN0uXeRKnxg%3D%3D&utm_id=22380207736&utm_source=google&utm_medium=cpc&utm_marketing_tactic=amercorp&gad_source=1&gad_campaignid=22376567996&gbraid=0AAAAADn_wf0g5UzeCVRPp0Yhb8c27LKWG&gclid=Cj0KCQjww4TGBhCKARIsAFLXndRx8_VsZd0vdCgLvQMXXQyARwInrXAWnluTTFawSqYkY-AuB1U1ylUaAhDLEALw_wcB">LDO voltage regulator</a>]
+        accepts input voltage from 2.5V to 6.5V; thus, we used 5V power supply for prototyping and 4 AA batteries for demo. 
+        The voltage regulators converts the input voltage to 1V for VDD (core) and CVDD, 2.5V for DVDD, and 3.3V for level shifter to 
+        align with the FPGA I/O voltage. <br>
+        To ensure power stability, we added several decoupling capacitors (0.1u and 10u) for the three voltages. The decoupling capacitors 
+        are used for providing the burst of current when switching, avoiding voltage drop, and filtering out noise. <br>
+        To ensure power stability and signal integrity, a ground plane and a power plane are added. The power plane provides a low-impedance power path, 
+        so the current can be delivered quickly and with minimal voltage drop. For the signals, the ground plane provides low-impedance return 
+        path, which reduces noise and electromagnetic interference (EMI). <br>
+        The entire current for our chip during the idle phase is 3 mA, and during the rendering phase is 50 mA.
+    </p>
 
   </section>
   
@@ -913,31 +924,31 @@
     <div class="team-grid">
       <div class="team-member">
         <strong>Yangfan Wang</strong>
-        <span>[Role/Contribution]</span>
+        <span>Software Golden Model, Frontend Design, Backend Design, FPGA, Testing</span>
       </div>
       <div class="team-member">
         <strong>Yun-Rong (Alice) Du</strong>
-        <span>[Role/Contribution]</span>
+        <span>Frontend Design, Backend Design, Testing, PCB Design</span>
       </div>
       <div class="team-member">
         <strong>Yuntian Hu</strong>
-        <span>[Role/Contribution]</span>
+        <span>Frontend Design, Testing</span>
       </div>
       <div class="team-member">
         <strong>Tianyun Huang</strong>
-        <span>[Role/Contribution]</span>
+        <span>Software Golden Model, Frontend Design</span>
       </div>
       <div class="team-member">
         <strong>Zhelin Su</strong>
-        <span>[Role/Contribution]</span>
+        <span>Frontend Design, PCB Design</span>
       </div>
       <div class="team-member">
         <strong>Yuxi Zhang</strong>
-        <span>[Role/Contribution]</span>
+        <span>Frontend Design, Backend Design, Testing, PCB Design</span>
       </div>
       <div class="team-member">
         <strong>Fengze Zhong</strong>
-        <span>[Role/Contribution]</span>
+        <span>Frontend Design</span>
       </div>
     </div>
   </section>
