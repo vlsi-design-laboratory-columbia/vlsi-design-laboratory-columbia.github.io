@@ -499,7 +499,8 @@
       <!-- TODO -->
       <h3>Rendering Engine</h3>
         <h4>Input Assembler</h4> <p> Zhelin Su </p>
-        <h4>Vertex Shader</h4> <p> Yangfan Wang </p>
+        <h4>Vertex Shader</h4>
+			<p> The vertex shader is responsible for the all 3D-2D vertex transformations. VS operates in the region that VGA is blank so it won't interferece with the current triangle rasterization process. It starts from the poping FIFO inside IA to read the new configuration parameters if any, and then constructs the transformation matrix using algorithms described in the Software & Testing section. After the 3D viewpoint correction matrix and overall 2D transformation matrix are constructed and stored, it will start to read loaded vertices from memory and completes the matrix-vector multiplication. To expidate the process, we instantiated 4 of the 4-pair-input fully combinational MAC, so that each 4x4 by 4x1 multiplcation can be computed in 1 cycle. The VS also includes 3 DW_div_seq modules to normalize the correct 3D vertices with respected to the W coordinate. The pipeline starts from 3D view point correction, and while it's sent to the normalization stage, the MAC modules are used by the 2D transformation. A LUT is also constructed for providing the sin function output for angles ranges from \(0-90^{\circ}\). After all the triangles are being processed and sent to memory, it asserts a valid signal to start off BF work.</p>
         <h4>Backface Culling & Lighting Module</h4> <p> Yuntian Hu </p>
         <h4>Rasterizer</h4> <p> Tianyun Huang </p>
         <h4>VGA Controller</h4> <p> Yangfan Wang </p>
