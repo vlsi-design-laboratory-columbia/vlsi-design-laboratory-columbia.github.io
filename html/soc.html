@@ -510,21 +510,72 @@
             <div class="highlight-item">
                 <h4>Core: <a href="https://github.com/YosysHQ/picorv32" target="_blank">RISCV</a> & Vector Processing Unit</h4>
                 <p class="instruction-text">[Vector Processing Unit.]</p>
-                <p class="instruction-text">[RISCV Core.]</p>
+                <p class="instruction-text">[The system is anchored by the PicoRV32, a robust and widely adopted open-source 
+                  RISC-V CPU core designed for high reliability and area efficiency. 
+                  It implements the standard RISC-V RV32I Instruction Set Architecture (ISA), 
+                  providing a comprehensive suite of base integer instructions.
+                  Architecturally, the PicoRV32 is engineered with a focus on timing closure; 
+                  its design minimizes logic depth in the critical path, allowing the core to 
+                  achieve a high maximum operating frequency 270MHz in TSMC65nm even in area-constrained 
+                  layouts. Crucially, the core features a dedicated Pico Co-Processor Interface (PCPI). 
+                  This low-latency interface serves as the bridge to our custom Vector Processing Unit (VPU), 
+                  allowing the PicoRV32 to seamlessly offload complex vector instructions 
+                  while maintaining rigorous control over system flow and data consistency. Below Shows the Finite State Machine of this simple RISCV Core. ]</p>
+                <img src="../images/soc/CPU.png">
                 <!-- <p>The system's processing powerhouse consists of a standard **RISC-V Core** for general-purpose computing, paired with a high-performance **Vector Coprocessor**. This coprocessor enables efficient, accelerated execution of parallel operations, crucial for demanding applications like signal processing or machine learning tasks.</p> -->
             </div>
         </li>
         <li>
             <div class="highlight-item">
                 <h4>Bus Interconnect: <a href="https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_interconnect.v" target="_blank">AXI-Lite Interconnect</a></h4>
-                <p class="instruction-text">[AXI-Lite Interconnect.]</p>
+                <p class="instruction-text">[The Opensource AXI-Lite Interconnect we we adopted supports multiple masters and slaves. The maximum frequency after synthesizing is around 500MHz and the area is pretty small. It does not supports burst transactions, OoO and outstanding in AXI protocol.]</p>
+                <section id="memory-map">
+                    <h4>System Memory Map</h4>
+                    <table class="specs-table">
+                      <thead>
+                        <tr>
+                          <th>Device / Region</th>
+                          <th>Start Address</th>
+                          <th>End Address</th>
+                          <th>Size</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><strong>Instruction Memory (IMEM)</strong></td>
+                          <td><code>0x0000_0000</code></td>
+                          <td><code>0x0000_7FFF</code></td>
+                          <td>32 KB (<code>0x8000</code>)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Data Memory (DMEM)</strong></td>
+                          <td><code>0x0000_8000</code></td>
+                          <td><code>0x0000_FFFF</code></td>
+                          <td>32 KB (<code>0x8000</code>)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>UART</strong></td>
+                          <td><code>0x0010_0000</code></td>
+                          <td><code>0x0010_00FF</code></td>
+                          <td>2 Bytes (<code>0x02</code>)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>SPI</strong></td>
+                          <td><code>0x0010_0200</code></td>
+                          <td><code>0x0010_02FF</code></td>
+                          <td>4 Bytes (<code>0x04</code>)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </section>
+                
                 <!-- <p>All major components communicate via the **AXI-Lite Interconnect**. This streamlined version of the AMBA AXI protocol ensures reliable, low-latency communication between the core, memory, and peripherals, maintaining system coherence and data integrity.</p> -->
             </div>
         </li>
         <li>
             <div class="highlight-item">
                 <h4>Memory Subsystem: IMEM & DMEM</h4>
-                <p class="instruction-text">[Memory Subsystem: IMEM & DMEM.]</p>
+                <p class="instruction-text">[To maximize on-chip storage efficiency, the SoC integrates 64KB of SRAM, symmetrically divided into 32KB for Instruction Memory (IMEM) and 32KB for Data Memory (DMEM). We utilized the ARM Artisan Memory Compiler to generate these high-density, single-port memory macros. To ensure seamless connectivity, custom wrappers were developed to bridge the memory interface with the processor core. Furthermore, these wrappers facilitate system initialization, allowing instructions and data to be pre-loaded directly through the scan chain.]</p>
                 <!-- <p>The design utilizes a Harvard-like architecture with separate memories for instructions and data. It includes a dedicated **32kB Instruction Memory (IMEM)** and a **32kB Data Memory (DMEM)**. This separation minimizes contention and allows simultaneous instruction fetches and data access, boosting performance.</p> -->
             </div>
         </li>
