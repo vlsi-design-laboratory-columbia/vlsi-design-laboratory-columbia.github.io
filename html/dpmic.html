@@ -498,13 +498,16 @@
     <img src="../images/dpmic/block_diagram.png">
     
     <h3>Main Components</h3>
-    <h4>Power Stage</h4>
     <img src="../images/dpmic/powerstage.png">
-    <h4>Flash ADC</h4> 
+    <h4>Power Stage</h4>
+    <p>
+      The power stage includes high/low-side switches (implemented by TSMC 65nm 2.5V I/O devices) and an off-chip LC filter.
+    </p>
+    <img src="../images/dpmic/adc_cmp.png">
+    <h4>Flash ADC and Comparator</h4> 
     <p>
       The converter employs a flash ADC architecture to provide the high-speed conversion needed for fast control loops. Because a buck converter does not require high resolution, a 3-bit ADC was selected to balance performance, area, and complexity, resulting in a reasonable number of comparators. Each comparator uses a strong-arm latch topology, chosen for its high speed and low power consumption.
     </p>
-    <img src="../images/dpmic/adc_cmp.png">
     <p>
       To further reduce the comparators' delay and input-referred offset, the input differential pair is upsized to improve transconductance and mitigate device mismatch. The remaining transistors in the latch are kept smaller than the input-pair to minimize parasitic capacitances, thereby lowering delay. Additionally, decoupling capacitors can be introduced to reduce clock feedthrough and kickback noise, improving overall comparator accuracy.
     </p>
@@ -518,7 +521,10 @@
     </p>
     <h4>Level Shifter</h4>
     <p>
-      Because the core operates at 1 V, it cannot directly drive the 2.5 V I/O devices in the power stage. Therefore, a 1 V-to-2.5 V level shifter is used.
+      Because the core operates at 1 V, the generated PWM signal is also within the 0–1 V domain and therefore cannot directly drive the 2.5 V I/O devices used in the power stage. To address this, a 1 V-to-2.5 V level shifter based on the differential cascode voltage switch (DCVS) topology is implemented.
+    </p>
+    <p>
+      To reduce shoot-through current during transitions, the pull-down transistors (M1 and M2) are sized much larger than the pull-up transistors (M3 and M4). For example, when VIN transitions from low to high, VOUTN is pulled down to ground, turning on M4, which in turn pulls VOUT up to VDD2V5 while M3 turns off. During this transition, there can be a short interval in which both M1 and M3 are simultaneously on—specifically when VIN > Vth1 and VOUT < (VDD2V5 − |Vth3|). By making the pull-down devices stronger than the pull-up devices, the middle node is discharged more quickly, reducing the duration of this short-circuit condition and thereby lowering shoot-through current.
     </p>
     <h4>Gate Buffer</h4>
     <p>
