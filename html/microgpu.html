@@ -1,4 +1,4 @@
-<!doctype html>
+<For example, a series of 3D vertices will be feed into the VS and we compare the transformed 2D vertices with the C-Model result. !doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -279,9 +279,12 @@
     }
 
     .list {
-        margin-left: 0;
-        padding-left: 0;
-        list-style-position: inside;
+      color: #4a5568;
+      font-size: 1.05em;
+      line-height: 1.8;
+      margin-left: 0;
+      padding-left: 0;
+      list-style-position: inside;
     }
 
     .matrix {
@@ -508,6 +511,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
  </p>
         <h4>Rasterizer</h4> <p> Tianyun Huang </p>
         <h4>VGA Controller</h4> <p> Yangfan Wang </p>
+		  <p> The VGA controller is responsible for generating VGA related signals based on the protocol. They include the vga clk (25 MHz), vga vsync, vga_hsync, and vga_blank, which all those are used to control the DAC for monitor synchronization. Meanwhile, it outputs the current col and row that the monitor is scanning, which controls the state of all the engine blocks. Also since the core runs on 250 MHz, there will be 10 cycles for each pixel. The VGA controller asserts a signal that indicates the beginning of a new pixel and that is where the color change can occur. </p>
         <h4>Pixel Module</h4> <p> Tianyun Huang </p>
 
       <h3>Memory</h3>
@@ -821,6 +825,24 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
       On the FPGA, the VGA DAC is used to translate the digital pixel values and VGA synchronization signals produced by the chip into the analog voltage levels required by standard VGA displays.
       <h3>Testing Methodology</h3>
         <h4>Pre-silicon</h4> <p> Yangfan Wang </p>
+		<p> Pre-silicon verification focuses on the validation of the hardware generated outputs in RTL/Netlist simulation. The verification processes consistes of two parts: block-level testing and end-to-end testing. For each of the blocks in the engine core, the team developed correspoding testbenches and generated random data as inputs. The output is cross-checked with the C-Model result feeding the same configuration and input stimulus. For example, a series of 3D vertices will be sent to VS and we compare the transformed 2D vertices with the C-Model result. After each individual block has been verified and the top level properly constructed, we developed the end-to-end testbench. </p> 
+		<br>
+		<p>The testbench includes two components: </p>
+		<ol class="list">
+		  <li>C++ Driver: For reusability, we started with developing this driver to process model file, preparing UART config data based on input control. This part of the codes are reused in the silicon driver. For testing purposes, this driver is also responsible for constructing and saving the output frame images so that we could use it to compare with C-Model generared frames. </li>
+		  <li>SystemVerilog Testbench: The testbench generates clocks for the core (for RTL sim where we don't have the clock generator), and the scan chain trasmitter logic. The testbench communicates with the the C++ driver through SystemVerilog DPI, where we imported functions so that the testbench can read new models, get commands, and accesses the memory inside the C++ driver where the 3D model and UART commands are temporarily stored.<br>
+		  The testbench sequences are: <br>
+		    <ul class="list">
+		  	  <li> model reading with C++ initilization </li>
+			  <li> scan_chain loading (as described in the scan chain section) </li>
+			  <li> next set of UART commands generation </li>
+			  <li> run one full frame and send all the pixel color to C memory </li>
+		    </ul>
+		    The steps are synchronized using the VGA vsync and hsync signals and the capturing process is using generated VGA clk from the core so we can simulate the VGA DAC requirement as much as possible. 
+		  </li>
+		</ol>
+		<br>
+		<p> The same set of testbench environment is deployed across RTL simulation, Post-Synthesis simulation with clock generator enabled, and Post-APR simulation with precise timing information. </p>
         <h4>Post-silicon</h4> <p> Yangfan Wang, Yuntian Hu </p>
 
   </section>
