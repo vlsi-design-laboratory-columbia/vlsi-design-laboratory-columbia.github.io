@@ -5,7 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SoC - EE6350 Spring 2025</title>
   <style>
+
+
     * {margin: 0; padding: 0; box-sizing: border-box;}
+
+    /* 让容器变成弹性盒子，子元素会自动水平排列 */
+.side-by-side-images {
+    display: flex;
+    /* 可选：设置对齐方式，比如居中 center，或者两边对齐 space-between */
+    justify-content: center;
+    /* 可选：设置两张图片之间的间距 */
+    gap: 20px;
+    /* 可选：确保垂直方向居中对齐 */
+    align-items: center;
+}
+
+/* 关键：确保图片能够自适应宽度，不会超出容器 */
+.side-by-side-images img {
+    /* 设置最大宽度为略小于50%，给间距留点位置。
+       如果希望两张图强制等宽，可以设置为 width: 48%; */
+    max-width: 48%;
+    /* 保持图片原始比例 */
+    height: auto;
+    /* 可选：加个边框方便调试看看效果 */
+    /* border: 1px solid #ccc; */
+}
     
     :root {
       --primary: #1e3a5f;
@@ -432,16 +456,19 @@
   <div class="header-content">
     <h1>SoC</h1>
     <div class="header-meta">
-      <span class="header-meta-item">EE6350 Spring 2025</span>
-      <span class="header-meta-item">Columbia University</span>
+      <span class="header-meta-item">System On Chip</span>
+      <span class="header-meta-item">Vector Processing Unit</span>
+      <span class="header-meta-item">RISCV</span>
       <span class="header-meta-item">TSMC 65nm</span>
     </div>
     
     <div class="author-info">
       <div class="authors-list">
-        <a href="mailto:email@columbia.edu" class="author-name">[Author Name 1]</a>
-        <a href="https://linkedin.com/in/username" target="_blank" class="author-name">[Author Name 2]</a>
-        <a href="mailto:email@columbia.edu" class="author-name">[Author Name 3]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Jiajun Jiang]</a>
+        <a href="https://www.linkedin.com/in/zhenningyang509/" target="_blank" class="author-name">[Zhenning Yang]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Yicheng Huang]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Zhuohao Chang]</a>
+        <a href="mailto:email@columbia.edu" class="author-name">[Yu Jia]</a>
       </div>
     </div>
   </div>
@@ -468,30 +495,141 @@
   <section id="introduction">
     <h2>Introduction</h2>
     <p class="instruction-text">[Replace with project introduction: Describe the motivation, objectives, and overview of your chip design. Explain why this project is important and what problems it aims to solve.]</p>
-    <div class="image-placeholder">Insert chip photo or project overview image</div>
+    <img src="../images/soc/Chip_Raw_Labelled.jpg">
+    <!-- <div class="image-placeholder">Insert chip photo or project overview image</div> -->
   </section>
   
   <section id="architecture">
     <h2>System Architecture</h2>
-    <p class="instruction-text">[Replace with system architecture description: Explain the overall architecture, main functional blocks, and how they interact. Include block diagrams and architectural decisions.]</p>
+    <p class="instruction-text">[This diagram illustrates the architecture of our RISC-V based System-on-Chip (SoC). At its core, a RISC-V processor is paired with a dedicated Vector Processing Unit to handle accelerated parallel computations. These processing units communicate with system resources via a central AXI-Lite Interconnect. Essential external communication is handled through UART and SPI interfaces. Additionally, the design incorporates support infrastructure, including a Clock Generator, Finite State Machine (FSM), and a Scan Chain for hardware testing and debugging.]</p>
+    <img src="../images/soc/SystemArch.png">
+    <h3>Key Highlights: Component Breakdown</h3>
     
-    <h3>Main Components</h3>
-    <p class="instruction-text">[Describe each major component: processing cores, memory subsystems, I/O interfaces, control logic, etc.]</p>
+    <ul class="key-highlights-list">
+        <li>
+            <div class="highlight-item">
+                <h4>Core: <a href="https://github.com/YosysHQ/picorv32" target="_blank">RISCV</a> & Vector Processing Unit</h4>
+                <p class="instruction-text">[Vector Processing Unit.]</p>
+                <p class="instruction-text">[The system is anchored by the PicoRV32, a robust and widely adopted open-source 
+                  RISC-V CPU core designed for high reliability and area efficiency. 
+                  It implements the standard RISC-V RV32I Instruction Set Architecture (ISA), 
+                  providing a comprehensive suite of base integer instructions.
+                  Architecturally, the PicoRV32 is engineered with a focus on timing closure; 
+                  its design minimizes logic depth in the critical path, allowing the core to 
+                  achieve a high maximum operating frequency 270MHz in TSMC65nm even in area-constrained 
+                  layouts. Crucially, the core features a dedicated Pico Co-Processor Interface (PCPI). 
+                  This low-latency interface serves as the bridge to our custom Vector Processing Unit (VPU), 
+                  allowing the PicoRV32 to seamlessly offload complex vector instructions 
+                  while maintaining rigorous control over system flow and data consistency. Below Shows the Finite State Machine of this simple RISCV Core. ]</p>
+                <img src="../images/soc/CPU.png">
+                <!-- <p>The system's processing powerhouse consists of a standard **RISC-V Core** for general-purpose computing, paired with a high-performance **Vector Coprocessor**. This coprocessor enables efficient, accelerated execution of parallel operations, crucial for demanding applications like signal processing or machine learning tasks.</p> -->
+            </div>
+        </li>
+        <li>
+            <div class="highlight-item">
+                <h4>Bus Interconnect: <a href="https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_interconnect.v" target="_blank">AXI-Lite Interconnect</a></h4>
+                <p class="instruction-text">[The Opensource AXI-Lite Interconnect we we adopted supports multiple masters and slaves. The maximum frequency after synthesizing is around 500MHz and the area is pretty small. It does not supports burst transactions, OoO and outstanding in AXI protocol.]</p>
+                <section id="memory-map">
+                    <h4>System Memory Map</h4>
+                    <table class="specs-table">
+                      <thead>
+                        <tr>
+                          <th>Device / Region</th>
+                          <th>Start Address</th>
+                          <th>End Address</th>
+                          <th>Size</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><strong>Instruction Memory (IMEM)</strong></td>
+                          <td><code>0x0000_0000</code></td>
+                          <td><code>0x0000_7FFF</code></td>
+                          <td>32 KB (<code>0x8000</code>)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Data Memory (DMEM)</strong></td>
+                          <td><code>0x0000_8000</code></td>
+                          <td><code>0x0000_FFFF</code></td>
+                          <td>32 KB (<code>0x8000</code>)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>UART</strong></td>
+                          <td><code>0x0010_0000</code></td>
+                          <td><code>0x0010_00FF</code></td>
+                          <td>2 Bytes (<code>0x02</code>)</td>
+                        </tr>
+                        <tr>
+                          <td><strong>SPI</strong></td>
+                          <td><code>0x0010_0200</code></td>
+                          <td><code>0x0010_02FF</code></td>
+                          <td>4 Bytes (<code>0x04</code>)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </section>
+                
+                <!-- <p>All major components communicate via the **AXI-Lite Interconnect**. This streamlined version of the AMBA AXI protocol ensures reliable, low-latency communication between the core, memory, and peripherals, maintaining system coherence and data integrity.</p> -->
+            </div>
+        </li>
+        <li>
+            <div class="highlight-item">
+                <h4>Memory Subsystem: IMEM & DMEM</h4>
+                <p class="instruction-text">[To maximize on-chip storage efficiency, the SoC integrates 64KB of SRAM, symmetrically divided into 32KB for Instruction Memory (IMEM) and 32KB for Data Memory (DMEM). We utilized the ARM Artisan Memory Compiler to generate these high-density, single-port memory macros. To ensure seamless connectivity, custom wrappers were developed to bridge the memory interface with the processor core. Furthermore, these wrappers facilitate system initialization, allowing instructions and data to be pre-loaded directly through the scan chain.]</p>
+                <!-- <p>The design utilizes a Harvard-like architecture with separate memories for instructions and data. It includes a dedicated **32kB Instruction Memory (IMEM)** and a **32kB Data Memory (DMEM)**. This separation minimizes contention and allows simultaneous instruction fetches and data access, boosting performance.</p> -->
+            </div>
+        </li>
+        <li>
+            <div class="highlight-item">
+                <h4>I/O Peripherals: UART & SPI</h4>
+                <!-- <p>External communication and interfacing are managed through standard peripherals: **UART (Universal Asynchronous Receiver/Transmitter)** provides a serial port for debugging and console access, while **SPI (Serial Peripheral Interface)** supports high-speed communication with external devices like flash memory or sensors.</p> -->
+            </div>
+        </li>
+        <li>
+            <div class="highlight-item">
+                <h4>System Control & Test: Clock Generator, FSM, Scan Chain</h4>
+                <!-- <p>Essential support infrastructure ensures correct operation and testability. This includes the **Clock Generator** for timing control, a **Finite State Machine (FSM)** for managing power-on-reset and system states, and a **Scan Chain** implementation for comprehensive in-field and factory testing (Design-for-Testability).</p> -->
+            </div>
+        </li>
+    </ul>
+    
+
+
+
+
     
     <div class="image-placeholder">Insert block diagram</div>
   </section>
+
+  
   
   <section id="design-flow">
     <h2>Design Flow</h2>
-    <p class="instruction-text">[Replace with design flow description: Detail the steps from RTL design to tape-out, including synthesis, place-and-route, verification, and signoff processes.]</p>
+    <p class="instruction-text">[The following diagram outlines the complete RTL-to-GDSII design flow implemented for this project. It highlights the transition from behavioral Verilog RTL through Synthesis and Place & Route, utilizing industry-standard tools for verification at every stage.]</p>
+    <img src="../images/soc/Design Flow.png">
     
+
     <h3>RTL Design</h3>
     <p class="instruction-text">[Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]</p>
     
     <h3>Physical Design</h3>
-    <p class="instruction-text">[Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]</p>
-    
-    <div class="image-placeholder">Insert layout screenshot</div>
+    <p class="instruction-text">[The physical design follows a hierarchical bottom-up strategy. Individual submodules are first hardened through a complete P&R flow. These blocks are then integrated into the Top level, followed by Chip-level assembly, which includes I/O pads and Seal Rings, culminating in the final Tapeout GDS.]</p>
+    <img src="../images/soc/chip_labelled.jpg">
+
+    <h4>Physical Design Flow</h4>
+    <p class="instruction-text">[The physical design flow follows the basic ASIC semi-custom circuits design flow, and we adopted bottom-up integration methodology. A very clear and pretty picture below is showing how we do the back-end design]</p>
+    <img src="../images/soc/PhysicalFlow.png">
+
+    <h4>IO Pad</h4>
+    <p class="instruction-text">[Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs. And these IOs includes Input/Output Signals(SPI, UART, Scan_Chain, rst_n, clk), POC, CVDD, DVDD, VDD, VDD_TEST, GND. We tried to minimize our IO number because we need a bigger area for logic circuits.]</p>
+    <img src="../images/soc/IO.png">
+
+    <h4>Package</h4>
+    <p class="instruction-text">[Below is the picture of our taped out chip with bonding wires and packages.]</p>
+    <div class="side-by-side-images">
+        <img src="../images/soc/P1.png" alt="Description of P1">
+        <img src="../images/soc/P2.png" alt="Description of P2">
+    </div>
   </section>
   
   <section id="software">
