@@ -556,14 +556,14 @@
                         <tr>
                           <td><strong>UART</strong></td>
                           <td><code>0x0010_0000</code></td>
-                          <td><code>0x0010_00FF</code></td>
-                          <td>2 Bytes (<code>0x02</code>)</td>
+                          <td><code>0x0010_000F</code></td>
+                          <td>16 Bytes (<code>0x10</code>)</td>
                         </tr>
                         <tr>
                           <td><strong>SPI</strong></td>
-                          <td><code>0x0010_0200</code></td>
-                          <td><code>0x0010_02FF</code></td>
-                          <td>4 Bytes (<code>0x04</code>)</td>
+                          <td><code>0x0010_0000</code></td>
+                          <td><code>0x0010_00A3</code></td>
+                          <td>164 Bytes (<code>0xA4</code>)</td>
                         </tr>
                       </tbody>
                     </table>
@@ -609,8 +609,78 @@
     <img src="../images/soc/Design Flow.png">
     
 
+
     <h3>RTL Design</h3>
-    <p class="instruction-text">[Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]</p>
+        <p class="instruction-text">[The RTL (Register Transfer Level) design serves as the core of our digital implementation, bridging the gap between high-level algorithms and physical hardware.]</p>
+
+
+    <h4>Hierarchical Design & Verification</h4>
+    <p>
+        We adopted a rigorous <strong>Bottom-Up Implementation</strong> strategy. Design work starts with coding individual, low-level <strong>submodules</strong>. Once these leaf blocks are completed, they are integrated into larger parent modules, eventually culminating in the <strong>Top-Level</strong> SoC.
+    </p>
+    <p>
+        Verification follows a corresponding layered approach:
+    </p>
+    <ul style="margin-left: 20px; margin-bottom: 20px; color: #4a5568;">
+        <li><strong>Unit-Level Verification:</strong> Submodules are first verified in isolation using dedicated testbenches to ensure local correctness.</li>
+        <li><strong>Integration Verification:</strong> As blocks are assembled, verification focuses on interface protocols and data flow between modules.</li>
+        <li><strong>Full-Chip Verification:</strong> The complete design is simulated (using tools like <strong>ModelSim, VCS, and Verdi</strong>) and cross-compared against the C reference model to validate system-wide functionality.</li>
+    </ul>
+
+            <table class="specs-table">
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>Feature</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>0.0</strong></td>
+              <td>Basic Model from PicoRV32 RISCV Core</td>
+            </tr>
+            <tr>
+              <td><strong>0.1</strong></td>
+              <td>Integrated Instruction SRAM with memory wrappers</td>
+            </tr>
+            <tr>
+              <td><strong>0.2</strong></td>
+              <td>Integrated AXI-Lite Interconnect</td>
+            </tr>
+            <tr>
+              <td><strong>0.3</strong></td>
+              <td>Integrated Data SRAM with memory wrappers</td>
+            </tr>
+            <tr>
+              <td><strong>0.4</strong></td>
+              <td>Integrated Scan Chain</td>
+            </tr>
+            <tr>
+              <td><strong>0.5</strong></td>
+              <td>Integrated UART and SPI</td>
+            </tr>
+            <tr>
+              <td><strong>0.6</strong></td>
+              <td>Integrated Vector Processing Unit</td>
+            </tr>
+            <tr>
+              <td><strong>0.7</strong></td>
+              <td>Integrated Clock Generator, Scan Chain and FSM</td>
+            </tr>
+            <tr>
+              <td><strong>0.8</strong></td>
+              <td>Modified Vector Processing Unit for Smaller Size</td>
+            </tr>
+            <tr>
+              <td><strong>0.9</strong></td>
+              <td>Integrated Pad Frame and IO Cells</td>
+            </tr>
+            <tr>
+              <td><strong>1.0</strong></td>
+              <td>Verified Functionality from Chip Level and RTL Freeze</td>
+            </tr>
+          </tbody>
+        </table>
     
     <h3>Physical Design</h3>
     <p class="instruction-text">[The physical design follows a hierarchical bottom-up strategy. Individual submodules are first hardened through a complete P&R flow. These blocks are then integrated into the Top level, followed by Chip-level assembly, which includes I/O pads and Seal Rings, culminating in the final Tapeout GDS.]</p>
