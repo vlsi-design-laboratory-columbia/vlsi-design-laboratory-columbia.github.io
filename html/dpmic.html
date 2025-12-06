@@ -553,7 +553,7 @@
     </p>
     <h4>Scan Chain & Clock Generation</h4>
     <p>
-      The scan chain is used for scanning in the three 16-bit PID coefficients (ki, kp, and kd) and other control bits.
+      The scan chain is used to load the three PID coefficients (ki, kp​, and kd​) as well as other control bits into the digital controller. This serial-access mechanism enables flexible tuning, testability, and debugging during both pre-silicon verification and post-silicon evaluation without requiring additional dedicated I/O pins.
     </p>
     <p>
       The ring-oscillator–based clock generation block provides a 64MHz on-chip clock, which is distributed to both the ADC and the DPWM. The use of a ring oscillator enables fully integrated, compact, and low-power clock generation without requiring any off-chip components. The generated 64MHz clock ensures synchronized operation between the sampling process in the ADC and the switching control in the DPWM, supporting consistent timing for the entire digital control loop.
@@ -563,11 +563,16 @@
   
   <section id="design-flow">
     <h2>Design Flow</h2>
-    <p class="instruction-text">[Replace with design flow description: Detail the steps from RTL design to tape-out, including synthesis, place-and-route, verification, and signoff processes.]</p>
+    <p>
+      Because our project is a mixed-signal design, multiple EDA tools are used in the whole design flow.
+    </p>
     <img src="../images/dpmic/design_flow.png">
     <h3>Schematic and RTL Design</h3>
     <p>
-      [Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]
+      The analog blocks were designed in Cadence Virtuoso and verified using Spectre simulations to evaluate functionality and performance. The digital blocks were implemented using Verilog RTL, synthesized with Synopsys Design Compiler, and verified through ModelSim, PrimeTime, and VCS for functional correctness, timing closure, and power analysis.
+    </p>
+    <p>
+      For the mixed-signal top-level closed-loop simulation, HSPICE is used. The analog top-level netlist is extracted from Virtuoso, and the digital top-level Verilog netlist is converted into a SPICE-compatible format through custom scripting. These two domains are then integrated in a separate top-level SPICE netlist, which is used to perform the full mixed-signal closed-loop simulation and validate the overall system behavior.
     </p>
     <h3>Physical Design</h3>
     <p>
