@@ -391,6 +391,46 @@ h4 {
     font-size: 1.05em;
     }
 
+    /* Collapsible code blocks */
+    details.code-block {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #0b1220;
+      color: #e2e8f0;
+      margin: 20px 0;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    details.code-block summary {
+      cursor: pointer;
+      padding: 14px 16px;
+      font-weight: 600;
+      color: var(--primary);
+      background: linear-gradient(135deg, #eef2ff 0%, #e2e8f0 100%);
+      border-bottom: 1px solid var(--border);
+      list-style: none;
+    }
+
+    details.code-block summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.code-block .code-content {
+      background: #0b1220;
+      color: #e2e8f0;
+      padding: 16px;
+      overflow-x: auto;
+    }
+
+    .code-content pre {
+      margin: 0;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9em;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
 
 
     /* Team Grid */
@@ -577,6 +617,16 @@ Originally, the design targeted 32 KB of instruction storage, but due to strict 
   <br>
   The data memory is implemented as an AHB slave and connected to the CPU via the shared bus. All load/store instructions are routed through this bus interface, maintaining a clean separation between instruction fetch and data access. Similar to IMEM, DMEM was initially planned as 32 KB, but was downsized to 16 KB to fit within the allowable silicon footprint.
   <br>
+  <br>
+
+  <strong>Addressing and byte enables</strong><br>
+  An important thing to note about both IMEM and DMEM is that at the memory level, each address corresponds to a 32-bit data cell, which means for 16KiB of capacity, we have a 12-bit wide address bus. However, the RISC-V ISA expects to be able to access the memory byte-wise, so we have a 4-bit wide BEN (or WEN as the generated memory calls it) bus which controls which bytes of the 32-bit word at a given memory address are actually written to.
+  <br><br>
+  This system is easy to integrate with the CPU, since it natively expects this sort of setup and so outputs the size of the data it is writing in bytes, which can be fed into the BEN bus. It still, however, treats each address as a single byte, and so does our AHB bus, so to deal with this, we do two things. For the scan chain, in the memory wrappers, we simply shift the incoming address right by 2 to forcibly word-align it. For the data coming from the AHB bus, for IMEM, the wrapper also shifts that incoming address right by 2; for DMEM, that shift is instead done in the DMEM AHB slave.
+  <br><br>
+  Our peripherals, with the exception of UART, also treat memory addresses as byte-aligned and do the shifting internally to treat it as word-aligned for their internal registers. For UART, which does not do this internal shifting and expects world-aligned addresses, we simply shift the address going into the UART peripheral right by two.
+  <br><br>
+  The key takeaway from all this is that from the perspective of the CPU, the AHB bus, and the software, the memory addresses are byte-wise, and we enforce a 32-bit word alignment in the compiler. From the perspective of the memory cells, memory addresses are word-wise, and the CPU can specify which bytes in the word to write to.
   <br>
 
   <strong>SRAM Implementation and Memory Wrapper</strong><br>
@@ -808,30 +858,1465 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
   
   <section id="software">
     <h2>Software & Testing Flow</h2>
-    <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
-    
     <h3>Software Development</h3>
-    <p>The software development and testing workflow begins with writing programs in C, which serve as test cases for validating the functionality of our SoC. To support this, we built a complete RISC-V toolchain, including a customized linker script and memory configuration. Since our design follows a Harvard architecture with separate instruction memory (IMEM) and data memory (DMEM), the toolchain is configured to correctly place code sections into IMEM and data sections into DMEM. The RISC-V compiler translates C programs into machine code, while also generating assembly output to assist with debugging and instruction-level verification.
-</p>
-    <p>To support software development, we created a utility file named nano_logic_utils.c. This file contains essential definitions and helper functions used across all test programs, including clear memory-location mappings and frequently used operations tailored for our SoC. These utilities provide a standardized interface between software and hardware, allowing test programs to be written more easily and consistently.</p>
-    <p>Once the C programs are compiled, the resulting machine code is loaded into the chip through the scan chain. During scan mode, the scan chain shifts the binary instructions directly into the IMEM and DMEM. After switching to run mode, the CPU begins fetching instructions from IMEM and executing them, allowing us to verify full-system behavior.</p>
-    <p>A wide set of test programs has been developed to validate the CPU core, peripherals, and memory system. These include arithmetic tests, GPIO input/output tests, UART and SPI tests, LCD tests, DMA/DMEM access programs, timer tests, scan-chain diagnostics, and several demo applications such as menu navigation, games, and prime-number generation. All test cases pass both pre-synthesis and post-pnr simulations, and later the same test suite is executed again on the fabricated chip to confirm silicon correctness.</p>
-    <p></p>
-    <p></p>
+    <h4>Compiler:</h4>
+    <p>Our implementation of the CV32E40P core supports the RV32IMC instruction sets, and we built the corresponding RISC-V toolchain in order to compile C programs to run on our chip. We built the compiler before abandoning the FPU, so it also supports RV32Zfinx, which we simply don’t specify support for in our final bash script that calls the compiler.</p>
+
+    <h4>Linker:</h4>
+    <p>The linker is where things get a bit more complicated. GCC is designed for modified-Harvard and von-Neumann architectures, whereas our chip uses a pure Harvard Architecture. Our IMEM and DMEM both start at 0x0000_0000 and end at 0x0000_7FFF, which causes a perceived overlap between .text and .data in the linker. Our solution to this issue was to take advantage of the fact that we mask off the upper 16 bits of the word-aligned memory address coming out of the DMEM slave and into the DMEM wrapper.</p>
+    <p>As previously mentioned, in the DMEM slave, we shift the address right by 2 bits to ensure it is word-aligned. What was not mentioned is that we truncate the address on both sides, dropping both the lowest 2 bits, for word alignment, and the highest 14 bits, resulting in a 16-bit word-aligned address. A full 16-bit address was used as we designed the bus before finalising the size of our DMEM, and we wanted to leave wiggle room if we ended up having extra space. With our finalised 16KiB DMEM, we just ignore the top 4 bits of that address. </p>
+    <p>For our IO mapping, the AHB bus uses the most significant nibble of the 32-bit byte-aligned address coming from the CPU to determine the peripheral we want to talk to, so we need to keep that at 0 for DMEM. The second most significant nibble, however, is not used for routing and is masked off by the DMEM slave, so we set the second most significant nibble to 1, setting the origin of DMEM to 0x0100_0000 in the linker. The following example shows how it works:</p>
+    <p>Let's say that we want to write to address 0x4<br>
+The byte address is 0x00000004<br>
+The word address is 0x0000001<br>
+The final masked address is 0x00000001<br>
+But what if we wrote to address 0x01000004?<br>
+The byte address is 0x01000004<br>
+The word address is 0x00400001<br>
+The masked address is 0x00000001</p>
+    <details class="code-block">
+      <summary>Linker script (link.ld)</summary>
+      <div class="code-content"><pre><code>/* Copyright lowRISC contributors.
+   Licensed under the Apache License, Version 2.0, see LICENSE for details.
+   SPDX-License-Identifier: Apache-2.0 */
+
+OUTPUT_ARCH(riscv)
+
+MEMORY
+{
+    imem  : ORIGIN = 0x00000000, LENGTH = 0x4000          /* 32 kB */
+    dmem  : ORIGIN = 0x01000000, LENGTH = 0x4000          /* 32 kB */
+}
+
+/* Stack information variables */
+_min_stack     = 0x1000;   /* 4K - minimum stack space to reserve */
+_stack_len     = LENGTH(dmem);
+_stack_start   = ORIGIN(dmem) + LENGTH(dmem);
+
+_entry_point = 0x0;
+ENTRY(_entry_point)
+
+SECTIONS
+{
+    .text : {
+        . = ALIGN(4);
+        *(.text)
+        *(.text.*)
+    }  &gt; imem
+
+    .rodata : {
+        . = ALIGN(4);
+        *(.rodata);
+        *(.rodata.*)
+    } &gt; dmem 
+
+    .data : {
+        . = ALIGN(4);
+        *(.data);
+        *(.data.*)
+    } &gt; dmem
+
+    .bss :
+    {
+        . = ALIGN(4);
+        _bss_start = .;
+        *(.bss)
+        *(.bss.*)
+        *(COMMON)
+        _bss_end = .;
+    } &gt; dmem
+
+    /* ensure there is enough room for stack */
+    .stack (NOLOAD): {
+        . = ALIGN(4);
+        . = . + _min_stack ;
+        . = ALIGN(4);
+        stack = . ;
+        _stack = . ;
+    } &gt; dmem
+}
+</code></pre></div>
+    </details>
+
+    <h4>Startup Handler:</h4>
+    <p>With the compiler and linker set up, the next step was to create a startup routine that would reset the chip registers, point to the stack, and jump to the main function in the C program. This was done in assembly in crt0.S.</p>
+    <details class="code-block">
+      <summary>Startup routine (crt0.S)</summary>
+      <div class="code-content"><pre><code># Copyright lowRISC contributors.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+#define EXIT_SYSCALL 93
+
+.section .text
+
+reset_handler:
+  /* set all registers to zero */
+  mv  x1, x0
+  mv  x2, x1
+  mv  x3, x1
+  mv  x4, x1
+  mv  x5, x1
+  mv  x6, x1
+  mv  x7, x1
+  mv  x8, x1
+  mv  x9, x1
+  mv x10, x1
+  mv x11, x1
+  mv x12, x1
+  mv x13, x1
+  mv x14, x1
+  mv x15, x1
+  mv x16, x1
+  mv x17, x1
+  mv x18, x1
+  mv x19, x1
+  mv x20, x1
+  mv x21, x1
+  mv x22, x1
+  mv x23, x1
+  mv x24, x1
+  mv x25, x1
+  mv x26, x1
+  mv x27, x1
+  mv x28, x1
+  mv x29, x1
+  mv x30, x1
+  mv x31, x1
+  
+  /* stack initilization */
+  la x2, _stack_start
+
+_start:
+  .global _start
+
+  /* clear BSS */
+  la x26, _bss_start
+  la x27, _bss_end
 
 
+main_entry:
+  /* jump to main program entry point (argc = argv = 0) */
+  addi x10, x0, 0
+  addi x11, x0, 0
+  jal x1, main
+
+  /* If execution ends up here just put the core to sleep */
+sleep_loop:
+  wfi
+  j sleep_loop
+
+</code></pre></div>
+    </details>
+
+    <h4>VHX Generator:</h4>
+    <p>Ultimately, our programs need to end up as hexcode VHX files representing the raw data to load into IMEM and DMEM. To accomplish this, we have script, run.rv32.bash, which takes the specific C program, the linker, the startup routine, and any C files in our common folder, and compiles and links our C program. Once we have the object file, it is assembled into an ELF file, which is then disassembled into a DASM file and turned into our VHX files.</p>
+    <details class="code-block">
+      <summary>Build and VHX generation script (run.rv32.bash)</summary>
+      <div class="code-content"><pre><code>#!/bin/bash
+clear
+
+SRC_MAIN=&quot;src/demo/demo.c&quot;
+
+SRC_COMMON=&quot;common/crt0.S&quot;
+MAIN_BASE=&quot;$(basename -- ${SRC_MAIN})&quot;
+MAIN_NAME=&quot;${MAIN_BASE%.*}&quot;
+ELF=&quot;${MAIN_NAME%.*}.elf&quot;
+DASM=&quot;${MAIN_NAME%.*}.dasm&quot;
+VHX8=&quot;${MAIN_NAME%.*}.vhx8&quot;
+VHX32=&quot;${MAIN_NAME%.*}.vhx32&quot;
+VHX=&quot;${MAIN_NAME%.*}.vhx&quot;
+
+VHX8_INST=&quot;${MAIN_NAME%.*}_inst.vhx8&quot;
+VHX8_DATA=&quot;${MAIN_NAME%.*}_data.vhx8&quot;
+VHX32_INST=&quot;${MAIN_NAME%.*}_inst.vhx32&quot;
+VHX32_DATA=&quot;${MAIN_NAME%.*}_data.vhx32&quot;
+VHX_INST=&quot;${MAIN_NAME%.*}_inst.vhx&quot;
+VHX_DATA=&quot;${MAIN_NAME%.*}_data.vhx&quot;
+
+DIR_OBJ=&quot;obj&quot;
+DIR_ELF=&quot;elf&quot;
+DIR_DASM=&quot;dasm&quot;
+DIR_VHX=&quot;vhx&quot;
+
+PATH_BIN=&quot; /tools/misc/CSEE4824/riscv_zfinx/bin&quot;
+CC=&quot;${PATH_BIN}/riscv32-unknown-elf-gcc&quot;
+LD=&quot;${CC}&quot;
+DUMP=&quot;${PATH_BIN}/riscv32-unknown-elf-objdump&quot;
+OBJCP=&quot;${PATH_BIN}/riscv32-unknown-elf-objcopy&quot;
+CFLAG=&quot;-march=rv32imc -mabi=ilp32 -static -mcmodel=medany -Wall -g -O0 -fvisibility=hidden -nostdlib -nostartfiles -ffreestanding &quot;
+INCS=&quot;-Icommon -Isrc&quot;
+LDFILE=&quot;common/link.ld&quot;
+
+rm -rf $DIR_OBJ/*
+
+for DIR in $DIR_OBJ $DIR_DASM $DIR_ELF $DIR_VHX
+do
+mkdir -p $DIR
+done
+
+rm -f $DIR_ELF/$ELF
+rm -f $DIR_DASM/$DASM
+rm -f $DIR_VHX/$VHX8
+rm -f $DIR_VHX/$VHX32
+
+
+## OBJECT from SOURCE
+for FSRC in ${SRC_COMMON} ${SRC_MAIN}
+do
+SRC_BASE=&quot;$(basename -- $FSRC)&quot;
+OBJ_NAME=&quot;${SRC_BASE%.*}&quot;
+OBJ=&quot;${OBJ_NAME}.o&quot;
+${CC} ${CFLAG} ${INCS} -MMD -c -o ${DIR_OBJ}/${OBJ} ${FSRC}
+done
+
+## OBJECT_LIST from OBJECT_FOLDER 
+LIST_OBJ=&quot;&quot;
+for OBJ_FILE in `ls ${DIR_OBJ}/*.o`
+do
+LIST_OBJ=&quot;${LIST_OBJ} ${OBJ_FILE}&quot;
+done
+
+## ELF from OBJECT_LIST
+${LD} ${CFLAG} ${INCS} -T ${LDFILE} -o ${DIR_ELF}/${ELF} ${LIST_OBJ}
+
+## DISASSEMBLY from ELF
+${DUMP} -fhSD ${DIR_ELF}/${ELF} &gt; ${DIR_DASM}/${DASM}
+
+
+## Verilog Hex from ELF
+$OBJCP -O verilog ${DIR_ELF}/${ELF} ${DIR_VHX}/${VHX8}
+$OBJCP -O verilog --only-section=.vectors  --only-section=.init --only-section=.text ${DIR_ELF}/${ELF} ${DIR_VHX}/${VHX8_INST}
+$OBJCP -O verilog --only-section=.rodata --only-section=.data --only-section=.sdata --only-section=.bss --only-section=.stack ${DIR_ELF}/${ELF} ${DIR_VHX}/${VHX8_DATA}
+
+python3 ./scripts/hex8tohex32.py ${DIR_VHX}/${VHX8} &gt; ${DIR_VHX}/${VHX32}
+python3 ./scripts/hex8tohex32.py ${DIR_VHX}/${VHX8_INST} &gt; ${DIR_VHX}/${VHX32_INST}
+python3 ./scripts/hex8tohex32.py ${DIR_VHX}/${VHX8_DATA} &gt; ${DIR_VHX}/${VHX32_DATA}
+
+
+grep -v &#x27;^@&#x27; ${DIR_VHX}/${VHX32} &gt;  ${DIR_VHX}/${VHX}
+grep -v &#x27;^@&#x27; ${DIR_VHX}/${VHX32_INST} &gt;  ${DIR_VHX}/${VHX_INST}
+grep -v &#x27;^@&#x27; ${DIR_VHX}/${VHX32_DATA} &gt;  ${DIR_VHX}/${VHX_DATA}
+
+printf &quot;\n[DBG] Generated Files\n&quot;
+ls -lh ${DIR_ELF}/${ELF}
+ls -lh ${DIR_VHX}/${VHX}
+exit 1
+</code></pre></div>
+    </details>
+
+    <h4>Software Drivers:</h4>
+    <p>There are two files which serve as software drivers for the IO on our chip, nano_logic_utils.c and spi_lcd_driver.h.</p>
+    <p>The main software driver is nano_logic_utils.c, which defines register mappings, initialization functions, and various other common functions for each of the peripherals. This driver is used in nearly all of our programs.</p>
+    <details class="code-block">
+      <summary>nano_logic_utils.c</summary>
+      <div class="code-content"><pre><code>/*
+The file contains important definitions and functions to be used in writing programs
+for our SoC.
+*/
+
+#include &lt;stdint.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdbool.h&gt;
+
+//Memory Location Definitions
+
+//DMEM
+#define DMEM_BASE 0x00000000 //Base address DMEM is mapped to
+
+//GPIO
+#define GPIO_BASE 0x10000000 //Base address GPIO is mapped to
+#define GPIO_PADDIR 0x10000000 //Set direction of GPIO pins
+#define GPIO_EN 0x10000004 //Enable input sampling on GPIO pins
+#define GPIO_PADIN 0x10000008 //Read input signals from GPIO pins
+#define GPIO_PADOUT 0x1000000C //Set output values of GPIO pins
+#define GPIO_PADOUTSET 0x10000010 //Set output of GPIO pins high
+#define GPIO_PADOUTCLR 0x10000014 //Set output of GPIO pins low
+#define GPIO_INTEN 0x10000018 //Enable interrupts on GPIO pins
+#define GPIO_INTTYPE 0x1000001C //Configure interrupt types for GPIO pins
+#define GPIO_INTSTATUS 0x10000024 
+#define GPIO_PADCFG 0x10000028
+
+//UART
+#define UART_BASE 0x20000000 //Base address UART is mapped to
+#define UART_LCR 0x2000000C //LCR is used for setting the Divisor Latch Access bit and the data format
+#define UART_DLL 0x20000000 //DLL and DLM are used for setting the Baud Rate Divider value
+#define UART_DLM 0x20000004 //DLL and DLM are used for setting the Baud Rate Divider value
+#define UART_THR 0x20000000 //THR is used for Tx.
+#define UART_RBR 0x20000000 //RBR is used for Rx.
+#define UART_IER 0x20000004 //IER is set to interrupt the processor
+#define UART_FCR 0x20000008 //FCR is used to clear the FIFO
+#define UART_IIR 0x20000008 //IIR is used to identify interrupts
+#define UART_MCR 0x20000010
+#define UART_LSR 0x20000014
+#define UART_MSR 0x20000018
+#define UART_SCR 0x2000001C
+
+//SPI
+#define SPI_BASE 0x30000000 //Base address SPI is mapped to
+#define SPI_STATUS 0x30000000 
+#define SPI_CLKDIV 0x30000004 //Clock divider value
+#define SPI_CMD 0x30000008 
+#define SPI_ADR 0x3000000C 
+#define SPI_LEN 0x30000010 //Sets the length of DATA, ADDR, and CMD
+#define SPI_DUM 0x30000014 
+#define SPI_TXFIFO 0x30000018 //FIFO storing value to transmit over MOSI
+#define SPI_RXFIFO 0x30000020 //FIFO storing value received via MISO
+#define SPI_INTCFG 0x30000024 
+#define SPI_INTSTA 0x30000028
+
+//Timers
+#define TIMER_BASE 0x50000000 //Base address the Timer Module is mapped to
+#define TIMER_0_CNT 0x50000000 //Timer 0 count
+#define TIMER_0_CTRL 0x50000004 //Timer 0 control
+#define TIMER_0_CMP 0x50000008 //Timer 0 compare
+#define TIMER_1_CNT 0x50000020 //Timer 1 count
+#define TIMER_1_CTRL 0x50000024 //Timer 1 control
+#define TIMER_1_CMP 0x50000028 //Timer 1 compare
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//Functions
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+//Functions for Reading from and Writing to a Specific Address
+#define ADDR_READ(addr) (*((volatile uint32_t *)(addr)))
+#define ADDR_WRITE(addr, val) (*((volatile uint32_t *)(addr)) = val) 
+
+
+
+
+//---------------------------------------------
+//GPIO Functions
+//---------------------------------------------
+
+
+// Note: Each GPIO instance occupies a 128-byte block (2^7 bytes).
+// Full address = (instance number * 128) + local register offset.
+
+//Used to initialize GPIO for transmission 
+void gpio_init() {
+
+    // 1. Set all pins as inputs.
+    ADDR_WRITE(GPIO_PADDIR, 0x00);
+    
+    // 2. Enable input sampling for pins.
+    ADDR_WRITE(GPIO_EN, 0xff);
+    
+    // 3. Clear output values.
+    ADDR_WRITE(GPIO_PADOUT, 0x00);
+    
+    // Optionally, clear any pending output set/clear signals.
+    ADDR_WRITE(GPIO_PADOUTCLR, 0xff);  // Clear any outputs 
+    ADDR_WRITE(GPIO_PADOUTSET, 0x00);  // Ensure no outputs are forced high
+    
+    // 4. Disable interrupts.
+    // Write 0 to disable all GPIO interrupts.
+    ADDR_WRITE(GPIO_INTEN, 0x00);
+    
+    // 5. Set interrupt type to a default value.
+    // Here, 0x00000000 might correspond to a default (e.g., falling-edge or disabled)
+    ADDR_WRITE(GPIO_INTTYPE, 0x00);
+    
+    // 6. Set pad configuration to default.
+    ADDR_WRITE(GPIO_PADCFG, 0x00);
+}
+
+
+/*
+Set the direction of a single GPIO pin.
+&#x27;pin_num&#x27; selects the pin (only lower 3 bits are used, as there are 8 pins).
+&#x27;out&#x27; is true for output, false for input.
+*/
+static inline void gpio_set_pin_dir(uint32_t out) {
+    ADDR_WRITE(GPIO_PADDIR, out);
+    ADDR_WRITE(GPIO_EN, ~out); //Do we need this line if we set them all to be able to sample in the initialization function?
+}
+
+/*
+Write a boolean value to a single GPIO pin.
+&#x27;data&#x27; true sets the pin high; false clears the pin.
+*/
+static inline void gpio_pin_write(uint32_t data) {
+    ADDR_WRITE(GPIO_PADOUT, data);
+}
+
+/*
+Read the value from a single GPIO pin.
+Returns true if the pin is high, false if low.
+*/
+static inline uint32_t gpio_pin_read() {
+    return ADDR_READ(GPIO_PADIN);
+}
+
+
+//---------------------------------------------
+//UART Functions
+//---------------------------------------------
+
+
+
+//Used to initialize UART for byte-wise transmission. 
+void uart_init() {
+
+    ADDR_WRITE(UART_LCR, 0x00000081); 
+
+    ADDR_WRITE(UART_DLL, 0x00000059);
+    ADDR_WRITE(UART_DLM, 0x00000022);
+    //Baud rate of 9600 for 84.414MHz clock speed. (Baud rate = clk_freq/DLM:DLL)
+
+    //Sending one byte at a time
+    ADDR_WRITE(UART_LCR, 0x00000003);
+    ADDR_WRITE(UART_THR, 0x0000000A);	
+	ADDR_WRITE(UART_THR, 0x0000000A);	
+	ADDR_WRITE(UART_THR, 0x0000000A);	
+	ADDR_WRITE(UART_THR, 0x0000000A);	
+	ADDR_WRITE(UART_THR, 0x0000000A);	
+	ADDR_WRITE(UART_THR, 0x0000000A);	
+}
+
+/*
+Used to transmit a byte over UART, note that the byte is transmitted LSB first.
+
+Takes an 8-bit value data which is the byte to be transmitted
+*/
+static inline void uart_transmit_char(uint8_t data) {
+    ADDR_WRITE(UART_THR, data);
+}
+
+//---------------------------------------------
+//SPI Functions
+//---------------------------------------------
+
+//Used to initialize SPI for transmission 
+void spi_init(){
+    //Setting length of DATA, ADDR, CMD to one byte each
+    ADDR_WRITE(SPI_LEN, 0x00080808); 
+    
+    ADDR_WRITE(SPI_CLKDIV, 0x000000FF);
+}
+
+/*
+Used to transmit a packet over SPI
+
+Takes a 1-byte command, 1-byte address, and 1-byte data value to be transmitted over SPI
+*/
+static inline void spi_transmit(uint8_t cmd, uint8_t adr, uint8_t data){
+    ADDR_WRITE(SPI_CMD, cmd &lt;&lt; 24);
+    ADDR_WRITE(SPI_ADR, adr &lt;&lt; 24);
+    ADDR_WRITE(SPI_TXFIFO, data &lt;&lt; 24);
+    ADDR_WRITE(SPI_STATUS, 0x00000102);
+}
+
+//---------------------------------------------
+//Timer Functions
+//---------------------------------------------
+
+/*
+Used to (re)start the count of the specified timer from 0.
+
+Takes in a bool timer which specifies which timer, 0 or 1,
+should be (re)started
+*/
+void timer_reset_and_start(bool timer) {
+    if (timer) {
+
+        //Reset timer 1 count to 0
+        ADDR_WRITE(TIMER_1_CNT, 0x00000000);
+
+        //Enable timer 1
+        ADDR_WRITE(TIMER_1_CTRL, 0x00000019);
+    }
+    else {
+        //Reset timer 0 count to 0
+        ADDR_WRITE(TIMER_0_CNT, 0x00000000);
+
+        //Enable timer 0
+        ADDR_WRITE(TIMER_0_CTRL, 0x00000019);
+    }
+}
+
+/*
+Used to read the current count value of the specified timer.
+
+Takes in a bool timer which specifies which timer, 0 or 1,
+should be read
+*/
+static inline uint32_t timer_read(bool timer) {
+    if (timer) return ADDR_READ(TIMER_1_CNT);
+    else return ADDR_READ(TIMER_0_CNT);
+}
+
+/*
+void timer_set_compare(bool timer, uint32_t comp) {
+    if (timer) ADDR_WRITE(TIMER_1_CMP, comp);
+    else ADDR_WRITE(TIMER_0_CMP, comp);
+}
+*/
+
+
+//---------------------------------------------
+//Delay Functions
+//---------------------------------------------
+static inline void delay(int n) {
+    // Simple delay loop (adjust based on your system clock)
+    volatile int i;
+    for (i = 0; i &lt; n * 100; i++) {}
+}
+
+// ------------ UART helpers (single-char only) ------------
+  static void uart_putc(char c) {
+      uart_transmit_char((uint8_t)c);
+  }
+  </code></pre></div>
+    </details>
+    <p>The other software driver, spi_lcd_driver.h, is responsible for defining functions to control the SPI LCD backup. </p>
+    <details class="code-block">
+      <summary>spi_lcd_driver.h</summary>
+      <div class="code-content"><pre><code>// Code based on spi_lcd.h from https://gitfront.io/r/lafis002/nsQYcfC2svzE/iRisc/
+
+#include &quot;nano_logic_utils.c&quot; 
+
+#define HIGH 1
+#define LOW 0
+
+volatile uint32_t SPIbuff;
+volatile uint8_t  displaycontrol;
+
+void long_delay(int n) {
+	volatile int i;
+	for (i = 0; i &lt; n * 1000; i++) {}
+}
+
+void spi_write(volatile uint32_t cmd, volatile uint8_t DELAY){
+	ADDR_WRITE(SPI_CMD, cmd); //8 bits of CMD we want to send to LCD
+	ADDR_WRITE(SPI_ADR, cmd); //8 bits of ADDR we want to send to LCD
+	ADDR_WRITE(SPI_TXFIFO, cmd); 
+	ADDR_WRITE(SPI_STATUS, 0x00000102); //Enable the clk to peripheral (SPI clk). Bit [1] set to enable spi_wr mode, and bit [8] set to chip select LCD. 
+	long_delay(DELAY);
+}
+
+
+void lcd_init(volatile uint8_t DELAY) {
+
+
+	ADDR_WRITE(SPI_LEN, 0x00080808); //Setting length of DATA, ADDR, CMD
+	ADDR_WRITE(SPI_CLKDIV, 0x000000FF); //Setting clock divider factor
+
+	spi_write(0x80000000, DELAY); //_digitalWrite(_rs_pin, LOW); Line 188, Adafruit_LiquidCrystal.cpp
+	spi_write(0x80000000, DELAY); //_digitalWrite(_enable_pin, LOW); Line 189, Adafruit_LiquidCrystal.cpp
+
+
+	//write4bits(0x03); Line 200, Adafruit_LiquidCrystal.cpp
+	spi_write(0xC0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE4000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+
+	//delayMicroseconds(4500); Line 201, Adafruit_LiquidCrystal.cpp
+	long_delay(100);
+
+	//write4bits(0x03); Line 204, Adafruit_LiquidCrystal.cpp
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE4000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+
+	//delayMicroseconds(4500); Line 205, Adafruit_LiquidCrystal.cpp
+	long_delay(100);
+
+	//write4bits(0x03); Line 208, Adafruit_LiquidCrystal.cpp
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+	spi_write(0xE4000000, DELAY);
+	spi_write(0xE0000000, DELAY);
+
+	//delayMicroseconds(150); Line 209. Delay given below (1000) is more than required, can be changed
+	long_delay(1000);
+
+	//write4bits(0x02); Line 212, Adafruit_LiquidCrystal.cpp
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA4000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+
+	long_delay(100); //Needed???
+
+	//command(LCD_FUNCTIONSET | _displayfunction); Line 230, Adafruit_LiquidCrystal.cpp
+	//LCD_FUNCTIONSET | _displayfunction evalutaes to 0x28
+	spi_write(0xA0000000, DELAY); //_digitalWrite(_rs_pin, mode); Line 401, Adafruit_LiquidCrystal.cpp	
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xA4000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+
+	spi_write(0xA0000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x88000000, DELAY);
+	spi_write(0x88000000, DELAY);
+	spi_write(0x8C000000, DELAY);
+	spi_write(0x88000000, DELAY);
+
+	//display(); Line 234, Adafruit_LiquidCrystal.cpp
+	spi_write(0x88000000, DELAY); //_digitalWrite(_rs_pin, mode); Line 401, Adafruit_LiquidCrystal.cpp
+
+	spi_write(0x88000000, DELAY);
+	spi_write(0x88000000, DELAY);
+	spi_write(0x88000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x84000000, DELAY);
+	spi_write(0x80000000, DELAY);
+
+	spi_write(0x80000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x90000000, DELAY);
+	spi_write(0x98000000, DELAY);
+	spi_write(0x98000000, DELAY);
+	spi_write(0x9C000000, DELAY);
+	spi_write(0x98000000, DELAY);
+
+	//clear(); Line 237, Adafruit_LiquidCrystal.cpp
+	spi_write(0x98000000, DELAY); //_digitalWrite(_rs_pin, mode); Line 401, Adafruit_LiquidCrystal.cpp
+	spi_write(0x98000000, DELAY);
+	spi_write(0x98000000, DELAY);
+	spi_write(0x88000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x84000000, DELAY);
+	spi_write(0x80000000, DELAY);
+
+	spi_write(0xC0000000, DELAY);
+	spi_write(0xC0000000, DELAY);
+	spi_write(0xC0000000, DELAY);
+	spi_write(0xC0000000, DELAY);
+	spi_write(0xC0000000, DELAY);
+	spi_write(0xC4000000, DELAY);
+	spi_write(0xC0000000, DELAY);
+
+	long_delay(100); //delayMicroseconds(2000); Line 250, Adafruit_LiquidCrystal.cpp
+
+	//command(LCD_ENTRYMODESET | _displaymode); Line 242, Adafruit_LiquidCrystal.cpp
+	spi_write(0xC0000000, DELAY); //_digitalWrite(_rs_pin, mode); Line 401, Adafruit_LiquidCrystal.cpp
+	spi_write(0x80000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x80000000, DELAY);
+	spi_write(0x84000000, DELAY);
+	spi_write(0x80000000, DELAY);
+
+	spi_write(0x80000000, DELAY);
+	spi_write(0xA0000000, DELAY);
+	spi_write(0xB0000000, DELAY);
+	spi_write(0xB0000000, DELAY);
+	spi_write(0xB0000000, DELAY);
+	spi_write(0xB4000000, DELAY);
+	spi_write(0xB0000000, DELAY);
+
+	SPIbuff = 0x000000B0;
+	displaycontrol = 0x04;
+}
+
+void digitalWrite(volatile uint8_t p, volatile uint8_t d, volatile uint8_t DELAY) {
+	
+	volatile uint32_t mask = 0xFF000000;
+
+	if (d == HIGH)
+		SPIbuff |= (1 &lt;&lt; p);
+	else
+		SPIbuff &amp;= ~(1 &lt;&lt; p);
+	
+	volatile uint32_t word = mask &amp;  (SPIbuff &lt;&lt; 24);
+	spi_write(word, DELAY);
+
+}
+
+
+void lcd_write(volatile uint8_t character, volatile uint8_t mode, volatile uint8_t DELAY) {
+	// Implementing &quot;send&quot; function
+
+	digitalWrite((uint8_t) 1, mode, DELAY);
+
+	digitalWrite((uint8_t) 6, (uint8_t) ((character &gt;&gt; 4) &amp; 0x01), DELAY);
+	digitalWrite((uint8_t) 5, (uint8_t) ((character &gt;&gt; 5) &amp; 0x01), DELAY);
+	digitalWrite((uint8_t) 4, (uint8_t) ((character &gt;&gt; 6) &amp; 0x01), DELAY);
+	digitalWrite((uint8_t) 3, (uint8_t) ((character &gt;&gt; 7) &amp; 0x01), DELAY);
+	
+	digitalWrite((uint8_t) 2, (uint8_t) LOW, DELAY);
+	digitalWrite((uint8_t) 2, (uint8_t) HIGH, DELAY);
+	digitalWrite((uint8_t) 2, (uint8_t) LOW, DELAY);
+
+
+	digitalWrite((uint8_t) 6, (uint8_t) ((character &gt;&gt; 0) &amp; 0x01), DELAY);
+	digitalWrite((uint8_t) 5, (uint8_t) ((character &gt;&gt; 1) &amp; 0x01), DELAY);
+	digitalWrite((uint8_t) 4, (uint8_t) ((character &gt;&gt; 2) &amp; 0x01), DELAY);
+	digitalWrite((uint8_t) 3, (uint8_t) ((character &gt;&gt; 3) &amp; 0x01), DELAY);
+
+	digitalWrite((uint8_t) 2, (uint8_t) LOW, DELAY);
+	digitalWrite((uint8_t) 2, (uint8_t) HIGH, DELAY);
+	digitalWrite((uint8_t) 2, (uint8_t) LOW, DELAY);
+
+}
+
+void lcd_print(volatile char *string, volatile uint8_t size, volatile uint8_t DELAY) {
+
+	volatile int i = 0;
+	//uart_putc(&#x27;S&#x27;);
+	//uart_putc(&#x27;T&#x27;);
+	//uart_putc(&#x27;R&#x27;);
+	//uart_putc(&#x27;:&#x27;);
+	//uart_putc(&#x27; &#x27;);
+
+	while (i &lt; size) {
+		lcd_write((uint8_t) string[i], (uint8_t) HIGH, DELAY);
+		//uart_putc((uint8_t) string[i]);
+		i++;
+	}
+		//uart_putc(&#x27;\n&#x27;);
+
+}
+
+
+void clear() {
+
+	lcd_write((uint8_t) 0x01, (uint8_t) LOW, 1);
+	long_delay(100);
+}
+
+void home() {
+
+
+	lcd_write((uint8_t) 0x02, (uint8_t) LOW, 1);
+	long_delay(100);
+}
+
+void setCursor(volatile uint8_t col, volatile uint8_t row, volatile uint8_t DELAY) {
+
+
+	if (row == 0)
+  		lcd_write((uint8_t) (0x80 | (col + 0x00)), (uint8_t) LOW, DELAY);
+	else if (row == 1)
+		lcd_write((uint8_t) (0x80 | (col + 0x40)), (uint8_t) LOW, DELAY);
+	else if (row == 2)
+		lcd_write((uint8_t) (0x80 | (col + 0x14)), (uint8_t) LOW, DELAY);
+	else
+		lcd_write((uint8_t) (0x80 | (col + 0x54)), (uint8_t) LOW, DELAY);
+
+}
+
+void noDisplay() {
+
+	displaycontrol = 0x00;
+	lcd_write((uint8_t) 0x08, (uint8_t) LOW, 1);
+
+}
+
+void display() {
+
+	displaycontrol = 0x04;
+	lcd_write((uint8_t) 0x0C, (uint8_t) LOW, 1);
+
+}
+
+void noCursor() {
+
+	displaycontrol &amp;= ~(0x02);
+
+	lcd_write((uint8_t) (0x08 | displaycontrol), (uint8_t) LOW, 1);
+
+}
+
+void cursor() {
+
+	displaycontrol |= 0x02;
+	lcd_write((uint8_t) (0x08 | displaycontrol), (uint8_t) LOW, 1);
+
+}
+
+void noBlink() {
+
+	displaycontrol &amp;= ~(0x01);
+	lcd_write((uint8_t) (0x08 | displaycontrol), (uint8_t) LOW, 1);
+
+}
+
+void blink() {
+
+	displaycontrol |= 0x01;
+	lcd_write((uint8_t) (0x08 | displaycontrol), (uint8_t) LOW, 1);
+
+}
+
+void scrollDisplayLeft() {
+
+	lcd_write((uint8_t) 0x18, (uint8_t) LOW, 1);
+
+}
+
+void scrollDisplayRight() {
+
+	lcd_write((uint8_t) 0x1C, (uint8_t) LOW, 1);
+
+}
+
+void setBacklight (uint8_t value) {
+
+	digitalWrite((uint8_t) 0x07, value, 1);
+}</code></pre></div>
+    </details>
+
+    <h4>Demo Program:</h4>
+    <details class="code-block">
+      <summary>demo.c (menu and mode control)</summary>
+      <div class="code-content"><pre><code>#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &quot;spi_lcd_driver.h&quot; 
+#include &quot;demo_game.c&quot;
+#include &quot;demo_menu.c&quot;
+#include &quot;demo_prime.c&quot;
+#include &quot;demo_pi.c&quot;
+
+volatile uint8_t lcd_delay = 3;
+volatile char str0[10] = &quot;          &quot;;
+volatile char strnew1[6] = &quot;React!&quot;;
+volatile char strnew2[8] = &quot;Printing&quot;;
+volatile char strnew3[9] = &quot;Primes...&quot;;
+volatile char strnew4[16]  = &quot;Press Game Start&quot;;
+volatile char strnew5[14]  = &quot;Game Starting!&quot;;
+volatile char strnew6[17]  = &quot;Returning to Menu&quot;;
+volatile char strnew7[11] = &quot;Calculating&quot;;
+volatile char strnew8[1] = {0xF7};  
+volatile char strnew9[3] = &quot;...&quot;;  
+volatile char str_mode_select[21] = &quot;A=Easy B=Norm C=Hard&quot;;
+int button_A() { return (gpio_pin_read() &amp; (1 &lt;&lt; 0)); }   // GPIO0 → A
+int button_B() { return (gpio_pin_read() &amp; (1 &lt;&lt; 1)); }   // GPIO1 → B
+int button_C() { return (gpio_pin_read() &amp; (1 &lt;&lt; 2)); }   // GPIO2 → C
+int button_Select() { return (gpio_pin_read() &amp; (1 &lt;&lt; 7)); }   // GPIO7 → MENU
+
+int main(void) {
+    uart_init();
+    gpio_init();
+    spi_init();
+    lcd_init(lcd_delay);
+
+    setCursor(0, 0, lcd_delay);
+    lcd_print(str0, 10, lcd_delay);
+
+    print_welcome_message();
+    delay(50000);
+    print_menu_options();
+
+     while (1)
+    {
+        // ------------------ OPTION 1: Play Game ------------------
+        if (button_B()) {
+            uint8_t hard_mode = DIFF_EASY;
+            uint8_t drawn_mode = 2; // invalid sentinel to force initial draw
+
+            clear();
+            setCursor(0, 0, lcd_delay);
+            lcd_print(strnew1, 6, lcd_delay);
+            if (drawn_mode != hard_mode) {
+                show_mode_line(hard_mode);
+                drawn_mode = hard_mode;
+            }
+            setCursor(0, 2, lcd_delay);
+            lcd_print(str_mode_select, 20, lcd_delay);
+            setCursor(0, 3, lcd_delay);
+            lcd_print(strnew4, 16, lcd_delay);
+            while (!game_started()) {
+                if (button_A() &amp;&amp; hard_mode != DIFF_EASY) {
+                    hard_mode = DIFF_EASY;
+                    if (drawn_mode != hard_mode) {
+                        show_mode_line(hard_mode);
+                        drawn_mode = hard_mode;
+                    }
+                }
+                if (button_B() &amp;&amp; hard_mode != DIFF_NORMAL) {
+                    hard_mode = DIFF_NORMAL;
+                    if (drawn_mode != hard_mode) {
+                        show_mode_line(hard_mode);
+                        drawn_mode = hard_mode;
+                    }
+                }
+                if (button_C() &amp;&amp; hard_mode != DIFF_HARD) {
+                    hard_mode = DIFF_HARD;
+                    if (drawn_mode != hard_mode) {
+                        show_mode_line(hard_mode);
+                        drawn_mode = hard_mode;
+                    }
+                }
+                delay(1000);
+            }
+
+            clear();
+            setCursor(0,0,lcd_delay);
+            lcd_print(strnew5, 14, lcd_delay);
+            long_delay(1000);
+
+	  
+            reaction_game(hard_mode);        // your full game logic
+
+            clear();
+            setCursor(0,0,lcd_delay);
+            lcd_print(strnew6, 17, lcd_delay);
+            long_delay(1000);
+           
+            clear();
+            print_menu_options();   // return to menu
+        }
+
+        // ------------------ OPTION 2: Print Primes UART ------------------
+        if (button_A()) {
+               
+            clear();
+            setCursor(0, 0, lcd_delay);
+            lcd_print(strnew2, 8, lcd_delay);
+            setCursor(0, 1, lcd_delay);
+            lcd_print(strnew3, 9, lcd_delay);
+
+            print_primes_uart(1000);
+            uart_putc(&#x27;\n&#x27;);
+
+          
+            print_menu_options();
+        }
+        if (button_C()) {
+            clear();
+            setCursor(0, 0, lcd_delay);
+            lcd_print(strnew7, 11, lcd_delay);
+            setCursor(0, 1, lcd_delay);
+            lcd_print(strnew8, 1, lcd_delay);
+            lcd_print(strnew9, 3, lcd_delay);
+            print_pi_uart(PI_DIGITS_MAX);
+            print_menu_options();
+        }
+
+        // ------------------ OPTION 3: Reprint menu ------------------
+        if (button_Select()) {
+            print_menu_options();
+        }
+    }
+ 
+    return 0;
+}
+
+</code></pre></div>
+    </details>
+    <details class="code-block">
+      <summary>demo_game.c (reaction game)</summary>
+      <div class="code-content"><pre><code>volatile uint8_t lcd_delay_game = 3;
+volatile char str1[1] = &quot;A&quot;;
+volatile char str2[1] = &quot;B&quot;;
+volatile char str3[1] = &quot;C&quot;;
+volatile char str4[1] = &quot;X&quot;;
+volatile char str5[1] = &quot;Y&quot;;
+volatile char str6[1] = &quot;Z&quot;;
+volatile char str7[8]  = &quot;Correct!&quot;;
+volatile char str8[7]  = &quot;Wrong:(&quot; ;
+volatile char str9[16]  = &quot;    Game Over :(&quot;; 
+volatile char str10[16]  = &quot;Press Game Start&quot;; 
+volatile char str11[13]  = &quot;Game Started!&quot;; 
+volatile char str_score_line[12] = &quot;Score: 0000&quot;;
+volatile char str_lives_line[9] = &quot;Lives: 3&quot;;
+volatile char str_timeout[9] = &quot;Too Slow&quot;;
+volatile char str_mode_easy[11] = &quot;Mode: Easy&quot;;
+volatile char str_mode_normal[13] = &quot;Mode: Normal&quot;;
+volatile char str_mode_hard[11] = &quot;Mode: Hard&quot;;
+volatile char str_gameover_prompt[21] = &quot;Start=Retry Sel=Menu&quot;;
+volatile char blank_line[21] = &quot;                    &quot;;
+volatile char* letters[6] = {str1, str2, str3, str4, str5, str6};
+uint8_t num_letters = 6;
+#define DIFF_EASY   0
+#define DIFF_NORMAL 1
+#define DIFF_HARD   2
+#define SIMUL_WINDOW_TICKS 6000000U
+#define ROUND_TIMEOUT_STEPS 125
+int game_started() {
+    uint32_t val = gpio_pin_read() &amp; 0xFF;
+    return (val &amp; (1 &lt;&lt; 6)) != 0; // GPIO 6 = START
+}
+
+int game_stopped() {
+    uint32_t val = gpio_pin_read() &amp; 0xFF;
+    return (val &amp; (1 &lt;&lt; 7)) != 0; // GPIO 7 = STOP
+}
+
+int get_pressed_button() {
+    uint32_t val = gpio_pin_read() &amp; 0xFF; // Read 8-bit GPIO PADIN
+    for (int i = 0; i &lt; num_letters; i++) {
+        if (val &amp; (1 &lt;&lt; i)) {       // Active HIGH buttons
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Write an integer into a pre-sized buffer without heap/float usage.
+static void write_number_to_buffer(uint32_t value, volatile char *buffer, uint8_t offset, uint8_t digits) {
+    for (uint8_t i = 0; i &lt; digits; i++) {
+        buffer[offset + digits - 1 - i] = (char)(&#x27;0&#x27; + (value % 10));
+        value /= 10;
+    }
+}
+
+static uint8_t read_letter_mask() {
+    return (uint8_t)(gpio_pin_read() &amp; ((1U &lt;&lt; num_letters) - 1U));
+}
+
+static void clear_row(uint8_t row) {
+    setCursor(0, row, lcd_delay_game);
+    lcd_print(blank_line, 20, lcd_delay_game);
+    setCursor(0, row, lcd_delay_game);
+}
+
+static void update_score_line(uint32_t score) {
+    if (score &gt; 9999U) {
+        score = 9999U; // clamp to displayed width
+    }
+    write_number_to_buffer(score, str_score_line, 7, 4);
+    setCursor(0, 2, lcd_delay_game);
+    lcd_print(str_score_line, 11, lcd_delay_game);
+}
+
+static void update_lives_line(uint32_t lives) {
+    if (lives &gt; 9U) {
+        lives = 9U;
+    }
+    str_lives_line[7] = (char)(&#x27;0&#x27; + lives);
+    setCursor(0, 3, lcd_delay_game);
+    lcd_print(str_lives_line, 8, lcd_delay_game);
+}
+
+static void show_mode_line(uint8_t hard_mode) {
+    clear_row(1);
+    setCursor(0, 1, lcd_delay_game);
+    if (hard_mode == DIFF_EASY) lcd_print(str_mode_easy, 10, lcd_delay_game);
+    else if (hard_mode == DIFF_NORMAL) lcd_print(str_mode_normal, 12, lcd_delay_game);
+    else lcd_print(str_mode_hard, 10, lcd_delay_game);
+}
+
+static int pick_second_letter(int first_letter, uint32_t random_val) {
+    int offset = (int)(random_val % (num_letters - 1)) + 1; // 1..num_letters-1
+    return (first_letter + offset) % num_letters;
+}
+
+static uint8_t build_hard_mask(uint32_t seed0, uint32_t seed1, int *letters_out) {
+    uint8_t count = (uint8_t)((seed1 % num_letters) + 1); // 1..6
+    uint32_t mix = seed0 ^ (seed1 &lt;&lt; 1);
+    uint8_t mask = 0;
+    for (uint8_t i = 0; i &lt; count; i++) {
+        int candidate = (int)((mix &gt;&gt; (i * 3)) % num_letters);
+        uint8_t tries = 0;
+        while ((mask &amp; (1U &lt;&lt; candidate)) &amp;&amp; tries &lt; num_letters) {
+            candidate = (candidate + 1) % num_letters;
+            tries++;
+        }
+        letters_out[i] = candidate;
+        mask |= (uint8_t)(1U &lt;&lt; candidate);
+    }
+    return mask;
+}
+
+static void build_display_string(const int *letters_list, uint8_t count, char *buf, uint8_t *out_len) {
+    uint8_t idx = 0;
+    for (uint8_t i = 0; i &lt; count; i++) {
+        buf[idx++] = letters[letters_list[i]][0];
+        if (i + 1 &lt; count) {
+            buf[idx++] = &#x27;+&#x27;;
+        }
+    }
+    *out_len = idx;
+}
+
+static void show_round_header(const int *letters_list, uint8_t count, uint32_t score, uint32_t lives) {
+    clear_row(0);
+    setCursor(0, 0, lcd_delay_game);
+    char display_buf[12];
+    uint8_t disp_len = 0;
+    build_display_string(letters_list, count, display_buf, &amp;disp_len);
+    lcd_print(display_buf, disp_len, lcd_delay_game);
+    update_score_line(score);
+    update_lives_line(lives);
+}
+
+static uint8_t wait_for_retry_or_menu() {
+    while (game_started() || game_stopped()) {
+        delay(500);
+    }
+    while (1) {
+        if (game_started()) return 1;
+        if (game_stopped()) return 0;
+        delay(500);
+    }
+}
+
+static uint8_t show_game_over_screen(uint32_t final_score) {
+    if (final_score &gt; 9999U) {
+        final_score = 9999U;
+    }
+    write_number_to_buffer(final_score, str_score_line, 7, 4);
+    clear();
+    setCursor(0, 0, lcd_delay_game);
+    lcd_print(str9, 16, lcd_delay_game);
+    lcd_print(str9, 4, lcd_delay_game);
+    setCursor(0, 2, lcd_delay_game);
+    lcd_print(str_score_line, 11, lcd_delay_game);
+    setCursor(0, 3, lcd_delay_game);
+    lcd_print(str_gameover_prompt, 20, lcd_delay_game);
+    return wait_for_retry_or_menu();
+}
+
+void reaction_game(uint8_t difficulty) {
+restart_game:
+    timer_reset_and_start(0);
+    timer_reset_and_start(1);
+    uint32_t score = 0;
+    uint32_t lives = 3;
+    clear();
+    show_mode_line(difficulty);
+    update_score_line(score);
+    update_lives_line(lives);
+    int target_letters[6];
+    while (1) {
+        uint32_t t = timer_read(0);
+        uint32_t t_alt = timer_read(1);
+
+        uint8_t expected_mask = 0;
+        uint8_t target_count = 1;
+        target_letters[0] = (int)(t % num_letters);
+        if (difficulty == DIFF_NORMAL) {
+            target_count = 2;
+            target_letters[1] = pick_second_letter(target_letters[0], t_alt);
+            expected_mask = (uint8_t)((1U &lt;&lt; target_letters[0]) | (1U &lt;&lt; target_letters[1]));
+        } else if (difficulty == DIFF_HARD) {
+            expected_mask = build_hard_mask(t, t_alt, target_letters);
+            target_count = 0;
+            for (uint8_t i = 0; i &lt; num_letters; i++) {
+                if (expected_mask &amp; (1U &lt;&lt; i)) {
+                    target_letters[target_count++] = i;
+                }
+            }
+        } else {
+            expected_mask = (uint8_t)(1U &lt;&lt; target_letters[0]);
+            target_count = 1;
+        }
+
+        show_round_header(target_letters, target_count, score, lives);
+        uint8_t pressed_mask = 0;
+        uint8_t input_correct = 0;
+        uint8_t saw_press = 0;
+        uint32_t window_start = 0;
+        uint32_t wait_budget = ROUND_TIMEOUT_STEPS;
+        uint8_t timed_out = 0;
+        while (1) {
+            if (game_stopped()) {
+                if (show_game_over_screen(score)) {
+                    goto restart_game;
+                }
+                return;    // Exit to menu
+            }
+
+            pressed_mask = read_letter_mask();
+            if (!saw_press) {
+                if (pressed_mask == 0) {
+                    if (wait_budget == 0) {
+                        timed_out = 1;
+                        break;
+                    }
+                    wait_budget--;
+                    delay(500);
+                    continue;
+                }
+                if ((pressed_mask &amp; ~expected_mask) != 0) {
+                    break; // Extra buttons pressed (cheating)
+                }
+                saw_press = 1;
+                window_start = timer_read(0);
+            } else {
+                if ((uint32_t)(timer_read(0) - window_start) &gt; SIMUL_WINDOW_TICKS) {
+                    break; // took too long to complete combo
+                }
+                if ((pressed_mask &amp; ~expected_mask) != 0) {
+                    break; // Extra buttons pressed (cheating)
+                }
+            }
+            if (pressed_mask == expected_mask) {
+                input_correct = 1;
+                break;
+            }
+        }
+
+        if (input_correct) {
+            score++;
+            update_score_line(score);
+            clear_row(0);
+            setCursor(0, 0, lcd_delay_game);
+            lcd_print(str7, 8, lcd_delay_game);
+            long_delay(1000);     
+        } 
+        else {
+            if (lives &gt; 0) {
+                lives--;
+            }
+            update_lives_line(lives);
+            clear_row(0);
+            setCursor(0, 0, lcd_delay_game);
+            if (timed_out) {
+                lcd_print(str_timeout, 8, lcd_delay_game);
+            } else {
+                lcd_print(str8, 7, lcd_delay_game);
+            }
+            long_delay(1000); 
+        }
+
+        long_delay(1000); // Adjust delay as needed
+        if (lives == 0) {
+            if (show_game_over_screen(score)) {
+                goto restart_game;
+            }
+            return;
+        }
+    }
+}
+    
+
+</code></pre></div>
+    </details>
+    <details class="code-block">
+      <summary>demo_menu.c (LCD menu)</summary>
+      <div class="code-content"><pre><code>volatile uint8_t lcd_delay_menu = 3;
+volatile char str1a[9] = &quot;Hello App&quot;;
+volatile char str1b[3] = &quot;le!&quot;;
+volatile char str2a[12] = &quot;This is Nano&quot;;
+volatile char str2b[6] = &quot;Logic!&quot;;
+volatile char str3a[6] = &quot;Choose&quot;;
+volatile char str3b[5] = &quot; from&quot;;
+volatile char str3c[7] = &quot; below:&quot;;
+
+volatile char str4a[7] = &quot;A:Print&quot;;
+volatile char str4b[6] = &quot; Prime&quot;;
+volatile char str4c[7] = &quot; (UART)&quot;;
+
+volatile char str5a[6] = &quot;B:Play&quot;;
+volatile char str5b[5] = &quot; Game&quot;;
+
+volatile char str6a[8] = &quot;C:Print &quot;;
+volatile char str6b[1] = {0xF7};
+volatile char str6c[7] = &quot; (UART)&quot;;
+void print_welcome_message() {
+  
+  clear();
+  setCursor(0, 0, lcd_delay_menu);
+  lcd_print(str1a, 9, lcd_delay_menu);
+  lcd_print(str1b, 3, lcd_delay_menu);
+
+  setCursor(0, 1, lcd_delay_menu);
+  lcd_print(str2a, 12, lcd_delay_menu);
+  lcd_print(str2b, 6, lcd_delay_menu);
+  long_delay(1000);
+
+}
+
+void print_menu_options () {
+
+  clear();
+	
+  lcd_print(str3a, 6, lcd_delay_menu);
+  lcd_print(str3b, 5, lcd_delay_menu);
+  lcd_print(str3c, 7, lcd_delay_menu);
+
+
+  setCursor(0, 1, lcd_delay_menu);
+  lcd_print(str4a, 7, lcd_delay_menu);
+  lcd_print(str4b, 6, lcd_delay_menu);
+  lcd_print(str4c, 7, lcd_delay_menu);
+
+  setCursor(0, 2, lcd_delay_menu);
+  lcd_print(str5a, 6, lcd_delay_menu);
+  lcd_print(str5b, 5, lcd_delay_menu);
+
+  setCursor(0, 3, lcd_delay_menu);
+  lcd_print(str6a, 8, lcd_delay_menu);
+  lcd_print(str6b, 1, lcd_delay_menu);
+  lcd_print(str6c, 7, lcd_delay_menu);
+  long_delay(1000);
+}
+
+</code></pre></div>
+    </details>
+    <details class="code-block">
+      <summary>demo_prime.c (UART prime generator)</summary>
+      <div class="code-content"><pre><code>// -------------------------------------------------
+// Prime check
+// -------------------------------------------------
+int is_prime(unsigned int n) {
+    if (n &lt; 2) return 0;
+    if (n == 2) return 1;
+    if (n % 2 == 0) return 0;
+
+    for (unsigned int i = 3; i * i &lt;= n; i += 2) {
+        if (n % i == 0) return 0;
+    }
+    return 1;
+}
+
+// -------------------------------------------------
+// Print integer as characters over UART using uart_putc()
+// -------------------------------------------------
+void uart_print_number(unsigned int n) {
+    char digits[10];
+    int i = 0;
+
+    // Extract digits (reverse)
+    while (n &gt; 0) {
+        digits[i++] = (n % 10) + &#x27;0&#x27;;
+        n /= 10;
+    }
+
+    // Print in correct order
+    while (--i &gt;= 0) {
+        uart_putc(digits[i]);
+        delay(30);
+    }
+}
+
+// -------------------------------------------------
+// Print all primes ≤ max_n using UART
+// -------------------------------------------------
+void print_primes_uart(unsigned int max_n) {
+    for (unsigned int n = 2; n &lt;= max_n; n++) {
+        if (is_prime(n)) {
+
+            uart_print_number(n);    // Send digits
+            uart_putc(&#x27; &#x27;);          // Space after each prime
+            delay(300);
+        }
+    }
+}
+</code></pre></div>
+    </details>
+    <details class="code-block">
+      <summary>demo_pi.c (UART pi digits)</summary>
+      <div class="code-content"><pre><code>// Spigot-based digit generator for pi (integer-only, no FP needed).
+// The CPU is 32-bit, so keep buffers small; this prints up to PI_DIGITS_MAX digits.
+
+#define PI_DIGITS_MAX 500
+#define PI_SPIGOT_LEN ((PI_DIGITS_MAX * 10 / 3) + 1)
+
+static int pi_state[PI_SPIGOT_LEN];
+
+// Emit a single digit over UART and drop a decimal point after the first digit.
+static void uart_emit_digit(int digit, int *digits_written) {
+    uart_putc((char)(&#x27;0&#x27; + digit));
+    delay(10);
+
+    (*digits_written)++;
+    if (*digits_written == 1) {     // after leading &#x27;3&#x27;
+        uart_putc(&#x27;.&#x27;);
+        delay(50);
+    }
+}
+
+// Generate and print `digits` digits of pi (including the leading &#x27;3&#x27;).
+static void print_pi_uart(int digits) {
+    if (digits &lt; 1) return;
+
+    // Initialize spigot state
+    for (int i = 0; i &lt; PI_SPIGOT_LEN; i++) {
+        pi_state[i] = 2;
+    }
+
+    int nines = 0;
+    int predigit = 0;
+    int digits_written = 0;
+
+    for (int j = 0; j &lt; digits; j++) {
+        int carry = 0;
+
+        // Core spigot step: update the remainder array.
+        for (int i = PI_SPIGOT_LEN; i &gt; 0; i--) {
+            int idx = i - 1;
+            int x = pi_state[idx] * 10 + carry * i;
+            pi_state[idx] = x % (2 * i - 1);
+            carry = x / (2 * i - 1);
+        }
+
+        int current_digit = carry / 10;
+        pi_state[0] = carry % 10;
+
+        // The first digit is just staged; others are emitted with carry handling.
+        if (j == 0) {
+            predigit = current_digit;
+            continue;
+        }
+
+        if (current_digit == 9) {
+            nines++;
+        } else if (current_digit == 10) {
+            uart_emit_digit(predigit + 1, &amp;digits_written);
+            for (int k = 0; k &lt; nines; k++) {
+                uart_emit_digit(0, &amp;digits_written);
+            }
+            predigit = 0;
+            nines = 0;
+        } else {
+            uart_emit_digit(predigit, &amp;digits_written);
+            for (int k = 0; k &lt; nines; k++) {
+                uart_emit_digit(9, &amp;digits_written);
+            }
+            predigit = current_digit;
+            nines = 0;
+        }
+    }
+
+    uart_emit_digit(predigit, &amp;digits_written);
+    for (int k = 0; k &lt; nines; k++) {
+        uart_emit_digit(9, &amp;digits_written);
+    }
+
+    uart_putc(&#x27;\n&#x27;);
+    delay(10000);
+}
+
+</code></pre></div>
+    </details>
 
     <h3>Testing Methodology</h3>
-    <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
-    <p></p>
-    <p></p>
-    <p></p>
-    <p></p>
-    <p></p>
-  
+    <h4>Post-Silicon Validation</h4>
+    <p>To conduct post-silicon validation on our chip, we started with a structured bring-up sequence to validate that the silicon was healthy. The very first step was to construct a testing setup on a breadboard that would allow us to test the various features of our chip. To make the setup easier, we used a QFP64 socket, which allowed us to connect our chip to the breadboard without soldering. Since the chip has 64 pins, and a single breadboard has 63 rows, each row of the breadboard was connected to pins 1 through 63 on the chip. Pin 64, which is GPIO 7, was left disconnected since there was no room, and it wasn’t crucial for initial testing anyway. From there, the breadboard was set up in such a way as to mimic our testbench used in simulation. Specifically, we were most concerned with replicating the scan-chain process.</p>
+    <p>To do this, we first documented the expected values and behavior of each pin based on the simulation testbench. This included identifying which pins needed to be set to what voltage, which served as scan-chain controls, which were dedicated I/O pins, and which supplied power or clocking. Having this reference made it possible to map physical pin behavior to the functional waveforms we expected to observe on the oscilloscope.</p>
+    <p>Our initial plan was to use a 3.3 V Arduino Pro Mini as the external controller for scan-chain operations and general chip bring-up. However, we quickly discovered that the Pro Mini’s microcontroller was not compatible with the routines in our scan-chain driver code. As a result, we switched to a 5 V Arduino Uno, using a voltage divider network to ensure that any 5 V outputs feeding into our chip were stepped down to safe levels. This let us continue development while maintaining signal integrity and protecting the silicon.</p>
+    <p>Once the control hardware was selected, we programmed the Arduino with a scan-chain interface based on code from a previous project in the course. This gave us an immediate framework for clocking in scan data, latching instructions, and reading chain outputs. With this basic infrastructure ready, we attached an oscilloscope to measure the internal clock generator. Our goal was to verify that the on-chip oscillator was functional and running at the intended frequency. After several measurement attempts, including adjusting trigger levels and confirming that our power rails were stable, we were able to confirm oscillation.</p>
+    <p>With the core clock verified, we moved on to testing individual subsystems. UART was the first to come online. After configuring baud rate parameters and validating the UART TX waveforms on the oscilloscope, we successfully received UART messages from the chip. This allowed us to use UART as a lightweight diagnostic channel for subsequent tests.</p>
+    <p>Next, we tested GPIO inputs. By manually toggling input pins and reading the chip’s internal state over UART, we confirmed that the GPIO block was latching external values correctly. This validated both the input pads and the internal routing to the processor core. </p>
+    <p>For SPI testing, we created a test program to control the SPI pins and verified via oscilloscope that the chip generated the correct clock and data responses. Although initially noisy, after adjusting grounding on the breadboard and shortening several long wires, the SPI signals became reliable.</p>
+    <p>One of the more complex peripherals to bring up was the LCD SPI backpack interface. With SPI known working, and using the previous project’s LCD SPI backpack driver as a foundation, we adapted the initialization and command routines to work with our chip’s instruction format and GPIO mapping. This took several rounds of debugging, but ultimately the LCD displayed correct characters, confirming functional integration between GPIO, instruction memory, and the CPU datapath.</p>
+    <p>As we became more confident in the system’s stability, we returned to improving our scan-chain infrastructure. The initial version loaded all scan data into a unified chain, but for full testing flexibility, we modified the code to load instruction memory and data memory independently. This allowed us to preload programs while separately initializing memory contents used for testing. It also fixed the remaining bug we had with the LCD, where it would often display garbage data, since the string data was not being properly loaded into data memory.</p>
+    <p>With the breadboard prototype functioning well, we began transitioning toward a standalone PCB. First, we replaced the variable-voltage bench supply with a dedicated 5 V-to-1 V regulator circuit, ensuring a stable and repeatable power configuration. Then, using lessons learned from the breadboard setup, we created the first revision of the PCB. This initial design focused on routing clarity and ensuring all chip pins were accessible for test points. Once fabricated, we tested this board thoroughly, checking power distribution, confirming all traces, and verifying that the chip behaved identically to the breadboard setup.</p>
+    <p>Based on these results, we developed the final revision of the PCB, incorporating layout improvements, fixes to various oversights and mistakes from the first PCB, cleaner routing, and quality-of-life enhancements such as labeled headers and in built GPIO buttons. Testing this final revision confirmed that the board performed reliably and eliminated many of the wiring issues inherent to the breadboard prototype.</p>
+    <p>Finally, with the hardware stable, we created and validated the demo code used to showcase the chip’s functionality. The demo serves both as a validation suite and as a demonstration of the chip’s operational capabilities.</p>
   </section>
   
-
   <section id="pcb">
     <h2>PCB Design</h2>
    <p>Before designing the PCB, we first validated the basic functionality of our system on a breadboard. This allowed us to quickly prototype the core components, verify signal correctness, and ensure that the chip interfaces behaved as expected. However, breadboard wiring is inherently limited in terms of signal integrity, power stability, reliability, and repeatability.</p>
