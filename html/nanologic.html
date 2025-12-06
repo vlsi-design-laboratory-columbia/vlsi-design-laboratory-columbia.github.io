@@ -296,6 +296,7 @@
     
     img {
       max-width: 100%;
+      max-height: 100%;
       height: auto;
       border-radius: 12px;
       margin: 24px 0;
@@ -427,6 +428,21 @@ h4 {
       font-size: 0.9em;
       display: block;
     }
+
+    /* Team member link styling */
+    .team-member a {
+      color: var(--primary); 
+      text-decoration: none; 
+      font-weight: 600;
+    }
+
+    .team-member a:visited {
+      color: var(--primary);
+    }
+
+    .team-member a:hover {
+      text-decoration: underline;
+    }
     
     /* Footer */
     footer {
@@ -467,7 +483,7 @@ h4 {
     
     <div class="author-info">
       <div class="authors-list">
-        <a href="mailto:email@columbia.edu" class="author-name">[Author Name 1]</a>
+        <a href="https://www.linkedin.com/in/qianxufu/" class="author-name">Qianxu Fu (Tiffany Fu)</a>
         <a href="https://linkedin.com/in/username" target="_blank" class="author-name">[Author Name 2]</a>
         <a href="mailto:email@columbia.edu" class="author-name">[Author Name 3]</a>
       </div>
@@ -499,13 +515,18 @@ h4 {
 </p>
     <p>The SoC integrates Instruction Memory, Data Memory, SPI, UART, 8 GPIOs, and two programmable timers, along with an on-chip clock generator, a debug finite-state machine, and a scan chain for DFT. The complete flow, from project proposal, architecture design, RTL implementation, verification, synthesis, physical design, signoff, and STA, all the way to PCB design, bring-up, and system-level validation, was carried out by our team. The final chip successfully runs on hardware and passes our functional demo.
 </p>
-    <div class="image-placeholder">Insert chip photo or project overview image</div>
+      <img src="../images/nanologic/overview.HEIC" alt="System block diagram">
   </section>
   
   <section id="architecture">
     <h2>System Architecture</h2>
     <p class="instruction-text">The SoC adopts a modular architecture organized around a RISC-V CPU core, an AMBA-based interconnect, and a set of memory-mapped peripherals, memory and infrastructure blocks. All components are integrated within a compact 2 mm² die implemented in TSMC 65 nm CMOS technology.
 </p>
+
+
+<img src="../images/nanologic/block_diagram.png" alt="System block diagram">
+
+
     
     <h3>Main Components</h3>
      <p class="instruction-text">[Describe each major component: processing cores, memory subsystems, I/O interfaces, control logic, etc.]</p>
@@ -515,7 +536,7 @@ h4 {
     Importantly, instruction memory (IMEM) is not accessed through the AHB bus. Instead, it is directly connected to the CPU core, enabling a dedicated and deterministic instruction fetch path that simplifies timing and reduces bus traffic.
   </p>
   <p>
-The CPU used in this project is version 1.8.3 of the OpenHW Group’s CORE-V CV32E40P. This core has been previously taped out as part of OpenHW’s CORE-V MCU Development Kit; version 1.8.3 has undergone both formal verification and synthesis-based verification across multiple configurations, making it a mature and reliable open-source processor choice.
+The CPU used in this project is version 1.8.3 of the OpenHW Group's CORE-V CV32E40P. This core has been previously taped out as part of OpenHW's CORE-V MCU Development Kit; version 1.8.3 has undergone both formal verification and synthesis-based verification across multiple configurations, making it a mature and reliable open-source processor choice.
   <p>
 The CV32E40P is a 32-bit, in-order, 4-stage pipeline processor implementing RV32I, RV32M, RV32C, and either RV32F or RV32Zfinx instruction sets. It also supports the PULP custom extensions for enhanced performance.
   </p>
@@ -523,11 +544,25 @@ The CV32E40P is a 32-bit, in-order, 4-stage pipeline processor implementing RV32
 For our project, we selected the RV32Zfinx variant, which reuses the general-purpose register file for floating-point operations instead of requiring a dedicated floating-point register file, making it significantly more area-efficient than RV32F.
 During the early front-end architecture planning, we initially enabled floating-point support and intended to include the FPU. However, during the physical design phase, we identified significant challenges with timing closure and area overhead introduced by the FPU. Since floating-point computation was not essential to our intended functionality or demo, we ultimately disabled floating-point hardware support to ensure a more robust, compact, and timing-clean implementation.
   </p>
-   
-    
-    <div class="image-placeholder">Insert CPU diagram</div>
+
+   <p>
+      <em>CV32E40P Core</em><br>
+The CPU shown in the diagram is based on the CV32E40P core, a 4-stage, in-order RISC-V processor optimized for embedded and low-power applications. Its microarchitecture consists of the classic IF, ID, EX, and WB pipeline stages, with tightly integrated control logic to manage instruction flow, hazard resolution, and power-saving modes. The front end includes a prefetch buffer, instruction aligner, and compressed instruction decoder to improve instruction delivery efficiency. The register file and decoder feed multiple execution units, including an ALU, multiplier/divider, CSR unit, and an optional floating-point unit, enabling a wide range of integer and arithmetic operations. A dedicated Load-Store Unit (LSU) handles memory accesses and interacts with the external data interface. The core also integrates specialized units such as hardware loop registers, debug interface, interrupt controller, and a sleep unit for fine-grained power management. Overall, the design delivers a compact, configurable, and energy-efficient RISC-V processing solution suitable for microcontroller-class systems.
+   </p>
+  <img src="../images/nanologic/CV32E40P_Block_Diagram.png" alt="System block diagram">
 
 
+   <p>
+       <em>Clock Gating</em><br>
+In our CPU design, we adopt a hierarchical clock-gating strategy at the top level to reduce dynamic power consumption. Instead of implementing custom gating logic, we directly use the Integrated Clock Gating (ICG) cells, which provide reliable and PVT-safe clock gating.
+   </p>
+   <p>
+    At the top level, the clock network is divided into several functional domains, such as the core pipeline, memory subsystem, and peripheral modules. Each domain receives a gated clock through an ICG cell, and the enable signal is generated based on the activity of the corresponding module. When a module is idle, its clock is disabled, effectively reducing unnecessary switching activity.
+   </p>
+   <p>
+    ICG cell integrates a latch and gating logic to ensure glitch-free clock gating, and also includes a test-enable input for scan and DFT support. Using this standard, fully characterized cell guarantees safe operation and seamless integration with synthesis, CTS, and STA.
+   </p>
+   <img src="../images/nanologic/icg.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
     <h4>Memory</h4>
 <p>
 The SoC adopts a Harvard memory architecture, featuring fully separated instruction and data memories to maximize throughput and simplify timing. The memory subsystem consists of two on-chip SRAM blocks:<br>
@@ -558,7 +593,7 @@ Originally, the design targeted 32 KB of instruction storage, but due to strict 
   <strong>Run Mode</strong><br>
 In run mode, the wrapper exposes the memory as part of the functional SoC:
 <ul>
-<li>IMEM connects directly to the CPU’s instruction-fetch interface.</li>
+<li>IMEM connects directly to the CPU's instruction-fetch interface.</li>
 <li>DMEM operates as an AHB slave, servicing all CPU load/store requests via the system bus.</li>
 <li>All functional address, control, and data signals drive the SRAM in this mode.</li>
 </ul>
@@ -571,6 +606,7 @@ To enable complete chip-level scan coverage, the wrappers include logic that rec
 <li>The memory wrapper becomes part of the SoC’s continuous scan chain, enabling scan vector to scan-in / scan-out. </li>
 </ul>
 </p>
+
 <div class="image-placeholder">Insert scan chain relative pictures</div>
 
 
@@ -599,7 +635,7 @@ The AHB-to-APB bridge decouples the higher-speed AHB domain from the simpler APB
 <li>Isolating the timing and fan-out of the peripheral bus from the main system bus</li>
 </ul>
 </p>
-
+<img src="../images/nanologic/apb.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;><br><br>
     <h4>Peripherals</h4>
 <p>
 <strong>SPI</strong><br>
@@ -642,7 +678,7 @@ The last peripheral will be a set of timers. The timer is a versatile module des
 </p>
 <p>
 These signals are flattened into a single contiguous scan path:<br>
-scan_in → scan_cell_0 … scan_cell_247 → scan_out
+   <img src="../images/nanologic/scanchain.png" alt="System block diagram">
 </p>
 <p>
 This structure allows external test equipment or debugging software to shift in arbitrary patterns and read out internal states at any point.<br>
@@ -673,8 +709,8 @@ When scan mode is deactivated, the memory wrappers and control signals reconnect
 <strong>Clock Generator</strong><br>
 The clock generator is based on a ring oscillator whose output frequency can be configured at runtime through two control registers:
 <ul>
-  <li>fc (frequency control) – selects the effective length of the ring oscillator, thereby adjusting the base oscillation frequency. Different fc settings correspond to different numbers of delay stages in the ring.</li>
-  <li>div (divider) – applies a programmable integer divide ratio to the ring oscillator output, generating a lower-frequency system clock when needed.</li>
+  <li>fc (frequency control) - selects the effective length of the ring oscillator, thereby adjusting the base oscillation frequency. Different fc settings correspond to different numbers of delay stages in the ring.</li>
+  <li>div (divider) - applies a programmable integer divide ratio to the ring oscillator output, generating a lower-frequency system clock when needed.</li>
 </ul>
 <p>By combining the fc and div settings, the SoC can trade off performance, power consumption, and timing margin. These control bits are loaded via the scan chain, allowing the clock configuration to be changed even when no firmware is running yet.
 The final clock output of the generator is routed to the CPU core, AHB bus, memories, and peripherals, forming the primary system clock domain.</p>
@@ -688,20 +724,86 @@ The final clock output of the generator is routed to the CPU core, AHB bus, memo
 <br>
 Mode selection, as well as auxiliary control signals (such as step length in debug mode), are themselves loaded through the scan chain. This allows complete control of clock behavior from external test equipment without relying on software.
 </p>
+   <img src="../images/nanologic/fsm.png" alt="System block diagram" style="display:block; margin:0 auto; width:50%; height:auto;">
 
   </section>
   
   <section id="design-flow">
     <h2>Design Flow</h2>
-    <p class="instruction-text">[Replace with design flow description: Detail the steps from RTL design to tape-out, including synthesis, place-and-route, verification, and signoff processes.]</p>
-    
+   <p>This tape-out project follows a complete ASIC development flow that spans front-end design, back-end physical implementation, and post-silicon validation. The process begins with the system specification and microarchitecture design, where the functional requirements and architectural structure of the chip are defined. Based on this specification, the RTL is implemented in Verilog/SystemVerilog.
+    </p>
+    <p>
+    During the functional verification phase, both hardware testbenches and software programs are used. We developed a full RISC-V software toolchain and compiler to generate C-based testcases, allowing us to verify the CPU core using real workloads and instruction sequences. This hardware–software co-verification ensures correctness at both the microarchitectural and ISA levels before synthesis.
+       </p><p>
+    After verification, the RTL is synthesized into a gate-level netlist, followed by post-synthesis timing and functional checks. The design then enters the physical design flow, including floorplanning, power planning, placement, routing, and clock tree synthesis. I/O pad integration and layout optimization are performed prior to signoff verification, which includes STA, DRC, LVS, and ERC. Once the design passes all signoff checks, the final GDSII is generated and sent for tape-out.
+    </p>
+   <p>
+    Following fabrication, the bare dies are packaged and undergo bring-up on both a breadboard environment and a dedicated PCB. The entire PCB, including power regulation, signal breakouts, connectors, and measurement points, was fully designed by our team, with all components hand-selected to support chip evaluation. Silicon validation verifies real-chip functionality, performance, and power consumption. After successful validation, the chip is used for demonstrations and system-level experiments.
+  </p>
+
+          <img src="../images/nanologic/designflow.png" alt="System block diagram">
     <h3>RTL Design</h3>
-    <p class="instruction-text">[Describe RTL design methodology, HDL used, simulation approach, and verification strategy.]</p>
-    
+    <p>The RTL design of the SoC was developed and compiled using the ModelSim simulation environment. The codebase follows a clear hierarchical structure that separates chip-level integration, functional logic, and DFT infrastructure. At the highest level, the design begins with soc-pins, which connect the internal SoC signals to the padframe. Directly beneath it is soc-top, the actual top-level RTL of the chip. This module contains both the functional SoC and the DFT subsystem, which are designed as two independent power domains: the DFT logic operates under VDD_Test, while all functional logic is powered by VDD_Core. This separation ensures safe testing in scan mode without interfering with normal system behavior.
+    </p>
+    <p>
+    The functional portion of the chip is encapsulated in soc_mem, which contains the CPU core, memory subsystem, bus fabric, and peripheral subsystem. The CV32E40P RISC-V core connects directly to IMEM for instruction fetch, while DMEM access is performed through the AHB bus. Both memories are instantiated through custom wrappers that interface the synthesized RTL with the SRAM macros and support both run mode and scan mode. The same module instantiates the AHB interconnect, the AHB-to-APB bridge, and all APB peripherals, including UART, SPI, GPIO, I²C, and timers. This organization places all processor-visible functionality inside a single coherent RTL subsystem.
+    </p>
+
+    <p>
+    On the DFT side, soc-top integrates the full-chip scan chain, scan-mode clock control, and debug FSM, along with a separate test-mode clock generator netlist used for DFT simulations. The scan chain spans 248 cells and provides controllability and observability across CPU state, memory wrapper mode bits, the clock generator configuration registers, and peripheral-related scan points. This allows instructions and data to be shifted directly into IMEM and DMEM during bring-up, while also enabling cycle-stepping through the debug FSM.
+    </p>
+    <p>
+    Overall, the RTL is organized to cleanly separate functionality and test logic while maintaining a modular structure that mirrors the physical hierarchy of the final chip. This structure supported efficient simulation, synthesis, and later physical design, and provided a clear boundary between the functional SoC and its DFT infrastructure.  
+    </p>
+      <img src="../images/nanologic/rtl.png" alt="System block diagram">
+
+
+    <h3>Design Verification</h3>
+    <p>The verification of the SoC followed a directed-test methodology using a custom SystemVerilog testbench together with C-based test programs compiled for the RISC-V architecture. Instead of building a full UVM environment, we adopted a focused, system-driven verification approach that closely matches the behavior of the real chip during board-level bring-up. This allowed us to validate both the functional design and the DFT infrastructure under realistic operating conditions.</p>
+    <p>All test cases were written as C programs, compiled using the RISC-V GCC toolchain, and executed directly on the embedded CV32E40P CPU core. These tests exercise the RTL in the same way real firmware will, enabling software-driven verification of processor execution, memory behavior, bus transactions, and peripheral functionality. A variety of targeted test programs were developed to isolate and validate individual modules—including DMEM read/write patterns, SPI transfers, UART transmission, GPIO toggling, I²C transactions, and timer interrupts. In addition to unit-level tests, we also created integrated programs that combine multiple peripherals and CPU-bus interactions to ensure correct end-to-end system behavior. More details of the test program structure and software toolchain will be described in the Software section.</p>
+    <p>The SystemVerilog testbench models the full bring-up sequence of the physical chip. Before each run, the testbench assembles the 248-bit scan-in vector by organizing the scan chain fields according to their functional purposes, including IMEM contents, DMEM initialization, clock generator configuration, and FSM mode bits. Verification begins with a global reset, followed by placing the internal FSM into scan mode so that the testbench can shift instructions and configuration data into the scan chain. Once the scan load is complete, the FSM transitions into run mode, enabling the CPU to fetch instructions from IMEM and execute the compiled C program. Waveforms are monitored during execution to observe CPU behavior, AHB and APB transactions, peripheral activity, and memory accesses, ensuring architectural and protocol correctness.</p>
+    <p>After program execution finishes, the FSM is switched back into scan mode to shift out DMEM data. By comparing the scanned-out results against the expected outputs generated by the C testcase, we verify the correctness of program execution, the integrity of the scan chain, and the functionality of the memory wrappers. This verification flow—reset → scan-in → run → scan-out—exactly mirrors the operational steps used during post-silicon bring-up, ensuring a high degree of consistency between pre-silicon simulation and hardware validation.
+</p>
+      <img src="../images/nanologic/dv1.png" alt="hierarchy" style="display:block; margin:0 auto; width:80%; height:auto;">
+      <img src="../images/nanologic/dv2.png" alt="DC - Total Cell Area" style="display:block; margin:0 auto; width:80%; height:auto;">
+
+
+    <h3>Synthesis</h3>
+    <p>The synthesis stage translated the RTL design into a gate-level netlist using the TSMC 65 nm standard-cell library. Before synthesis, the RTL underwent linting and cleanup to ensure complete synthesizability and consistent signal definitions across modules. We constructed a comprehensive set of timing and design constraints, including the system clock specification, input and output delays, false-path and multicycle-path declarations, and mode-specific constraints for both functional and scan operation. These constraints ensured that the synthesis tool accurately captured the intended timing behavior of the SoC across all subsystems.
+</p>
+    <p>During synthesis, the memory wrappers were configured to replace their behavioral models with the actual SRAM hard macros generated by the memory compiler. The wrappers provided the necessary functional and scan-mode interfaces so that the macros could be seamlessly integrated into both the RTL and gate-level flows.</p>
+    <p>In our synthesis flow, we follow a hierarchical methodology aligned with the RTL file organization. All IP modules—such as the CPU core, SPI, UART, I2C, GPIO, timer, scan chain, and various FSMs—are synthesized individually to ensure modularity and ease of debugging. When synthesizing the SoC-level design, we include the previously generated netlists for these IP blocks and then proceed with synthesizing the SoC bus, SoC memory subsystem, and SoC top, together with the SRAM integration files.</p>
+    <p>For each test case, we perform post-synthesis gate-level simulation to validate functional correctness. Due to several modules exhibiting hold-time violations, not all test cases pass at this stage. These hold issues are expected and will be resolved during the physical design (PD) stage through proper buffering and timing refinement. Importantly, we ensure that there are no setup-time violations after synthesis, providing a solid timing foundation for the subsequent place-and-route process.</p>
+    <p>Following synthesis, we generated reports for area utilization, hierarchical timing, constraint coverage, and scan connectivity. The final synthesized netlist, along with the macro placement constraints and clock definitions, was handed off to the physical design stage for floorplanning and place-and-route. This marked the transition from RTL-level development to backend implementation.</p>
+      <img src="../images/nanologic/dc1.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br><br>
+      <img src="../images/nanologic/dc2.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
+
     <h3>Physical Design</h3>
-    <p class="instruction-text">[Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]</p>
+    <p>The physical design of the chip is implemented using Cadence Innovus for place-and-route and Cadence Virtuoso for final layout verification. We adopt a relatively simple but structured floorplan. The core complex, including the CPU core, system bus, and peripheral modules, is laid out as a single main block located at the center of the die. The instruction memory (IMEM) and data memory (DMEM) are implemented as two dedicated rectangular SRAM macros placed on the left and right sides of the core, respectively, to minimize critical-path interconnect length between the processor and the memories. The FSM, clock generation logic, and scan chain controller are grouped together and placed along one side of the chip. Since these blocks share the same power domain, this placement simplifies power distribution and also provides a clean topology for scan chain routing toward the rest of the design. IO pads are inserted along all four edges of the chip to interface the internal logic with the external environment and to close the power ring.
+</p>
+    <p>Our physical design flow in Innovus follows a standard industrial methodology. We begin by creating the floorplan, defining the core area and placing the major macros according to the architecture partition described above. Next, we generate the global and local power rails, ensuring robust power delivery to all modules in the single power domain. After that, we define and constrain all input and output ports, including timing constraints and IO placement guidelines. The standard-cell placement step is then performed, followed by pre-CTS (clock tree synthesis) optimization to reduce congestion, fix early timing issues, and improve design quality before building the clock tree.</p>
+    <p>We then perform clock tree synthesis to distribute the clock to all sequential elements while controlling skew and insertion delay. A round of post-CTS optimization is run to clean up timing violations that emerge after the clock network is inserted. Once the clocks and standard cells are in good shape, we proceed to signal routing, including global and detailed routing, to connect all nets while honoring design rules. After routing, we run extraction to generate accurate parasitic (RC) information and conduct further timing and design optimizations. At this stage, decoupling capacitors and filler cells are inserted as needed to maintain power integrity, close metal density requirements, and ensure manufacturability. Finally, the design goes through a series of verification steps within Innovus (such as basic DRC and timing checks), and the tape-out-ready layout and associated views are exported.</p>
+    <p>As mentioned earlier in the synthesis section, some modules exhibited hold-time violations at the netlist level. These issues are systematically resolved during the place-and-route stage. Using post-route parasitic information, we perform hold-fixing in Innovus by inserting delay cells and adjusting routing where necessary. Our goal is to eliminate all hold-time violations while preserving setup-time margins, so that the final implementation is both functionally correct and timing-clean under the target operating conditions.</p>
+    <p>After the place-and-route flow is completed, the final layout is imported into Cadence Virtuoso for signoff-level physical verification. We perform full-layout DRC (Design Rule Check) and LVS (Layout Versus Schematic) to ensure that the layout is free of rule violations and is electrically consistent with the synthesized netlist. In addition, we back-annotate the extracted delay information into our simulation environment and re-run the full set of test cases at the gate-level with timing. All test cases are verified to pass with correct waveforms and converged timing behavior, providing strong confidence in both functionality and implementation quality.</p>
+    <p>For timing signoff, we use Synopsys PrimeTime to perform static timing analysis across the relevant process, voltage, and temperature corners. Based on the extracted parasitics from the routed layout, we verify that no setup or hold violations remain on any timing path and that there are no additional issues such as excessive clock skew or unconstrained paths. Through this combination of Innovus PnR, Virtuoso physical verification, gate-level simulations with back-annotated delays, and PrimeTime static timing analysis, we ensure that the design is ready for fabrication with clean physical, functional, and timing signoff.</p>
+    <img src="../images/nanologic/layout.png" alt="layout diagram">
     
-    <div class="image-placeholder">Insert layout screenshot</div>
+    <h3>Packaging Overview</h3>
+    <p>The fabricated die has dimensions of 1000 µm × 2000 µm, and contains a total of 66 bond pads distributed symmetrically around the four sides of the chip. The pad arrangement consists of 25 pads on the north side, 25 pads on the south side, 8 pads on the west side, and 8 pads on the east side, providing full access to power rails, I/O interfaces, clocks, scan signals, and debug ports.
+</p>
+    <p>Each bond pad follows the standard TSMC 65 nm pad-frame specification. The nominal pad opening is 60 µm × 190 µm, or 30 µm × 190 µm when excluding the spacing region. This ensures compatibility with conventional gold wire bonding processes used in QFP and LQFP packaging flows.</p>
+    <p>A total of 20 dies will be packaged, with the primary package type selected as LQFP64L, which provides sufficient lead-out pins for all I/O and supply connections while maintaining a compact and low-cost footprint suitable for PCB mounting and system-level testing. The pad-to-pin mapping has been verified to comply with the 64-pin lead frame configuration.
+      <br><br>
+    <em>Power and Ground Bonding</em><br>
+    All VSS pads are highlighted in magenta in the bond diagram and are down-bonded directly to the exposed paddle, ensuring a low-impedance return path for the core and I/O grounds. This improves noise performance, reduces supply bounce during high-activity conditions, and provides robust ESD protection. The VDD rails are bonded individually to dedicated package pins to allow independent supply measurement and external regulation.
+    </p>
+    <p>
+          <em>Bonding Diagram and Pinout</em><br>
+        The bonding diagram shows the complete mapping between die pads and LQFP64L pins. Power, ground, GPIO, SPI, UART, scan chains, and test signals are organized to minimize crossing wires and to maintain short bond lengths. This arrangement improves manufacturability, reduces parasitic inductance, and enhances reliability.
+    </p>
+    <img src="../images/nanologic/bond_table.png" alt="layout diagram">
+        <img src="../images/nanologic/bond_diagram.png" alt="layout diagram" style="display:block; margin:0 auto; width:80%; height:auto;">
+
   </section>
   
   <section id="software">
@@ -709,21 +811,47 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
     
     <h3>Software Development</h3>
-    <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
-    
+    <p>The software development and testing workflow begins with writing programs in C, which serve as test cases for validating the functionality of our SoC. To support this, we built a complete RISC-V toolchain, including a customized linker script and memory configuration. Since our design follows a Harvard architecture with separate instruction memory (IMEM) and data memory (DMEM), the toolchain is configured to correctly place code sections into IMEM and data sections into DMEM. The RISC-V compiler translates C programs into machine code, while also generating assembly output to assist with debugging and instruction-level verification.
+</p>
+    <p>To support software development, we created a utility file named nano_logic_utils.c. This file contains essential definitions and helper functions used across all test programs, including clear memory-location mappings and frequently used operations tailored for our SoC. These utilities provide a standardized interface between software and hardware, allowing test programs to be written more easily and consistently.</p>
+    <p>Once the C programs are compiled, the resulting machine code is loaded into the chip through the scan chain. During scan mode, the scan chain shifts the binary instructions directly into the IMEM and DMEM. After switching to run mode, the CPU begins fetching instructions from IMEM and executing them, allowing us to verify full-system behavior.</p>
+    <p>A wide set of test programs has been developed to validate the CPU core, peripherals, and memory system. These include arithmetic tests, GPIO input/output tests, UART and SPI tests, LCD tests, DMA/DMEM access programs, timer tests, scan-chain diagnostics, and several demo applications such as menu navigation, games, and prime-number generation. All test cases pass both pre-synthesis and post-pnr simulations, and later the same test suite is executed again on the fabricated chip to confirm silicon correctness.</p>
+    <p></p>
+    <p></p>
+
+
+
     <h3>Testing Methodology</h3>
     <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
+    <p></p>
+    <p></p>
+    <p></p>
+    <p></p>
+    <p></p>
+  
   </section>
   
+
   <section id="pcb">
     <h2>PCB Design</h2>
-    <p class="instruction-text">[Replace with PCB design description: Detail the test board architecture, power delivery, signal integrity considerations, and measurement infrastructure.]</p>
-    
+   <p>Before designing the PCB, we first validated the basic functionality of our system on a breadboard. This allowed us to quickly prototype the core components, verify signal correctness, and ensure that the chip interfaces behaved as expected. However, breadboard wiring is inherently limited in terms of signal integrity, power stability, reliability, and repeatability.</p>
+   <p>The purpose of creating a dedicated PCB is to provide a stable, well-structured, and electrically robust platform for testing our chip. The PCB ensures controlled routing, proper grounding, low-noise power distribution, and mechanically secure connections—all of which are essential for accurate measurement and characterization. It also integrates voltage regulators, test points, connectors, and peripheral interfaces in a clean and reproducible layout, enabling more complex experiments that would not be practical on a breadboard.
+</p>
+   <p>Overall, the PCB transforms the project from an early prototype into a reliable test and evaluation system, supporting systematic bring-up, debugging, and performance testing of the chip.</p>
+  <img src="../images/nanologic/board.HEIC" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
+
     <h3>Board Architecture</h3>
-    <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
-    
+    <p>The PCB is organized around the custom test chip placed at the center of the board, with all critical signals and supplies fanning out symmetrically. On the left side, an Arduino-UNO-compatible header provides a convenient digital interface for configuration, scan control, and simple firmware development. Around the chip, dedicated connectors expose scan, load, clock, and GPIO pins for lab instrumentation and external measurement.</p>
+    <p>The lower portion of the board is reserved for the power-management section, where the LDO regulators and associated jumpers, test points, and decoupling networks are grouped together. Along the bottom edge, an array of Cherry MX push buttons is connected to the chip GPIOs through pull-down resistors, forming a simple and robust user input interface. Mechanical features such as mounting holes and the reserved LCD area are aligned with the board outline so that the complete system can be mounted in a chassis or demo fixture. This layout keeps high-current power paths short, separates digital I/O from sensitive supply routing, and makes probing and debugging straightforward during bring-up.</p>
+    <img src="../images/nanologic/pcb1.png" alt="layout diagram">
+    <img src="../images/nanologic/pcb2.png" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
+
     <h3>Power Distribution</h3>
-    <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
+    <p>The board is powered from a 5 V input, which is locally regulated down to several on-board supply rails. Three TPS7A7100 LDO regulators generate the main voltages used by the chip: VDD_CORE, VDD_CLEAN, and VDD_TEST. Each regulator has its own input filter, adjustable feedback network, and output decoupling, allowing the core, clean, and test domains to be powered independently and tuned to the required voltage levels.</p>
+    <p>For measurement and bring-up, every rail is routed through “pre” and “post” jumpers and dedicated test points. This allows an ammeter or shunt resistor to be inserted in series with the supply to monitor per-domain current consumption without modifying the PCB. Banks of bulk (10 µF) and high-frequency (100 nF) capacitors are placed close to the test chip pins on each rail to reduce supply noise and stabilize the regulators. The 3.3 V logic domain used by the GPIO switches and external connectors is kept separate from the core supplies, ensuring that digital I/O activity does not disturb the more sensitive core and clean power domains. Together, this power-distribution scheme provides flexible, low-noise, and well-observable supplies for detailed silicon characterization.
+</p>
+    <img src="../images/nanologic/pcb3.png" alt="layout diagram">
+    
   </section>
   
   <section id="demo">
@@ -749,23 +877,23 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
       </tr>
       <tr>
         <td>Technology</td>
-        <td>[e.g., TSMC 65nm LP]</td>
+        <td>TSMC 65nm LP</td>
       </tr>
       <tr>
         <td>Die Size</td>
-        <td>[e.g., 2.5mm × 2.5mm]</td>
+        <td>2.0mm × 1.0mm</td>
       </tr>
       <tr>
-        <td>Gate Count</td>
-        <td>[e.g., ~180,000 gates]</td>
+        <td>Maximum Frequency</td>
+        <td>200 MHz</td>
       </tr>
       <tr>
         <td>Operating Frequency</td>
-        <td>[e.g., 100 MHz]</td>
+        <td>30 MHz</td>
       </tr>
       <tr>
         <td>Supply Voltage</td>
-        <td>[e.g., 1.2V core, 2.5V I/O]</td>
+        <td>1.2 V core rails (VDD_CORE / VDD_CLEAN / VDD_TEST), 3.3 V I/O, 5 V board input</td>
       </tr>
       <tr>
         <td>Power Consumption</td>
@@ -777,7 +905,11 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
       </tr>
       <tr>
         <td>Package</td>
-        <td>[e.g., QFN-64]</td>
+        <td>LQFP64L</td>
+      </tr>
+      <tr>
+        <td>Gate Count</td>
+        <td>~800,000 gates</td>
       </tr>
     </table>
   </section>
@@ -785,15 +917,18 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
   <section id="conclusions">
     <h2>Conclusions</h2>
     <p class="instruction-text">[Replace with conclusions: Summarize achievements, lessons learned, challenges overcome, and potential future improvements.]</p>
-    
+   
     <h3>Key Achievements</h3>
     <p class="instruction-text">[List major accomplishments and successful design outcomes.]</p>
-    
+     <p>Our team successfully designed and verified a fully functional RISC-V–based System-on-Chip (SoC) integrating a custom CPU core, AHB/APB bus interconnect, instruction and data memories, and a rich set of peripheral modules including UART, SPI, I²C, GPIO, LCD, timers, finite-state machines, and a full scan chain architecture. We implemented a complete end-to-end ASIC design flow, from architectural design, RTL implementation, and verification to synthesis, physical design, and tape-out, resolving all timing violations and achieving clean DRC/LVS signoff. To support software development, we built a customized RISC-V toolchain, linker script, and utilities tailored for a Harvard memory architecture. A comprehensive test suite, covering arithmetic kernels, peripheral interactions, metastability tests, and multiple demonstration programs, was developed and validated across both RTL and post-synthesis gate-level simulations. We also integrated deterministic scan-chain–based loading and run-mode execution for robust software-driven testing. Full post-route timing analysis and signoff were completed using Innovus, Virtuoso, and PrimeTime, culminating in the generation of the final GDSII and all required collateral for fabrication. After silicon returned, we performed post-silicon validation, designed a custom PCB for bring-up, and developed multiple demo applications to showcase the chip’s full functionality running on real hardware.
+    </p>
     <h3>Lessons Learned</h3>
     <p class="instruction-text">[Discuss important insights gained during the design process.]</p>
-    
+    <p>Throughout the design and implementation of the SoC, we gained several important insights that shaped our engineering workflow. Managing a hierarchical SoC design requires careful planning of module interfaces, timing constraints, and verification strategies to ensure smooth integration and to prevent late-stage system-level issues. We found that addressing toolchain setup, linker configuration, and memory mapping early in the project greatly simplified software debugging and hardware bring-up. From a physical design standpoint, we learned that hold-time violations frequently emerge after synthesis and must be handled systematically during place-and-route through delay insertion and routing optimization. Additionally, macro placement, power grid design, and clock tree architecture proved to have substantial impact on timing closure, congestion, and overall chip robustness. Building a comprehensive testing framework—including both RTL and gate-level simulations—was essential to uncovering subtle timing and functional issues long before tape-out.</p>
+    <p>After tape-out, we further learned the importance of planning for post-silicon validation, including designing accessible scan-chain hooks, preparing diagnostic firmware, and building modular test infrastructure. The bring-up process highlighted the value of well-organized PCB design, clear pin documentation, and flexible debugging utilities to quickly isolate hardware or software faults. Finally, developing real demo applications on the fabricated chip reinforced the need for strong coordination between hardware, firmware, and system validation, demonstrating that successful silicon requires not only correct design, but also thoughtful preparation for real-world testing and integration.</p>
     <h3>Future Work</h3>
     <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
+    <p>Looking ahead, several enhancements could significantly elevate the capability and performance of the next-generation SoC. CPU performance can be further improved through deeper pipeline optimization, more sophisticated branch prediction mechanisms, and enhanced ALU functionality. On the system level, integrating advanced peripherals such as DMA controllers, interrupt subsystems, or dedicated hardware accelerators for graphics or AI workloads would greatly expand the chip’s versatility. Power efficiency could be improved by introducing power-domain partitioning, fine-grained clock gating, and other low-power design techniques. From a tooling perspective, extending the software toolchain to support richer debugging features—such as on-chip breakpoints, real-time trace modules, or a full JTAG interface—would streamline firmware development and hardware bring-up. For physical design scalability, migrating to a more advanced technology node or increasing metal-layer count would enable higher operating frequencies and denser integration. Ultimately, these improvements could contribute to a second-generation SoC featuring larger on-chip memory, higher-speed interfaces, and greater interconnect bandwidth to support more complex real-world applications.</p>
   </section>
   
   <section id="references">
@@ -814,26 +949,59 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <div class="team-grid">
       <div class="team-member">
       <strong>
+      <a href="https://www.linkedin.com/in/m-lippe" target="_blank">Michael Lippe</a>
+      </strong>
+      <span>[Role/Contribution]</span>
+      <span>ml5201@columbia.edu</span>
+      </div>
+
+      <div class="team-member">
+      <strong>
       <a href="https://www.linkedin.com/in/qianxufu/" target="_blank">Qianxu Fu</a>
       </strong>
-      <span>role/contribution</span>
+      <span>[Role/Contribution]</span>
       <span>qf2181@columbia.edu</span>
-        <strong>[Qianxu Fu]</strong>
-        <span>[Role/Contribution]</span>
       </div>
+
       <div class="team-member">
-        <strong>[Name]</strong>
-        <span>[Role/Contribution]</span>
+      <strong>
+      <a href="https://www.linkedin.com/in/bhargav-sriram-4ba537203/" target="_blank">Bhargav Sriram</a>
+      </strong>
+      <span>[Role/Contribution]</span>
+      <span>bs3586@columbia.edu</span>
       </div>
+
       <div class="team-member">
-        <strong>[Name]</strong>
-        <span>[Role/Contribution]</span>
+      <strong>
+      <a>Hongrui Huang</a>
+      </strong>
+      <span>[Role/Contribution]</span>
+      <span>hh3084@columbia.edu</span>
       </div>
+
       <div class="team-member">
-        <strong>[Name]</strong>
-        <span>[Role/Contribution]</span>
+      <strong>
+      <a>Hiroki Endo</a>
+      </strong>
+      <span>[Role/Contribution]</span>
+      <span>he2305@columbia.edu</span>
       </div>
-    </div>
+
+      <div class="team-member">
+      <strong>
+      <a>Yuan Jiang</a>
+      </strong>
+      <span>[Role/Contribution]</span>
+      <span>yj2848@columbia.edu</span>
+      </div>
+
+      <div class="team-member">
+      <strong>
+      <a>Jingyi Lai</a>
+      </strong>
+      <span>[Role/Contribution]</span>
+      <span>jl6932@columbia.edu</span>
+      </div>
   </section>
   
   <a class="back" href="../index.html">Back to all projects</a>
