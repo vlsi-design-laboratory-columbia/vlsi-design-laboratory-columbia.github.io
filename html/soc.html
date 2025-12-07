@@ -702,16 +702,56 @@
     </div>
   </section>
   
-  <section id="software">
-    <h2>Software & Testing Flow</h2>
-    <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
-    
-    <h3>Software Development</h3>
-    <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
-    
-    <h3>Testing Methodology</h3>
-    <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
-  </section>
+<section id="software">
+  <h2>Software & Testing Flow</h2>
+
+  <p>
+    The software and testing flow converts C-level test programs into memory-mapped
+    initialization data, generates scan sequences, and loads them onto silicon through an
+    FPGA-based scan controller. This unified environment supports both pre-silicon
+    verification and post-silicon validation of the CPU, memory system, and VPU.
+  </p>
+
+  <!-- Flow Diagram -->
+  <div class="image-container">
+    <img src="images/soc/software_testing_flow.png" alt="Software Testing Flow Diagram">
+  </div>
+
+
+  <h3>Software Development</h3>
+  <p>
+    Test applications are written in C and compiled using a customized RISC-V GCC toolchain
+    aligned with the chip’s IMEM/DMEM memory map. The linker output is automatically
+    converted into <code>test.h</code>, which contains the initialization arrays for
+    instruction and data memory. These files form the common interface between software
+    and the scan-based testing environment.
+  </p>
+  <p>
+    The software framework allows different test programs to be executed on silicon,
+    including routines that stress the CPU pipeline, memory system, or vector/AI units.
+    Inline RISC-V assembly is supported for low-level testing of microarchitectural
+    features.
+  </p>
+
+
+  <h3>Testing Methodology</h3>
+  <p>
+    MATLAB scripts serialize the IMEM/DMEM initialization arrays into cycle-accurate
+    scan-in command sequences. These command streams are transferred to an FPGA board
+    over USB, where a Vitis-based scan controller shifts data into the chip’s scan chain.
+    After execution, the FPGA retrieves <code>scan_out</code> data for functional
+    comparison and validation.
+  </p>
+
+  <p>
+    This methodology provides:
+    <ul>
+      <li>Consistent pre-silicon and post-silicon test execution</li>
+      <li>Automated program loading and result collection</li>
+      <li>Repeatable regression testing across multiple test programs</li>
+    </ul>
+  </p>
+</section>
   
   <section id="pcb">
     <h2>PCB Design</h2>
