@@ -509,10 +509,43 @@
 Using these three vertices, the module reconstructs two edge vectors and computes their cross product to obtain an unnormalized face normal. A signed dot product between this normal and one of the triangle’s vertices is then used to determine the triangle orientation. If the dot product is non-negative, the triangle is classified as a backface, and the module immediately marks it as invalid and writes a zero intensity without performing any further computation.
 For front-facing triangles (negative dot product), the module normalizes the face normal by using DW_sqrt_seq and DW_div_seq. The lighting stage computes a simple Lambertian diffuse intensity by taking the dot product between this normalized normal and a pre-normalized light direction vector. The intensity is clamped to non-negative values and stored as a per-triangle (flat) lighting value. In parallel, a 1-bit validity flag is written for each triangle to indicate whether it survived the backface culling. After all triangles have been processed, the BF module deasserts its busy signal and raises a valid signal to notify the following pipeline stages that culling and lighting are complete.
  </p>
-        <h4>Rasterizer</h4> <p> Tianyun Huang </p>
+        <h4>Rasterizer</h4>
+    <p>
+  The rasterizer operates on 2D screen-space vertices and triangle indices to determine, for each pixel, which triangle is visible at that location. It first reads the triangle index and the three corresponding vertices from the 2D vertex buffer, then computes the axis-aligned bounding box of the triangle in screen coordinates. To improve throughput, the module works on tiles of
+  <code>TILE_HEIGHT = 4</code> pixels in the vertical direction and scans horizontally across the screen.
+</p>
+    <p>
+  The rasterizer scans horizontally across the triangle’s bounding box. For each column, the<code>TILE_HEIGHT</code> pixels are tested in parallel. A pixel is considered inside the triangle if all edge functions are non-positive. In parallel, a 12-bit depth test is performed; only if the incoming
+  depth is smaller will the triangle ID and the depth buffer be updated.
+</p>
+<p>
+  Depth memory is initialized once per frame. Successful hits write the triangle index and updated depth
+  only to the affected pixels within the tile. This tile-based, incremental rasterization design achieves
+  real-time performance and meets the 250&nbsp;MHz frequency target.
+</p>
+
         <h4>VGA Controller</h4> <p> Yangfan Wang </p>
 		  <p> The VGA controller is responsible for generating VGA related signals based on the protocol. They include the vga clk (25 MHz), vga vsync, vga_hsync, and vga_blank, which all those are used to control the DAC for monitor synchronization. Meanwhile, it outputs the current col and row that the monitor is scanning, which controls the state of all the engine blocks. Also since the core runs on 250 MHz, there will be 10 cycles for each pixel. The VGA controller asserts a signal that indicates the beginning of a new pixel and that is where the color change can occur. </p>
-        <h4>Pixel Module</h4> <p> Tianyun Huang </p>
+        <h4>Pixel Module</h4>
+    <p>
+  The Pixel module converts triangle IDs and lighting information into the final 24-bit VGA color. For each new pixel position <code>(x, y)</code> provided by the VGA controller, the module checks that the coordinate is within the visible 640×480 region and then reads the corresponding packed triangle index from the tile buffer. Each entry in the tile buffer stores <code>TILE_HEIGHT = 4</code> triangle IDs, so the row within the tile is selected using <code>y[1:0]</code>.
+</p>
+<p>
+  Once the triangle index is known, the module uses it to access the per-triangle lighting value from the light-intensity memory and the base color from the color memory. A small FSM sequences the operations through four states: reading the tile buffer, reading color and light data, computing the RGB value, and periodically flushing the tile buffer when the bottom row of a tile has been scanned. During the flush phase, the entire row of tile entries is overwritten with an invalid triangle ID, so that the next frame can reuse the same on-chip memory.
+</p>
+<p>
+  The color generation path supports several configurable shading modes, selected by
+  <code>color_config_i[15:14]</code>:
+</p>
+<ul class="list">
+  <li><b>00 – Indexed color:</b> use the 3-bit per-channel color stored in the color memory.</li>
+  <li><b>01 – Indexed color × light:</b> modulate the base color by the per-triangle light value.</li>
+  <li><b>10 – Solid color:</b> use a 12-bit solid RGB value encoded in <code>color_config_i</code>.</li>
+  <li><b>11 – Solid color × light:</b> modulate the solid color by the lighting value.</li>
+</ul>
+<p>
+  The intermediate results are kept in a Q9.9 fixed-point format and then truncated to 8-bit<code>R,G,B</code>. A one-stage register (<code>rgb_delay</code>) aligns the color with the<code>new_pixel</code> handshake, and the output is blanked during the VGA blanking interval. The module therefore produces a continuous 24-bit RGB stream at the VGA pixel rate while the core itself runs at 250&nbsp;MHz.
+</p>
 
       <h3>Memory</h3>
         <h4>Memory Controller</h4> <p> Yun-Rong Du </p>
