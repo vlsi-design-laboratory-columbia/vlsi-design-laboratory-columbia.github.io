@@ -1198,7 +1198,12 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
     <p class="instruction-text">[List major accomplishments and successful design outcomes.]</p>
     
     <h3>Lessons Learned</h3>
-    <p class="instruction-text">[Discuss important insights gained during the design process.]</p>
+    <p class="instruction-text"> 
+      Breadboards are suitable only for low-frequency, non-precision circuits. In scenarios involving high-speed signals or higher currents, their parasitic capacitance/inductance and poor contact reliability can significantly
+  degrade circuit performance, often causing instability or complete malfunction on the breadboard. The fact that the same design worked on the PCB in a single attempt indicates that the issues stemmed from the breadboard wiring and layout rather than from the
+  circuit design itself. Even when a breadboard must be used, power quality should be ensured—for example, by using an LDO to reduce supply ripple and placing proper decoupling capacitors near key components—to minimize uncertainties introduced by the prototyping
+  platform.
+    </p>
     
     <h3>Future Work</h3>
     <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
@@ -1262,6 +1267,7 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
       <div class="team-member">
         <strong>Fengze Zhong</strong>
         <span>Frontend Design</span>
+        <span>fz2393@columbia.edu</span>
       </div>
     </div>
   </section>

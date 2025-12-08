@@ -76,8 +76,8 @@
     
     /* Project Grid */
     .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      display: flex;
+      flex-direction: column;
       gap: 30px;
     }
     
@@ -86,14 +86,16 @@
       background: #ffffff;
       border-radius: 12px;
       padding: 0;
-      text-decoration: none;
       color: #2c3e50;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid #e2e8f0;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      align-items: stretch;
+      text-decoration: none;
+      cursor: pointer;
     }
     .project-card:hover {
       transform: translateY(-4px);
@@ -104,7 +106,10 @@
     .project-card-header {
       background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
       padding: 30px 25px;
-      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     
     .project-card h3 {
@@ -116,7 +121,8 @@
     
     .project-card-body {
       padding: 25px;
-      flex-grow: 1;
+      display: flex;
+      align-items: center;
     }
     
     .project-tag {
@@ -135,6 +141,25 @@
       font-size: 0.95em;
       line-height: 1.6;
       margin-top: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+    }
+    
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
     }
     
     /* Previous Years Section */
@@ -182,7 +207,13 @@
     @media (max-width: 768px) {
       h1 {font-size: 2em;}
       .section-header h2 {font-size: 1.8em;}
-      .projects-grid {grid-template-columns: 1fr;}
+      .project-card {
+        grid-template-columns: 1fr;
+      }
+      .project-card-header {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+      }
     }
   </style>
 </head>
@@ -210,55 +241,56 @@
         <a class="project-card" href="html/microgpu.html">
           <div class="project-card-header">
             <h3>microGPU</h3>
+            <p class="project-description">
+              A 3D Renderer Accelerator
+            </p>
           </div>
           <div class="project-card-body">
-            <p class="project-description">
-              A GPU implemented in SystemVerilog with rasterizer, texture unit, and RISC-V control core
-            </p>
+            <div class="video-container">
+              <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID_1" allowfullscreen></iframe>
+            </div>
           </div>
         </a>
         
         <a class="project-card" href="html/soc.html">
           <div class="project-card-header">
             <h3>SoC</h3>
+            <p class="project-description">
+              RISC-V with a Custom Vector Co-Processor
+            </p>
           </div>
           <div class="project-card-body">
-            <p class="project-description">
-              System-on-Chip design with integrated processor and peripherals
-            </p>
+            <div class="video-container">
+              <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID_2" allowfullscreen></iframe>
+            </div>
           </div>
         </a>
         
         <a class="project-card" href="html/nanologic.html">
           <div class="project-card-header">
             <h3>NanoLogic</h3>
-          </div>
-          <div class="project-card-body">
             <p class="project-description">
-              Ultra-low power logic circuits optimized for energy efficiency
+              A RISC-V-based System-on-Chip
             </p>
           </div>
-        </a>
-        
-        <a class="project-card" href="html/simo.html">
-          <div class="project-card-header">
-            <h3>SIMO</h3>
-          </div>
           <div class="project-card-body">
-            <p class="project-description">
-              Single-input multiple-output power converter design
-            </p>
+            <div class="video-container">
+              <iframe src="https://www.youtube.com/embed/LW61fFNlFcQ" allowfullscreen></iframe>
+            </div>
           </div>
         </a>
         
         <a class="project-card" href="html/dpmic.html">
           <div class="project-card-header">
             <h3>DPMIC</h3>
+            <p class="project-description">
+              A Digital DC-DC Buck Converter
+            </p>
           </div>
           <div class="project-card-body">
-            <p class="project-description">
-              Digital power management IC with integrated control
-            </p>
+            <div class="video-container">
+              <iframe src="https://www.youtube.com/embed/yMyPtDnq-aQ" allowfullscreen></iframe>
+            </div>
           </div>
         </a>
       </div>
@@ -266,18 +298,10 @@
     
     <!-- Previous Years -->
     <div class="section">
-      
       <div class="section-header">
         <h2>Previous Years</h2>
       </div>
       
-      <!-- <div class="previous-years">
-        <a class="previous-link" href="https://www.ee.columbia.edu/~kinget/EE6350_S24/">
-          Spring 2024 Projects
-        </a>
-      </div> -->
-
-
       <div class="previous-years">
         <a class="previous-link" href="https://www.ee.columbia.edu/~kinget/EE6350_S24/">
           Spring 2024 Projects
@@ -298,8 +322,6 @@
           Spring 2014 Projects
         </a>
       </div>
-
-      
     </div>
   </div>
   
