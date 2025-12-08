@@ -520,6 +520,9 @@
       To further reduce the comparators' delay and input-referred offset, the input differential pair is upsized to improve transconductance and mitigate device mismatch. The remaining transistors in the latch are kept smaller than the input-pair to minimize parasitic capacitances, thereby lowering delay. Additionally, decoupling capacitors can be introduced to reduce clock feedthrough and kickback noise, improving overall comparator accuracy.
     </p>
     <img src="../images/dpmic/adc_cmp.png">
+    <p align="center">
+      <img src="../images/dpmic/adc_code.png" width="60%">
+    </p>
     <h4>Dead-Time Generation</h4>
     <p>
       To reduce the additional power consumption caused by shoot-through current during switching, a dead-time generation circuit is implemented to produce two non-overlapping PWM waveforms. During the designated dead time, the gate of the power PMOSFET is held high while the gate of the power NMOSFET is kept low, ensuring that both devices cannot turn on simultaneously and eliminating shoot-through current.
