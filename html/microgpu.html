@@ -818,9 +818,71 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
 
         </table>
       <h3>Backend Design</h3>
-        <h4>Automatic Place & Route</h4> <p> Yun-Rong Du </p>
-        <h4>I/O Port Integration</h4> <p> Yun-Rong Du </p>
-        <h4>Sealring & Dummy</h4> <p> Yun-Rong Du </p>
+        <h4>Automatic Place & Route</h4>
+        The automatic place & route stage is where we spent most of our time due to the area limitation. <br>
+        <p>
+          In the initial approach, we ran place & route for each submodule, but later found that it was wasting too much 
+          area since all the submodules have to be in the shape of rectangle. Thus, we ran all our code as a single module 
+          and let the APR tool do optimization on the whole design. <br>
+          The first step is to place the SRAM macros in the best positions. This is a very critical step since it affects the 
+          the routing a lot. The SRAMs should be placed according to your chip working flow, e.g., the SRAMS that are used in 
+          the same submodule/function should be put closer. Besides, it would be better to put the SRAMs on the side instead of 
+          in the middle, because it minimizes the routing. <br>
+          Next is to decide the position for the I/O ports to the four sides. The number of I/O ports 
+          that can be put on a side is limited to the package capacity, the offsets required between each pads, 
+          and the number of power and ground pads needed. Since we were running out of area, we only used three 
+          sides of the chip for I/O. We decided the position of the I/O based on the chip working flow, 
+          which is to put inputs on the left and outputs on the top-right and bottom-right. <br>
+          Here are the several improvements we did to reduce the area and solve the timing and DRC issues.
+        </p>
+        <ol>
+          <li> Modify the precision of calculation <br>
+            SRAMs are account of more than 80% of the area of the entire design. Thus, the first improvement is to reduce the 
+            precision of the numbers we stored in order to cut down on the size of SRAMs.
+          </li>
+          <li> Use standard library for arithmetic operation <br>
+            Instead of writing division or other opearions on your own, import the function from the standard library directly, 
+            which would give you better area and timing.
+          </li>
+          <li> Reduce the layer for power stripes <br>
+            Since our design is too complex to route, we made the bottom layer of power stripes less dense and allow some routing 
+            on that layer of metal. However, it might sometimes be problematic to mix the power and logical signals. 
+          </li>
+          <li> Add blockage or halo around SRAM cells <br>
+            Routing too close to an SRAM might cause DRC errors, and it could be prevented by adding blockage or halo to stop the 
+            tool from placing components there. 
+          </li>
+          <li> Tune the Place & Route parameters <br>
+            There are several effor or density configurations you can play with to reach better performance.
+          </li>
+          <li> Give tighter condition in early design stage <br>
+            Set the constraints, e.g., density, to lower in early design stage to allow more space for optimization in 
+            the later stages. 
+          </li>
+        </ol>
+        <p>
+          We applied the same techniques on our DUT, the test FSM, scan chain, and the clock generator. 
+          Below is the APR results for our modules and top. <br>
+        </p>
+        <h4> I/O and Power Pads Integration </h4>
+        <p>
+          After finishing all the submodules, we put them all together and integrated with the pads. <br> 
+          Our strategy on the power pads is to equally distributed to CVDD, DVDD, VDD, and GND at first. 
+          Worried about the large number of output ports we have and the large driving force we need, 
+          we decided to sacrifice some of the VDD pads for CVDD and DVDD to ensure enough current on the pads.
+          When it comes to the placement of the pads, in order to make sure all the I/O pads get enough 
+          current, we put the power pads between sets of I/O ports. The power pads also act as the wall 
+          for signals, which could probably enhance signal integrity. <br>
+          Below is our final pad placement and the APR results after pad placement.
+        </p>
+        <h4>Sealring & Dummy</h4>
+        <p>
+          This part is relatively easy, where we put our top module inside the seal ring provided by the TA. 
+          After placement, we exported the design and ran the dummy-filling process. 
+          However, due to the limitation in the script and the filling direction, 
+          our module didn't passed the DRC density test and we had to hand-place the dummies. 
+          Our tips for placing the dummy is to ensure enough space around them.
+        </p>
   </section>
 
   <section id="software">
@@ -981,10 +1043,24 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
   </section>
 
   <section id="acknowledgments">
-    <h2>Acknowledgments</h2> <p> Yun-Rong Du </p>
-    <p class="instruction-text">[Replace with acknowledgments: Thank advisors, sponsors, lab staff, and others who contributed to the project.]</p>
-    
-    <h3>Team Members</h3>  <p> Yun-Rong Du </p>
+    <h2>Acknowledgments</h2>
+    <p>
+      First, we would like to express our appreciation to Apple, who sponsors 
+      the course and gives us this precious oppurtunity. <br>
+      Besides, we would like to thank Professor Mingoo Seok for guiding us on this project. <br>
+      Thanks to the courses and professors in the EE department, 
+      Advanced Logic Design by Professor Mingoo Seok, 
+      VLSI Design by professor Ken Shepard, 
+      Embedded System by Stephen Edwards,
+      which provides us with the knowledge and skills for chip design. <br>
+      Thank you TAs, Da won Kim, Mosom Jana, and Chuan-Tung Lin for the assistance on the project. 
+      We are so lucky to have you answering our questions and handling the tape-out and PCB process. <br>
+      Thank you Richard Lee for the help with the lab access and pocurement. <br>
+      Also shout out to friends and seniors who gave us useful suggestions.
+      Finally, huge thanks to the 6350 classmates and teammates for sharing experience and working together. <br>
+      It has been a great journey and thanks for all the people who help along the way!
+    </p>
+    <h3>Team Members</h3>
     <div class="team-grid">
       <div class="team-member">
         <strong>Yangfan Wang</strong>
@@ -992,7 +1068,7 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
       </div>
       <div class="team-member">
         <strong>Yun-Rong (Alice) Du</strong>
-        <span>Frontend Design, Backend Design, Testing, PCB Design</span>
+        <span>Frontend Design, Backend Design, Testing, PCB Design, Soldering</span>
       </div>
       <div class="team-member">
         <strong>Yuntian Hu</strong>
