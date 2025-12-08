@@ -543,6 +543,7 @@
     <p>
       When the converter operates in DCM, the inductor current can reverse direction, which degrades efficiency. To mitigate this issue, a zero-crossing detection (ZCD) module is added. By sensing the switching node VX​ through a comparator, the ZCD logic determines whether the NMOS switch should be turned off. In addition, a freewheel switch is added to short the inductor and dissipate the residual energy stored in it.
     </p>
+    <img src="../images/dpmic/zcd.png">
     <h4>PID Controller</h4>
     <p>
       In digitally controlled DC-DC converters, a Proportional–Integral–Derivative (PID) controller is commonly employed to regulate the output voltage. The proportional term provides immediate correction based on the voltage error, the integral term removes steady-state offset by accumulating long-term error, and the derivative term enhances transient response by reacting to rapid changes in the output. In this design, the PID controller operates at 1MHz, as it is triggered by the 64MHz DPWM every 64 clock cycles, resulting in a 1MHz PWM switching frequency. All three PID coefficients are implemented as 16-bit values and are loaded into the controller through the scan chain.
@@ -553,7 +554,7 @@
     </p>
     <h4>Scan Chain & Clock Generation</h4>
     <p>
-      The scan chain is used to load the three PID coefficients (ki, kp​, and kd​) as well as other control bits into the digital controller. This serial-access mechanism enables flexible tuning, testability, and debugging during both pre-silicon verification and post-silicon evaluation without requiring additional dedicated I/O pins.
+      The scan chain is used to load the three PID coefficients (ki, kp, and kd​) as well as other control bits into the digital controller. This serial-access mechanism enables flexible tuning, testability, and debugging during both pre-silicon verification and post-silicon evaluation without requiring additional dedicated I/O pins.
     </p>
     <p>
       The ring-oscillator–based clock generation block provides a 64MHz on-chip clock, which is distributed to both the ADC and the DPWM. The use of a ring oscillator enables fully integrated, compact, and low-power clock generation without requiring any off-chip components. The generated 64MHz clock ensures synchronized operation between the sampling process in the ADC and the switching control in the DPWM, supporting consistent timing for the entire digital control loop.
