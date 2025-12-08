@@ -619,7 +619,7 @@ In our CPU design, we adopt a hierarchical clock-gating strategy at the top leve
    <br><br>
       <p>
       <em>FPU</em><br>
-We originally planned to integrate an FPU into the SoC and successfully completed the compiler and linker configuration required to support floating-point operations. The FPU passed our initial functional simulations and worked correctly at the RTL level. However, after synthesis, physical design and timing analysis, the module introduced a tight timing that could not be resolved within our performance targets. To maintain overall system stability and achieve a much higher operating frequency, we ultimately decided to remove the FPU. Without the FPU's long combinational paths, the SoC's maximum clock period improved from 15 ns to 5 ns, resulting in substantially better performance and a more reliable design.
+We originally planned to integrate an FPU into the SoC and successfully completed the compiler and linker configuration required to support floating-point operations. The FPU passed our initial functional simulations and worked correctly at the RTL level. However, after synthesis, physical design, and timing analysis, the FPU ran into timing issues which were not easily solved. To maintain overall system stability and achieve a much higher operating frequency, we ultimately decided to remove the FPU. Without the FPU's long combinational paths, the SoC's maximum clock period improved from 15 ns to 5 ns, resulting in substantially better performance and a more reliable design.
   <img src="../images/nanologic/FPU.png" alt="FPU">
             <p class="caption">Figure 5. Floating Point Operations</p>
    </p>
