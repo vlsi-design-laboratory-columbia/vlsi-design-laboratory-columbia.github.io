@@ -501,7 +501,11 @@
     <p class="instruction-text">[Replace with system architecture description: Explain the overall architecture, main functional blocks, and how they interact. Include block diagrams and architectural decisions.]</p>
       <!-- TODO -->
       <h3>Rendering Engine</h3>
-        <h4>Input Assembler</h4> <p> Zhelin Su </p>
+        <h4>Input Assembler</h4> 
+		<p> The Input Assembler (IA) is the first stage of the graphics pipeline and is responsible for reliably receiving, framing, and packaging raw configuration and vertex-related data streamed over the UART interface into fixed-width packets for downstream processing. </p>
+		<p> It begins by interfacing with the system’s UART receiver, which outputs each validated byte together with a strobe signal; the IA remains idle until detecting a start tag that marks the beginning of a new configuration sequence, ensuring alignment and preventing corrupted data from entering the pipeline. After this start tag, the IA enters a capture phase in which every received byte is shifted into a 48-bit register, and a 6-byte counter tracks alignment so that each group of six bytes forms one complete 48-bit packet. </p>
+		<p> Every such packet is pushed into a small synchronous FIFO buffer that decouples the asynchronous UART domain from the synchronous, high-throughput graphics pipeline. The FIFO provides flow-control signals that throttle the IA when nearing capacity and allow the Vertex Shader (VS) to pull parameter packets on demand without stalling rendering. </p>
+		<p> The IA is designed to handle 42 bytes per sequence, producing seven 48-bit packets typically representing transformation parameters, viewport configuration, or other pipeline control values. The VS reads these packets during VGA blanking intervals so that new configuration data does not interfere with ongoing rasterization. The IA itself performs no interpretation of packet contents; instead, its purpose is to guarantee correct byte framing, alignment, buffering, and safe delivery of structured parameter words into the pipeline, providing a clean and timing-stable interface between the external UART input stream and the internally clocked 3D graphics processing stages. </p>
         <h4>Vertex Shader</h4>
 			<p> The vertex shader is responsible for the all 3D-2D vertex transformations. VS operates in the region that VGA is blank so it won't interferece with the current triangle rasterization process. It starts from the poping FIFO inside IA to read the new configuration parameters if any, and then constructs the transformation matrix using algorithms described in the Software & Testing section. After the 3D viewpoint correction matrix and overall 2D transformation matrix are constructed and stored, it will start to read loaded vertices from memory and completes the matrix-vector multiplication. To expidate the process, we instantiated 4 of the 4-pair-input fully combinational MAC, so that each 4x4 by 4x1 multiplcation can be computed in 1 cycle. The VS also includes 3 DW_div_seq modules to normalize the correct 3D vertices with respected to the W coordinate. The pipeline starts from 3D view point correction, and while it's sent to the normalization stage, the MAC modules are used by the 2D transformation. A LUT is also constructed for providing the sin function output for angles ranges from \(0-90^{\circ}\). After all the triangles are being processed and sent to memory, it asserts a valid signal to start off BF work.</p>
         <h4>Backface Culling & Lighting Module</h4> 
@@ -553,7 +557,8 @@ For front-facing triangles (negative dot product), the module normalizes the fac
 
       <h3>System Modules</h3>
         <h4>Scan Chain</h4> <p> Fengze Zhong </p>
-        <h4>Test FSM</h4> <p> Yuxi Zhang </p>
+        <h4>Test FSM</h4> 
+		<p> This module is used to clock gate the core while external transfers data to memory through scan chain and the core is at reset state. Regarding the implementation, here are two modes: 1) Idle mode where scan chain sends data to memory or core is in the reset state 2) Normal mode where scan chain sends data to the core.</p>
         <h4>Clock Generators</h4> 
 	        <p> We use this module to generate the internal clocks required by the system by configuring two parameters, fc and div. 
 The fc parameter is used to control the length of the inverter chain. Each time you increase fc, you’re effectively adding another pair of inverters into the clock path, which increases the clock delay and thus slows down the clock. Additionally, the div parameter divides the clock frequency by 2^"div" .
@@ -946,9 +951,38 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
     <!-- TODO -->
     <h2>PCB Design</h2>
     <p class="instruction-text">[Replace with PCB design description: Detail the test board architecture, power delivery, signal integrity considerations, and measurement infrastructure.]</p>
-    <h3>Schematic Design</h3> <p> Yuxi Zhang </p>
-    <h3>Board Architecture</h3> <p> Zhelin Zhang </p>
-    <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
+		<p> As part of the class project, for the Demonstration, a PCB (Printed Circuit Board) had to be designed that would integrate our GPU chip as well as any devices that would communicate with it through its communication interfaces. An overview of our PCB is given below. </p>
+		<img src="../images/microgpu/PCB_final.png" alt="microGPU PCB_final">
+    <h3>Schematic Design</h3> 
+		
+		<p> The PCB has 5 main parts: the power supply, the decoupling capacitors, the level shifters, the GPU chip and the external devices. The overall PCB schematic are given below.  </p>
+		<img src="../images/microgpu/top_schematic.png" alt="microGPU top_schematic">
+	<h4>Power Supply</h4>
+		<p> Our primary power source is power supply. The PCB requires three distinct voltage levels: 2.5V and 1V for the chip, 3.3V for FPGA. To meet these requirements, a variable LDO was chosen for the power supply. The output voltage is set by the values of the feedback resistors. Test points are incorporated to facilitate measurement of the LDO's output during testing. The schematic of the power supply is given below. </p>
+		<img src="../images/microgpu/power_supply_schematic.png" alt="microGPU power_supply_schematic">
+
+	<h4>Level Shifters</h4>
+		<p> Since our peripherals mainly support 3.3V I/O voltage, level shifters have been incorporated into the chip's I/O to convert the 2.5V/1.0V I/O voltage to 3.3V, and vice versa. The schematic of the level shifters is given below. </p>
+		<img src="../images/microgpu/level_shifter_schematic.png" alt="microGPU level_shifter_schematic">
+
+	<h4>Decoupling Capacitor</h4>
+		<p>  Decoupling capacitors were added to ensure a stable and clean power supply to the chip. Each power domain of the chip is equipped with a 10 ÂµF capacitor, while each input power pin is provided with a 1 ÂµF capacitor. The relevant schematic is given below. </p>
+		<img src="../images/microgpu/dcap_schematic.png" alt="microGPU dcap_schematic">
+	<h4>FPGA Header</h4>
+		<p> This is used for the connection with the FPGA board. The relevant schematic is given below. </p>
+		<img src="../images/microgpu/fpga_schematic.png" alt="microGPU fpga_schematic">
+	<h4>GPU Core</h4>
+		<p> This shows some connections to the GPU core. The relevant schematic is given below. </p>
+		<img src="../images/microgpu/GPU_core.png" alt="microGPU GPU_core">
+    <h3>Board Architecture</h3> 
+	   <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
+		<p> The PCB is organized around the central QFP-packaged renderer chip (U1), whose wide parallel data, address, and control buses are routed outward to multiple buffer/level-shifter stages (IC2–IC5), each implemented with SN74AXC8T245 bidirectional transceivers that translate between the renderer chip’s 1.8 V core I/O domain and the external connectors operating at 2.5 V or 3.3 V. 
+		<p> Along the left and bottom edges, high-density headers (J2, J3, J12, J13) expose these translated signals as clean, grouped pin banks, which each bank corresponding to one 8-bit bus segment, carrying labeled signals such as qspi_data, qspi_ctrl, or general-purpose I/O channels. Every transceiver block is paired with its own decoupling capacitors and optional domain-select jumpers that supply either 3.3 V or 2.5 V to the VCCB side depending on the required logic level. </p>
+		<p> On the right side, a set of TPS7A20 low-noise LDO regulators (IC6–IC9) generate isolated power rails (+3.7 V, +2.5 V, +1.0 V), each stabilized by input/output capacitors and fine-tuning resistors. The primary +5 V input enters through the screw terminal at the top left, feeding all regulated domains before distribution across the board. Additional capacitor arrays on the lower right provide dense high-frequency decoupling for the renderer chip’s analog and digital supply pins. </p>
+		<p> Overall, the PCB layout is cleanly partitioned into four subsystems—renderer-chip core, voltage-translation banks, regulated supply blocks, and external breakout headers—creating a structured and noise-controlled interface board where each connector pin corresponds to a level-shifted, buffered, and properly decoupled signal from the renderer chip.
+ </p>
+<img src="../images/microgpu/PCB_layout.png" alt="microGPU PCB_layout">
+ 
     <h3>Power Distribution</h3>
     <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
     <p> Our <a href="https://www.mouser.com/ProductDetail/Texas-Instruments/TPS71701DCKR?qs=QZuYiDxzHahqN0uXeRKnxg%3D%3D&utm_id=22380207736&utm_source=google&utm_medium=cpc&utm_marketing_tactic=amercorp&gad_source=1&gad_campaignid=22376567996&gbraid=0AAAAADn_wf0g5UzeCVRPp0Yhb8c27LKWG&gclid=Cj0KCQjww4TGBhCKARIsAFLXndRx8_VsZd0vdCgLvQMXXQyARwInrXAWnluTTFawSqYkY-AuB1U1ylUaAhDLEALw_wcB">LDO voltage regulator</a>]
