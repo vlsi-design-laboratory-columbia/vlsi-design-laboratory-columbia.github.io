@@ -681,14 +681,20 @@
             </tr>
           </tbody>
         </table>
-    
+    <h3>Synthesis</h3>
+    <p class="instruction-text">[We used Synopsys Design Compiler for logic synthesis. Before running synthesis, we prepared a complete SDC file that defined all necessary constraints, including clock definitions, clock constraints, drive and load constraints, operating conditions, and wire-load models. Specifically, the SDC file included parameters such as clock name, clock period, clock uncertainty, clock transition, as well as input and output delay constraints.
+
+Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip..]</p>
     <h3>Physical Design</h3>
-    <p class="instruction-text">[The physical design follows a hierarchical bottom-up strategy. Individual submodules are first hardened through a complete P&R flow. These blocks are then integrated into the Top level, followed by Chip-level assembly, which includes I/O pads and Seal Rings, culminating in the final Tapeout GDS.]</p>
+    <h4>Auto P&R</h4>
+    <p class="instruction-text">[We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included: loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS), signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
+
+The physical hierarchy of the chip consists of submodules, the top module, the chip-level module, and the IO pads. Our place-and-route strategy followed the same bottom-up approach used during synthesis. The Dmem and Imem blocks used existing layout macros, while modules such as the SPI block, scan chain, test FSM, coprocessor, and CPU core were placed and routed independently. The remaining modules were integrated and routed within the top-level design.]</p>
+    <img src="../images/soc/PhysicalFlow.png">
+
+    <p class="instruction-text">[The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew. Surrounding the entire design are the required IO pads that interface the chip with the external system..]</p>
     <img src="../images/soc/chip_labelled.jpg">
 
-    <h4>Physical Design Flow</h4>
-    <p class="instruction-text">[The physical design flow follows the basic ASIC semi-custom circuits design flow, and we adopted bottom-up integration methodology. A very clear and pretty picture below is showing how we do the back-end design]</p>
-    <img src="../images/soc/PhysicalFlow.png">
 
     <h4>IO Pad</h4>
     <p class="instruction-text">[Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs. And these IOs includes Input/Output Signals(SPI, UART, Scan_Chain, rst_n, clk), POC, CVDD, DVDD, VDD, VDD_TEST, GND. We tried to minimize our IO number because we need a bigger area for logic circuits.]</p>
@@ -700,6 +706,39 @@
         <img src="../images/soc/P1.png" alt="Description of P1">
         <img src="../images/soc/P2.png" alt="Description of P2">
     </div>
+
+    <h4>STA & Sign-off</h4>
+    <p class="instruction-text">[During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route, the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical paths within the top module met their setup and hold time requirements, and no setup or hold violations were observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
+    
+      <img src="../images/soc/SF.png">    <br>
+    
+    After completing the physical design, we performed full signoff verification on each submodule and the top-level design. Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean. Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.]</p>
+    <h4>PPA optimization</h4>
+
+    <p class="instruction-text">In our chip design, we placed strong emphasis on PPA (Power, Performance, Area) optimization. Several low-power techniques were applied throughout the design stages:</p>
+
+    <ul>
+        <li>
+            <strong>Fixed Voltage Domains:</strong> The chip uses fixed voltage domains, with 2.5V for IO pads and 1.0V for the core logic, ensuring stable and efficient power distribution.
+        </li>
+        <li>
+            <strong>Clock Division:</strong> We applied clock division techniques. For example, the SPI module operates on a divided clock derived from the main clock, reducing switching activity and lowering dynamic power consumption.
+        </li>
+        <li>
+            <strong>RTL Resource Sharing:</strong> At the RTL level, we adopted resource sharing, reusing registers and functional units whenever possible to reduce redundant hardware.
+        </li>
+        <li>
+            <strong>State Encoding Optimizations:</strong> State encoding optimizations were applied, such as using Gray code instead of conventional binary encoding to minimize bit toggles and reduce dynamic power.
+        </li>
+        <li>
+            <strong>Automatic Clock Gating:</strong> During synthesis, automatic clock gating was enabled to shut off clocks when modules are idle. Although this increases area slightly, it significantly reduces dynamic power consumption.
+        </li>
+        <li>
+            <strong>High-Vth Cell Insertion:</strong> In the physical design stage, we selectively replaced LVT (Low-Vth) cells with HVT (High-Vth) cells, which reduces leakage power at the cost of some performance and area overhead.
+        </li>
+    </ul>
+
+    <p class="instruction-text">These combined strategies allowed us to effectively manage power while maintaining overall performance and design efficiency.</p>
   </section>
   
 <section id="software">
@@ -723,7 +762,7 @@
   <h3>Software Development</h3>
   <p>
     Test applications are written in C and compiled using a customized RISC-V GCC toolchain
-    aligned with the chip’s IMEM/DMEM memory map. The linker output is automatically
+    aligned with the chip's IMEM/DMEM memory map. The linker output is automatically
     converted into <code>test.h</code>, which contains the initialization arrays for
     instruction and data memory. These files form the common interface between software
     and the scan-based testing environment.
@@ -746,16 +785,60 @@
   </p>
 
 </section>
+
+    <h3>DFT Module</h3>
+    <p class="instruction-text">[Our chip uses a custom, academic-level DFT infrastructure whose central element is a scan chain, together with the on-chip clock generator and the mode-control FSM. These modules are used for post-silicon functional testing, it provides the way to load data into the on-chip memories and configuration registers and to read internal state back out of the fabricated chip.]</p>
+    <h4>Scan Chain</h4>
+    <p class="instruction-text">[The scan chain contains 252 scan cells connected between the external pins scan_in and scan_out. A simplified diagram illustration as shown in Figure below, each cell corresponds to one bit of an internal signal: instruction/data memory address and data buses, as well as the configuration registers of the clock generator and the testing FSM. In normal operation the memories are driven directly by the core, but in test mode the scan chain can temporarily take over, driving or sampling these ports and even reading back the contents of the instruction and data memories to verify that the chip is operating correctly.]</p>
+    <img src="../images/soc/dft.png">
+    <p class="instruction-text">[The below Figure illustrate the internal structure of the scan cells and their connection in the chain. Regarding the scan chain operation, a control signal scan_i0o1 selects the operating mode. Internally, both the scan-in and scan-out cells contain a small input-select MUX plus two back-to-back transparent latches clocked by non-overlapping scan clocks; this two-latch structure avoids hold-time issues that are common in long shift registers. In scan-in mode, the MUX in a scan-in cell chooses between the serial input from the previous cell (to shift new data through the chain) and a feedback path that simply preserves the current value during normal execution. In scan-out mode, the corresponding MUX in a scan-out cell selects either the previous cell's serial data for shifting, or the design signal that we want to observe, such as a bit of instruction or data memory.]</p>
+        <div class="side-by-side-images">
+        <img src="../images/soc/si.png" alt="Description of P1">
+        <img src="../images/soc/so.png" alt="Description of P2">
+    </div>
+    <p>During testing, we stream a serial bit pattern into scan_in while toggling the scan clock. After 252 shift cycles, the pattern has propagated to all cells in the chain. When scan_i0o1 is configured for scan-in and the load signal is pulsed, the contents of the scan cells are written into the connected memories and control registers: for example, a 32-bit instruction address together with its 32-bit instruction word, or new settings for the clock generator (div, fc, en_int,) and the FSM (mode and cycle count). Also, some of the scan cells provides the “virtual” memory clock imem_clk/dmem_clk, we create a memory write by first loading the desired pattern, then re-loading the same pattern with that particular bit toggled from low to high to emulate a rising edge on the memory clock.</p>
+    <p>The process of reading internal state back is symmetric. With scan_i0o1 set to scan-out mode, the memory wrappers and selected registers feed their data into the scan-out cells. After latching these values, we generate the required number of scan clock cycles to shift the 252-bit vector to the scan_out pin, where the tester observes it as a serial data stream. In this way we can verify program execution by dumping results from data memory or checking configuration registers, all using the same unified scan interface.</p>
+
+    <h4>Clock Generator</h4>
+    <p class="instruction-text">[To support flexible post-silicon testing, normal operation, and control over low, high, and custom operating frequencies, our SoC includes a programmable on-chip clock generator.]</p>
+    <p>All of its frequency control signals are loaded through the scan chain, where it can be controlled by: fc[0:4] as fine-tune to adjust the oscillator length for fine frequency steps. div[0:3] sets the digital divider ratio for coarse frequency scaling. In addition to frequency control signals, it also has a control signal from chip I/O en_int that allows it to choose between the internal generated clock path and an external clock clk_ext.</p>
+    <p>These controls work together to generate the system clock clk with a selectable frequency and source, giving us both a tunable internal clock and a safe external-clock fallback.</p>
+    <img src="../images/soc/clk.png">
+
+    <h4>Testing FSM</h4>
+    <p class="instruction-text">[For controlled post-silicon debugging we also added a small finite-state machine (FSM) that drives the clock-gating logic of the chip. The FSM supports three operating modes, all of its mode control signals are loaded through the scan chain. When the scan chain is being used to shift data in or out, the FSM sits in an idle state and completely blocks the system clock so that no internal state changes. For normal run mode, the FSM simply lets the selected clock source (internal or external) propagate to the rest of the SoC. In countdown mode, the FSM enables the clock for a programmable number of cycles and then turns it off again, allowing cycle-accurate inspection of the design.]</p>
+
+    <h2>Software & Testing Flow</h2>
+    <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
+    
+    <h3>Software Development</h3>
+    <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
+    
+    <h3>Testing Methodology</h3>
+    <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
+  </section>
   
   <section id="pcb">
     <h2>PCB Design</h2>
-    <p class="instruction-text">[Replace with PCB design description: Detail the test board architecture, power delivery, signal integrity considerations, and measurement infrastructure.]</p>
+    <p class="instruction-text">[We used a PCB board for our final demonstration. The PCB will help with providing power, voltage stabilization and decoupling.]</p>
     
-    <h3>Board Architecture</h3>
-    <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
-    
-    <h3>Power Distribution</h3>
-    <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
+    <h3>Schematic</h3>
+    <p class="instruction-text">[The schematic of the PCB layouts mainly includes 3 parts: main circuits, power supply circuit and decoupling circuits.]</p>
+    <img src="../images/soc/schematic.png">
+    <p>In the main circuits, we created the symbol for out chip. The footprint of our chip is LQPF-64 10*10mm_pin 0.5mm. Some of the pins are not used. Reset IO pins are connected to the switches, so we can control the reset signals to be VDD/GND by hand, which implement asynchronous resetting. DVDD is used for powering IO pads, and VDD is used for powering chip. The footprints of all the res and cap are 1206.The PCB support 2 modes of power supplying, which are batteries or FPGA, and can selected by a switch.</p>
+    <img src="../images/soc/power.png">
+    <p class="instruction-text">[In the power supply circuit, the LDO is used for transferring 5V to 2.5V and 1V. The resistance and the capacitance of input/output capacitors is referred to the TI's official manual of TPS71710CDR.]</p>
+    <img src="../images/soc/power.png">
+    <p>Decoupling circuit is designed for decoupling when supplying power. The number of the capacitors is determined by the circuit in each nets. </p>
+    <p>Main circuit connects chip and other circuits. We used jumpers for debugging and left pins to connect with FPGA. After that, we used JLCPCB for manufacturing PCB board. Finally, the welding was performed manually by us.</p>
+    <h3>PCB Layout</h3>
+    <p class="instruction-text">Below shows the PCB Layout and PCB</p> 
+        <div class="side-by-side-images">
+        <img src="../images/soc/PCB_Layout.png" alt="Description of P1">
+        <img src="../images/soc/PCB.png" alt="Description of P2">
+    </div>
+
+
   </section>
   
   <section id="demo">
@@ -772,7 +855,7 @@
   
   <section id="specs">
     <h2>Chip Specifications</h2>
-    <p class="instruction-text">[Replace with chip specifications: Provide detailed technical specifications and measured performance metrics.]</p>
+    <p class="instruction-text">[Chip specifications and performance metrics.]</p>
     
     <table class="specs-table">
       <tr>
@@ -781,27 +864,43 @@
       </tr>
       <tr>
         <td>Technology</td>
-        <td>[e.g., TSMC 65nm LP]</td>
+        <td>[TSMC 65nm LP]</td>
+      </tr>
+      <tr>
+        <td>Supporting ISAs</td>
+        <td>[RISCV32I and Custom Vector ISAs]</td>
+      </tr>
+      <tr>
+        <td>Memory(SRAM)</td>
+        <td>[32KB Data and 32KB Instruction]</td>
+      </tr>
+      <tr>
+        <td>Peripherals</td>
+        <td>[SPI and Uart]</td>
+      </tr>
+      <tr>
+        <td>Programming Interface</td>
+        <td>[Scan Chain]</td>
       </tr>
       <tr>
         <td>Die Size</td>
-        <td>[e.g., 2.5mm × 2.5mm]</td>
+        <td>[2.0mm × 1.1mm]</td>
       </tr>
       <tr>
         <td>Gate Count</td>
-        <td>[e.g., ~180,000 gates]</td>
+        <td>[~766,000 gates]</td>
       </tr>
       <tr>
-        <td>Operating Frequency</td>
-        <td>[e.g., 100 MHz]</td>
+        <td>Maxinum Operating Frequency</td>
+        <td>[252.52 MHz]</td>
       </tr>
       <tr>
         <td>Supply Voltage</td>
-        <td>[e.g., 1.2V core, 2.5V I/O]</td>
+        <td>[1.0V core, 2.5V I/O]</td>
       </tr>
       <tr>
         <td>Power Consumption</td>
-        <td>[e.g., 85 mW typical]</td>
+        <td>[13 mW typical]</td>
       </tr>
       <tr>
         <td>Performance Metric</td>
@@ -809,10 +908,198 @@
       </tr>
       <tr>
         <td>Package</td>
-        <td>[e.g., QFN-64]</td>
+        <td>[QFN-64]</td>
       </tr>
     </table>
   </section>
+
+<section id="clock-gen-table">
+    <h3>Internal Clock Frequency Table</h3>
+    <p class="instruction-text">[Table: Measured output frequencies corresponding to specific div and fc register configurations.]</p>
+    
+    <table class="specs-table">
+      <thead>
+        <tr>
+          <th>div[0:3]</th>
+          <th>fc[0:4]</th>
+          <th>Frequency (Hz)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1111</td>
+          <td>11111</td>
+          <td>9.77k</td>
+        </tr>
+        <tr>
+          <td>1111</td>
+          <td>01010</td>
+          <td>21.12k</td>
+        </tr>
+        <tr>
+          <td>1111</td>
+          <td>00101</td>
+          <td>30.21k</td>
+        </tr>
+        <tr>
+          <td>1110</td>
+          <td>01010</td>
+          <td>42.33k</td>
+        </tr>
+        <tr>
+          <td>1110</td>
+          <td>00101</td>
+          <td>59.89k</td>
+        </tr>
+        <tr>
+          <td>1101</td>
+          <td>01010</td>
+          <td>83.92k</td>
+        </tr>
+        <tr>
+          <td>1101</td>
+          <td>00101</td>
+          <td>119.22k</td>
+        </tr>
+        <tr>
+          <td>1100</td>
+          <td>01010</td>
+          <td>167.63k</td>
+        </tr>
+        <tr>
+          <td>1100</td>
+          <td>00101</td>
+          <td>237.11k</td>
+        </tr>
+        <tr>
+          <td>1011</td>
+          <td>01010</td>
+          <td>333.46k</td>
+        </tr>
+        <tr>
+          <td>1011</td>
+          <td>00101</td>
+          <td>471.12k</td>
+        </tr>
+        <tr>
+          <td>1010</td>
+          <td>01010</td>
+          <td>665.49k</td>
+        </tr>
+        <tr>
+          <td>1010</td>
+          <td>00101</td>
+          <td>943.08k</td>
+        </tr>
+        <tr>
+          <td>1001</td>
+          <td>01010</td>
+          <td>1.32M</td>
+        </tr>
+        <tr>
+          <td>1001</td>
+          <td>00101</td>
+          <td>1.89M</td>
+        </tr>
+        <tr>
+          <td>1000</td>
+          <td>01010</td>
+          <td>2.64M</td>
+        </tr>
+        <tr>
+          <td>1000</td>
+          <td>00101</td>
+          <td>3.80M</td>
+        </tr>
+        <tr>
+          <td>0111</td>
+          <td>01010</td>
+          <td>5.29M</td>
+        </tr>
+        <tr>
+          <td>0111</td>
+          <td>00101</td>
+          <td>7.55M</td>
+        </tr>
+        <tr>
+          <td>0110</td>
+          <td>01010</td>
+          <td>10.64M</td>
+        </tr>
+        <tr>
+          <td>0110</td>
+          <td>00101</td>
+          <td>15.09M</td>
+        </tr>
+        <tr>
+          <td>0101</td>
+          <td>01010</td>
+          <td>21.67M</td>
+        </tr>
+        <tr>
+          <td>0101</td>
+          <td>00101</td>
+          <td>31.21M</td>
+        </tr>
+        <tr>
+          <td>0100</td>
+          <td>01010</td>
+          <td>44.50M</td>
+        </tr>
+        <tr>
+          <td>0100</td>
+          <td>00101</td>
+          <td>64.12M</td>
+        </tr>
+        <tr>
+          <td>0011</td>
+          <td>01010</td>
+          <td>90.78M</td>
+        </tr>
+        <tr>
+          <td>0011</td>
+          <td>00101</td>
+          <td>118.57M</td>
+        </tr>
+        <tr>
+          <td>0010</td>
+          <td>01010</td>
+          <td>178.23M</td>
+        </tr>
+        <tr>
+          <td>0010</td>
+          <td>00101</td>
+          <td>252.52M</td>
+        </tr>
+        <tr>
+          <td>0001</td>
+          <td>01010</td>
+          <td>349.75M</td>
+        </tr>
+        <tr>
+          <td>0001</td>
+          <td>00101</td>
+          <td>493.33M</td>
+        </tr>
+        <tr>
+          <td>0000</td>
+          <td>01010</td>
+          <td>680.21M</td>
+        </tr>
+        <tr>
+          <td>0000</td>
+          <td>00101</td>
+          <td>950.88M</td>
+        </tr>
+        <tr>
+          <td>0000</td>
+          <td>00000</td>
+          <td>1.52G</td>
+        </tr>
+      </tbody>
+    </table>
+</section>
+  
   
   <section id="conclusions">
     <h2>Conclusions</h2>
