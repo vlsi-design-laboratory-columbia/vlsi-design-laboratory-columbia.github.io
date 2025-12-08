@@ -484,11 +484,11 @@
       In modern automotive and industrial electronic systems, DC-DC converters have become increasingly important due to the rising demand for high efficiency and reliable operation across a wide load and environmental conditions. Traditional analog-controlled converters often struggle to balance fast transient response, stability, and digital integration requirements in advanced CMOS processes. These challenges motivate the design of a digitally assisted power converter that can achieve both high performance and high robustness.
     </p>
     <p>
-      This project aims to design a digital PID-controlled CMOS DC-DC buck converter featuring zero-crossing detection (ZCD) for enhanced switching efficiency (in DCM) using TSMC 65nm process. The objective is to achieve stable regulation across a wide output range while minimizing switching loss and conduction loss, and improving transient response. By leveraging a digital PID controller, the converter benefits from programmability, PVT tolerance, and predictable loop dynamics compared with traditional analog control methods.
+      This project aims to design a digital PID-controlled CMOS DC-DC buck converter featuring zero-crossing detection (ZCD) for enhanced switching efficiency (in DCM) using the TSMC 65nm process. The objective is to achieve stable regulation across a wide output range while minimizing switching loss and conduction loss, and improving transient response. By leveraging a digital PID controller, the converter benefits from programmability, PVT tolerance, and predictable loop dynamics compared with traditional analog control methods.
     </p>
     <img src="../images/dpmic/die_photo.png">
     <p>
-      The PWM voltage mode control is used for the proposed converter. The input voltage is 2.5V, and the output voltage can be regulated to 0.9~1.8V. The maximum load current is 500mA, with ~10mV expect voltage ripple and 100mA current ripple. The detailed specifications are listed in the "Specifications" section.
+      The PWM voltage mode control is used for the proposed converter. The input voltage is 2.5V, and the output voltage can be regulated to 0.9~1.8V. The maximum load current is 500mA, with ~50mV expected voltage ripple and 100mA current ripple. The detailed specifications are listed in the "Specifications" section.
     </p>
     <!-- <div class="image-placeholder">Insert chip photo or project overview image</div> -->
   </section>
@@ -660,7 +660,7 @@
       </tr>
       <tr>
         <td>Output Voltage Ripple</td>
-        <td>~10mV</td>
+        <td>~50mV</td>
       </tr>
       <tr>
         <td>Current Ripple</td>
@@ -726,7 +726,7 @@
       </div>
       <div class="team-member">
         <strong>Andi Li</strong>
-        <span>Digial Blocks Design, Physical Design, PCB Design and Test</span>
+        <span> Digital Blocks Design, Physical Design, PCB Design and Test</span>
       </div>
       <div class="team-member">
         <strong>Ziyang Wang</strong>
