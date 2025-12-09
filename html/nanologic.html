@@ -716,27 +716,27 @@ The AHB-to-APB bridge decouples the higher-speed AHB domain from the simpler APB
     <h4>Peripherals</h4>
 <p>
 <strong>SPI</strong><br>
-The first of the peripherals will be SPI (Serial Peripheral Interface). SPI is a high-speed, full-duplex, synchronous serial communication protocol commonly used for data transmission between microcontrollers and peripherals. In our design, we use the open-source SPI from Pulp-Platform Group to connect with the display.
+The first of the peripherals is SPI (Serial Peripheral Interface). SPI is a high-speed, full-duplex, synchronous serial communication protocol commonly used for data transmission between microcontrollers and peripherals. In our design, we use the open-source SPI from Pulp-Platform Group to connect with the display.
 </p>
 
 <p>
 <strong>UART</strong><br>
-The second of the peripherals will be UART (Universal Asynchronous Receiver/Transmitter). UART is an asynchronous serial communication protocol used for data transmission between devices. UART enables communication without a clock signal, where the transmitter and receiver synchronize data transmission based on a predefined baud rate. It uses separate transmit (TX) and receive (RX) signals, allowing simultaneous data transmission and reception. The data follows the Start bit - Data bits - Parity bit - Stop bit format.
+The second of the peripherals is UART (Universal Asynchronous Receiver/Transmitter). UART is an asynchronous serial communication protocol used for data transmission between devices. UART enables communication without a clock signal, where the transmitter and receiver synchronize data transmission based on a predefined baud rate. It uses separate transmit (TX) and receive (RX) signals, allowing simultaneous data transmission and reception. The data follows the Start bit - Data bits - Parity bit - Stop bit format.
 </p>
 
 <p>
 <strong>GPIO</strong><br>
-The third of the peripherals will be GPIO (General-Purpose Input/Output). The GPIO module is designed to facilitate basic communication with external devices through 8 GPIO pins. On the output path, each pin is controlled by a simple register, which is updated whenever a write request is received from the bus. On the input path, a synchronizer composed of two back-to-back registers is implemented to prevent metastability. This ensures reliable input capture even under asynchronous conditions. When the processor issues a read request, the synchronizer's output value for the relevant pin is sent to the bus. This streamlined GPIO module balances simplicity and functionality, making it suitable for the proposed chip’s requirements.
+The third of the peripherals is GPIO (General-Purpose Input/Output). The GPIO module is designed to facilitate basic communication with external devices through 8 GPIO pins. On the output path, each pin is controlled by a simple register, which is updated whenever a write request is received from the bus. On the input path, a synchronizer composed of two back-to-back registers is implemented to prevent metastability. This ensures reliable input capture even under asynchronous conditions. When the processor issues a read request, the synchronizer's output value for the relevant pin is sent to the bus. This streamlined GPIO module balances simplicity and functionality, making it suitable for the proposed chip’s requirements.
 </p>
 
 <p>
   <strong>I2C</strong><br>
-The fourth peripheral will be I2C (Inter-Integrated Circuit). Our design integrates an open-source I2C master controller to enable communication between devices using just two lines: SDA (data) and SCL (clock). The master handles operations like start, stop, read, and write, while also monitoring the bus status and managing multi-master arbitration. I2C has efficient pin usage, ability to support multiple peripherals through unique addresses, and compatibility with a wide range of low-speed devices like sensors and EEPROMs.
+The fourth peripheral is I2C (Inter-Integrated Circuit). Our design integrates an open-source I2C master controller to enable communication between devices using just two lines: SDA (data) and SCL (clock). The master handles operations like start, stop, read, and write, while also monitoring the bus status and managing multi-master arbitration. I2C has efficient pin usage, ability to support multiple peripherals through unique addresses, and compatibility with a wide range of low-speed devices like sensors and EEPROMs.
 </p>
 
 <p>
   <strong>Timer</strong><br>
-The last peripheral will be a set of timers. The timer is a versatile module designed to manage timing operations, generate events, and control pulse-width modulation (PWM). It supports both count-up and count-down modes and can operate with sawtooth or triangle wave counting patterns. Timers synchronize events based on internal or external clock signals, making them suitable for various system control tasks such as delays, periodic interrupts, and signal generation. The timer configuration includes start and end counters, prescaler settings, and multiple compare channels. It generates interrupt or event signals upon matching the configured thresholds, enabling seamless integration into time-sensitive applications.
+The last peripheral is a set of timers. The timer is a versatile module designed to manage timing operations, generate events, and control pulse-width modulation (PWM). It supports both count-up and count-down modes and can operate with sawtooth or triangle wave counting patterns. Timers synchronize events based on internal or external clock signals, making them suitable for various system control tasks such as delays, periodic interrupts, and signal generation. The timer configuration includes start and end counters, prescaler settings, and multiple compare channels. It generates interrupt or event signals upon matching the configured thresholds, enabling seamless integration into time-sensitive applications.
 </p>
 
     <h4>DFT Components</h4>
