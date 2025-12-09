@@ -732,7 +732,7 @@ module imem_wrapper (
     assign imem_ben   = sc2imem_ctrl ? {4{sc2imem_wen}}       : 4&#x27;b1111; // Default to full-word access in CPU mode
     assign imem_wdata = sc2imem_ctrl ? sc2imem_wdata          : 32&#x27;b0; // Default to 0 when CPU accesses
 
-    // Introduce Delays to Synchronize Signals
+    // Introduce Delays to Synchronize Signals (Sim only)
     always @(imem_req) #5 imem_req_delay = imem_req;
 
     always @(imem_addr[0]) #5 imem_addr_delay[0] = imem_addr[0];
@@ -835,7 +835,8 @@ module dmem_wrapper (
     assign dmem_wen   = sc2dmem_ctrl ? sc2dmem_wen             : core2dmem_wen;
     assign dmem_ben   = sc2dmem_ctrl ? sc2dmem_ben             : ~core2dmem_ben;  // Convert active-high to active-low
     assign dmem_wdata = sc2dmem_ctrl ? sc2dmem_wdata           : core2dmem_wdata;
-
+    
+    // Introduce Delays to Synchronize Signals (Sim only)
     always @(dmem_req) #5 dmem_req_delay = dmem_req;
     always @(dmem_addr[0]) #5 dmem_addr_delay[0] = dmem_addr[0];
     always @(dmem_addr[1]) #5 dmem_addr_delay[1] = dmem_addr[1];
