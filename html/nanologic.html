@@ -649,7 +649,7 @@ Originally, the design targeted 32 KB of instruction storage, but due to strict 
   <br><br>
 
   <strong>SRAM Implementation and Memory Wrapper</strong><br>
-  Both IMEM and DMEM are implemented as SRAM hard macros generated using the TSMC 65 nm memory compiler[make clear of this]. Since these macros are technology-specific and lack native support for system-level protocols or scan operations, we designed custom memory wrapper modules to ensure clean integration into the SoC.<br>
+  Both IMEM and DMEM are implemented as SRAM hard macros generated with the ARM memory compiler. Since these macros are technology-specific and lack native support for system-level protocols or scan operations, we designed custom memory wrapper modules to ensure clean integration into the SoC.<br>
   <br>
   The memory wrappers provide several key functions:<br>
 <ul>
