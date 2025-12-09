@@ -561,7 +561,7 @@
       The scan chain is used to load the three PID coefficients (ki, kp, and kd​) as well as other control bits into the digital controller. This serial-access mechanism enables flexible tuning, testability, and debugging during both pre-silicon verification and post-silicon evaluation without requiring additional dedicated I/O pins.
     </p>
     <p>
-      The ring-oscillator–based clock generation block provides a 64MHz on-chip clock, which is distributed to both the ADC and the DPWM. The use of a ring oscillator enables fully integrated, compact, and low-power clock generation without requiring any off-chip components. The generated 64MHz clock ensures synchronized operation between the sampling process in the ADC and the switching control in the DPWM, supporting consistent timing for the entire digital control loop.
+      The ring–oscillator–based clock generation block provides a 64MHz on-chip clock, which is distributed to both the ADC and the DPWM. The use of a ring oscillator enables fully integrated, compact, and low-power clock generation without requiring any off-chip components. The generated 64MHz clock ensures synchronized operation between the sampling process in the ADC and the switching control in the DPWM, supporting consistent timing for the entire digital control loop.
     </p>
 
   </section>
@@ -653,8 +653,9 @@
     <p>
       To demonstrate the functionality of our chip, we designed a 4-layer PCB using Altium Designer.
     </p>
-    <img src="../images/dpmic/pcb_design/pcb_current_sensing.png">
-    
+    <p align="center">
+      <img src="../images/dpmic/pcb_design/pcb_current_sensing.png" width="80%">
+    </p>
     <h3>Layout Design</h3>
     <p>
       The figure below shows our layout design for the Demo PCB. The top and bottom layers are both signal layers, and the middle layers are the power and ground plane. We mainly used 10mil traces as our application does not require high current. Both outer layers include ground pours, and stitching vias connect all ground regions together to ensure low-impedance return paths.
