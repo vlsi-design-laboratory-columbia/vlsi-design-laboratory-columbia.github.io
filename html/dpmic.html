@@ -607,19 +607,77 @@
   
   <section id="pcb">
     <h2>PCB Design</h2>
-    <p class="instruction-text">[testing:::: Replace with PCB design description: Detail the test board architecture, power delivery, signal integrity considerations, and measurement infrastructure.]</p>
+    <h3>Schematic Design</h3>
+    <p>
+      To demonstrate the functionality of our chip, we designed a 4-layer PCB using Altium Designer.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_view_board.png">
+
+    <h4>Power Supply</h4>
+    <p>
+      The board is powered through a USB Type-C connector, which supplies 5 V from either a wall adapter or a portable power bank. Several LDOs then regulate the 5 V rail down to the voltages required by both the demo circuits and our chip.
+    <br>  Power-indicator LEDs are included to provide visual feedback of active rails.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_power_supply.png">
+
+    <h4>Buck Converter Circuit</h4>
+    <p>
+      The figure below shows the supporting circuitry for our buck converter chip. Note that a resistor divider is placed at the output of the chip, providing feedback voltage to the chip. 
+      <br>A tactile switch is included to reset the digital module, and an ESD protection diode is added to prevent static discharge from damaging the chip.
+      <br>The 100nF ceramic capacitors are added accordingly for local decoupling.
+      <br>An 8-pin header is added for scan-chain access, with two additional headers reserved for debugging.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_buck_circuit.png">
+
+    <h4>STM32 MCU</h4>
+    <p>
+      An STM32 MCU is integrated on the board to run our demos. Its support circuitry includes a 16 MHz crystal oscillator, boot-configuration components, and an ST-LINK programming connector.
+      <br>A power multiplexer allows the MCU to be powered from different voltage sources, selectable through a slide switch.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_mcu.png">
+
+    <h4>OLED Display & Buttons</h4>
+    <p>
+      An OLED screen is added to the PCB board for displaying. It communicates with the MCU through the I²C interface, with two 5.1 kΩ pull-up resistors included on the SDA and SCL lines.
+      <br>Four push buttons are included to allow users to switch modes and interact with the demo.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_oled.png">
+
+    <h4>LED Array</h4>
+    <p>
+      To monitor the output current of our chip, a high-side current-sensing amplifier measures the voltage across a precision sense resistor. The amplified output is fed into the STM32 for real-time display and logging.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_led_array.png">
+
+    <h4>Current Sensing Amplifier</h4>
+    <p>
+      To demonstrate the functionality of our chip, we designed a 4-layer PCB using Altium Designer.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_current_sensing.png">
     
-    <h3>Board Architecture</h3>
-    <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
-    
-    <h3>Power Distribution</h3>
-    <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
+    <h3>Layout Design</h3>
+    <p>
+      The figure below shows our layout design for the Demo PCB. The top and bottom layers are both signal layers, and the middle layers are the power and ground plane. We mainly used 10mil traces as our application does not require high current. Both outer layers include ground pours, and stitching vias connect all ground regions together to ensure low-impedance return paths.
+      <br>Decoupling capacitors are placed as close as possible to the relevant IC pins to maximize their effectiveness.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_layout.png">
+
+    <h3>Assembly</h3>
+    <p>We used both a reflow oven and hand-soldering for the board assembly, and the images below show the assembled board.</p>
+    <img src="../images/dpmic/pcb_design/pcb1.png">
+    <img src="../images/dpmic/pcb_design/pcb2.png">
+
   </section>
   
   <section id="demo">
     <h2>Demonstration</h2>
     <p class="instruction-text">[Replace with demonstration description: Show working examples, test results, and real-world performance of your chip.]</p>
-    
+
+    <p>
+      The pictures below show two demonstration modes of our board: in the first, the chip supplies 1.8 V to the MCU while it runs a snake game; in the second, the chip powers the 1.8 V LED array. In both cases, the real-time output voltage and current provided by the chip are displayed on the OLED screen.
+    </p>
+    <img src="../images/dpmic/demo_photos/demo1.jpeg">
+    <img src="../images/dpmic/demo_photos/demo2.png">
     <div class="image-placeholder">Insert demonstration photo or screenshot</div>
     
     <h3>Video Demonstration</h3>
@@ -747,7 +805,7 @@
       </div>
       <div class="team-member">
         <strong>Sean Chou</strong>
-        <span>Analog Blocks Design, Physical Design, PCB Design and Test</span>
+        <span>Analog Blocks Design, Physical Design, PCB Firmware Design</span>
       </div>
       <div class="team-member">
         <strong>Haoran Zhao</strong>
