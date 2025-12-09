@@ -3,154 +3,183 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>EE6350 VLSI Design Lab</title>
+  <title>EE6350 VLSI Design Lab | Columbia University</title>
   <style>
     * {margin: 0; padding: 0; box-sizing: border-box;}
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #ffffff;
-      color: #2c3e50;
+      color: #000000;
       line-height: 1.6;
+      overflow-x: hidden;
     }
     
-    /* Header Styling */
+    /* Three Color Palette */
+    :root {
+      --columbia-blue: #9BDDFF;
+      --black: #000000;
+      --white: #ffffff;
+    }
+    
+    /* Compact Header */
     header {
-      background: #ffffff;
-      color: #1a365d;
-      padding: 80px 20px 60px;
+      background: var(--columbia-blue);
+      color: var(--black);
+      padding: 50px 30px 40px;
       text-align: center;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    h1 {
-      font-size: 2.8em;
-      font-weight: 300;
-      letter-spacing: -0.5px;
-      margin-bottom: 12px;
-    }
-    header p {
-      font-size: 1.2em;
-      font-weight: 300;
-      color: #4a5568;
+      border-bottom: 3px solid var(--black);
     }
     
-    /* Introduction Section */
-    .intro {
-      background: #f7fafc;
-      padding: 50px 20px;
-      border-bottom: 1px solid #e2e8f0;
+    h1 {
+      font-size: 2.5em;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
     }
+    
+    header p {
+      font-size: 1.1em;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+    
+    /* Compact Introduction */
+    .intro {
+      background: var(--white);
+      padding: 40px 30px;
+      border-bottom: 1px solid var(--columbia-blue);
+    }
+    
     .intro-content {
       max-width: 900px;
       margin: 0 auto;
-      font-size: 1.1em;
-      line-height: 1.8;
-      color: #2d3748;
+      font-size: 0.95em;
+      line-height: 1.7;
+      color: var(--black);
     }
     
-    /* Container */
+    .intro-content p {
+      margin-bottom: 16px;
+    }
+    
+    .intro-content p:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* Compact Container */
     .container {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 0 auto;
-      padding: 60px 20px;
+      padding: 50px 30px;
     }
     
-    /* Section Headers */
+    /* Compact Section Headers */
     .section {
-      margin-bottom: 70px;
+      margin-bottom: 60px;
     }
+    
     .section-header {
       text-align: center;
-      margin-bottom: 50px;
-    }
-    .section-header h2 {
-      font-size: 2.2em;
-      font-weight: 300;
-      color: #1a365d;
-      margin-bottom: 10px;
-      letter-spacing: -0.5px;
-    }
-    .section-header p {
-      color: #718096;
-      font-size: 1.1em;
+      margin-bottom: 40px;
     }
     
-    /* Project Grid */
+    .section-header h2 {
+      font-size: 2em;
+      font-weight: 600;
+      color: var(--black);
+      margin-bottom: 8px;
+    }
+    
+    .section-header p {
+      color: var(--black);
+      font-size: 1em;
+      opacity: 0.7;
+    }
+    
+    .section-header::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: var(--columbia-blue);
+      margin: 20px auto 0;
+    }
+    
+    /* Compact Project Grid */
     .projects-grid {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 30px;
     }
     
-    /* Project Cards */
+    /* Compact Project Cards */
     .project-card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 0;
-      color: #2c3e50;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid #e2e8f0;
+      background: var(--white);
       overflow: hidden;
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      align-items: stretch;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      border: 1px solid var(--columbia-blue);
       text-decoration: none;
-      cursor: pointer;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
     }
+    
     .project-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-      border-color: #2c5282;
+      box-shadow: 0 8px 20px rgba(155,221,255,0.3);
+      border-color: var(--black);
     }
     
     .project-card-header {
-      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-      padding: 30px 25px;
-      border-right: 1px solid #e2e8f0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      padding: 30px;
+      background: var(--white);
+      border-bottom: 2px solid var(--columbia-blue);
     }
     
     .project-card h3 {
       font-size: 1.5em;
-      font-weight: 500;
-      color: #1a365d;
-      margin-bottom: 8px;
-    }
-    
-    .project-card-body {
-      padding: 25px;
-      display: flex;
-      align-items: center;
-    }
-    
-    .project-tag {
-      display: inline-block;
-      background: #ebf4ff;
-      color: #2c5282;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.85em;
-      font-weight: 500;
-      margin-top: 8px;
+      font-weight: 600;
+      color: var(--black);
+      margin-bottom: 10px;
     }
     
     .project-description {
-      color: #4a5568;
+      color: var(--black);
       font-size: 0.95em;
       line-height: 1.6;
-      margin-top: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 0;
+      opacity: 0.8;
+    }
+    
+    .team-members {
+      color: var(--black);
+      font-size: 0.8em;
+      line-height: 1.5;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--columbia-blue);
+      opacity: 0.7;
+    }
+    
+    .project-card-body {
+      padding: 20px;
+      flex: 1;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .video-container {
       position: relative;
       width: 100%;
-      padding-bottom: 56.25%;
-      border-radius: 8px;
+      max-width: 400px;
+      padding-bottom: 22.5%;
       overflow: hidden;
-      background: #000;
+      background: var(--black);
+      border: 2px solid var(--columbia-blue);
     }
     
     .video-container iframe {
@@ -162,57 +191,110 @@
       border: none;
     }
     
-    /* Previous Years Section */
+    /* Compact Previous Years */
     .previous-years {
-      background: #f7fafc;
-      border-radius: 12px;
+      background: var(--white);
       padding: 40px;
-      border: 1px solid #e2e8f0;
+      border: 2px solid var(--columbia-blue);
     }
     
     .previous-link {
       display: block;
-      background: #ffffff;
-      padding: 20px 30px;
-      margin: 15px 0;
-      border-radius: 8px;
+      background: var(--white);
+      padding: 16px 24px;
+      margin: 10px 0;
       text-decoration: none;
-      color: #2c5282;
-      font-size: 1.1em;
+      color: var(--black);
+      font-size: 1em;
       font-weight: 500;
-      border: 1px solid #e2e8f0;
-      transition: all 0.2s ease;
+      border: 1px solid var(--columbia-blue);
+      border-left: 4px solid var(--columbia-blue);
+      transition: all 0.3s ease;
     }
+    
     .previous-link:hover {
-      background: #ebf4ff;
-      border-color: #2c5282;
-      padding-left: 35px;
+      background: var(--columbia-blue);
+      border-left-color: var(--black);
+      padding-left: 32px;
     }
+    
     .previous-link::before {
       content: '→';
       margin-right: 12px;
-      font-weight: 700;
     }
     
-    /* Footer */
+    /* Compact Footer */
     footer {
-      background: #1a365d;
-      color: rgba(255,255,255,0.8);
-      padding: 40px 20px;
+      background: var(--black);
+      color: var(--white);
+      padding: 35px 30px;
       text-align: center;
       font-size: 0.9em;
+      border-top: 3px solid var(--columbia-blue);
     }
     
-    /* Responsive */
-    @media (max-width: 768px) {
-      h1 {font-size: 2em;}
-      .section-header h2 {font-size: 1.8em;}
-      .project-card {
+    footer p {
+      max-width: 800px;
+      margin: 0 auto;
+      opacity: 0.9;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .projects-grid {
         grid-template-columns: 1fr;
       }
+      
+      .video-container {
+        max-width: 500px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2em;
+      }
+      
+      header {
+        padding: 40px 20px 30px;
+      }
+      
+      .section-header h2 {
+        font-size: 1.6em;
+      }
+      
+      .container {
+        padding: 40px 20px;
+      }
+      
+      .intro {
+        padding: 30px 20px;
+      }
+      
       .project-card-header {
-        border-right: none;
-        border-bottom: 1px solid #e2e8f0;
+        padding: 24px;
+      }
+      
+      .project-card-body {
+        padding: 16px;
+      }
+      
+      .previous-years {
+        padding: 30px 20px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.7em;
+      }
+      
+      .intro-content {
+        font-size: 0.9em;
+      }
+      
+      .video-container {
+        max-width: 100%;
       }
     }
   </style>
@@ -227,7 +309,6 @@
     <div class="intro-content">
       <p>Welcome to the home page of EE6350 VLSI Design Lab for Spring 2025. This graduate course focuses on the design, simulation, layout, verification, and tape-out of an IC design. Our industrial sponsor is funding the fabrication of the chips in a 65nm CMOS foundry technology. The foundry fabricates the chips that students subsequently test in the Fall semester.</p>
       <p>We sincerely thank Apple Inc. for sponsoring the chip fabrication, and we extend special appreciation to Dr. Joao Cerqueira for his support as the course liaison. We also thank the EE department for its continuous support, and we are truly appreciative of the invaluable assistance provided by Richard Lee, Yoel Rio, and Nancy B. Cuffy.</p>
-    
     </div>
   </div>
   
@@ -246,6 +327,9 @@
             <p class="project-description">
               A 3D Renderer Accelerator
             </p>
+            <p class="team-members">
+              Yangfan Wang, Yun-Rong (Alice) Du, Yuntian Hu, Tianyun Huang, Zhelin Su, Yuxi Zhang, Fengze Zhong
+            </p>
           </div>
           <div class="project-card-body">
             <div class="video-container">
@@ -259,6 +343,9 @@
             <h3>SoC</h3>
             <p class="project-description">
               RISC-V with a Custom Vector Co-Processor
+            </p>
+            <p class="team-members">
+              Jiajun Jiang, Zhenning Yang, Yicheng Huang, Zhuohao Chang, Yu Jia
             </p>
           </div>
           <div class="project-card-body">
@@ -274,6 +361,9 @@
             <p class="project-description">
               A RISC-V-based System-on-Chip
             </p>
+            <p class="team-members">
+              Michael Lippe, Qianxu Fu, Bhargav Sriram, Hongrui Huang, Hiroki Endo, Yuan Jiang, Jingyi Lai
+            </p>
           </div>
           <div class="project-card-body">
             <div class="video-container">
@@ -287,6 +377,9 @@
             <h3>DPMIC</h3>
             <p class="project-description">
               A Digital DC-DC Buck Converter
+            </p>
+            <p class="team-members">
+              Hongxin Xu, Andi Li, Ziyang Wang, Sean Chou, Haoran Zhao, Yuxiao Ma
             </p>
           </div>
           <div class="project-card-body">
