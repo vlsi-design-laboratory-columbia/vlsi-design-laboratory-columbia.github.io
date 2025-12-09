@@ -675,13 +675,8 @@ To enable complete chip-level scan coverage, the wrappers include logic that rec
 <li>The memory wrapper becomes part of the SoC's continuous scan chain, enabling scan vector to scan-in / scan-out. </li>
 </ul>
 </p>
-
-  <img src="../images/nanologic/scan_in.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;">
-   <p class="caption">Figure 5. Scan In Cell</p>
-   <br>
-    <img src="../images/nanologic/scan_out.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
-   <p class="caption">Figure 5. Scan Out Cell</p>
-   <br>
+   <img src="../images/nanologic/sram_wrapper.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
+          <p class="caption">Figure 4. DMEM wrapper</p>
 
 
     
@@ -3774,7 +3769,12 @@ When scan mode is deactivated, the memory wrappers and control signals reconnect
   </ul>
 </p>
 <p>The transition between scan mode and run mode is cleanly controlled to ensure no metastability or unintended corruption of memory or control registers.</p>
-
+  <img src="../images/nanologic/scan_in.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;">
+   <p class="caption">Figure 5. Scan In Cell</p>
+   <br>
+    <img src="../images/nanologic/scan_out.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
+   <p class="caption">Figure 5. Scan Out Cell</p>
+   <br>
 <br>
 <strong>Clock Generator</strong><br>
 The clock generator is based on a ring oscillator whose output frequency can be configured at runtime through two control registers:
