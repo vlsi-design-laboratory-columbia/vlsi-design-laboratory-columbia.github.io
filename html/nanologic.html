@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="auto" data-theme-active="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -225,6 +225,50 @@
       background: linear-gradient(135deg, rgba(60, 199, 193, 0.18), rgba(255,255,255,0.9));
       border-color: rgba(60, 199, 193, 0.25);
       box-shadow: 0 6px 16px rgba(12,20,38,0.12);
+    }
+
+    /* Theme toggle */
+    .theme-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 10px 24px rgba(12,20,38,0.08);
+      font-size: 0.9em;
+    }
+
+    .theme-toggle button {
+      border: 1px solid rgba(60, 199, 193, 0.15);
+      background: linear-gradient(135deg, rgba(60,199,193,0.14), rgba(255,255,255,0.9));
+      color: var(--text-dark);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.88em;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle button:hover {
+      border-color: rgba(60, 199, 193, 0.4);
+      color: var(--primary);
+      box-shadow: 0 6px 14px rgba(12,20,38,0.12);
+    }
+
+    .theme-toggle button.active {
+      border-color: rgba(60, 199, 193, 0.8);
+      color: var(--primary);
+      background: linear-gradient(135deg, rgba(60,199,193,0.25), rgba(255,255,255,0.95));
+      box-shadow: 0 8px 18px rgba(12,20,38,0.18);
     }
     
     /* Container */
@@ -529,16 +573,18 @@ h4 {
     .specs-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 24px 0;
-      background: #ffffff;
-      border-radius: 12px;
+      margin: 18px 0;
+      background: var(--card);
+      border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 14px 32px rgba(12,20,38,0.12);
+      border: 1px solid rgba(226, 232, 240, 0.7);
+      font-size: 0.95em;
     }
     
     .specs-table th,
     .specs-table td {
-      padding: 18px 24px;
+      padding: 12px 16px;
       text-align: left;
       border-bottom: 1px solid var(--border);
     }
@@ -546,8 +592,8 @@ h4 {
     .specs-table th {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       color: white;
-      font-weight: 600;
-      font-size: 0.9em;
+      font-weight: 700;
+      font-size: 0.85em;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -557,7 +603,7 @@ h4 {
     }
     
     .specs-table tr:hover {
-      background: var(--bg-light);
+      background: rgba(60, 199, 193, 0.08);
     }
     
     .specs-table td:first-child {
@@ -583,6 +629,7 @@ h4 {
       background: linear-gradient(135deg, #eef2ff 0%, #e2e8f0 100%);
       border-bottom: 1px solid var(--border);
       list-style: none;
+      transition: all 0.2s ease;
     }
 
     details.code-block summary::-webkit-details-marker {
@@ -594,6 +641,8 @@ h4 {
       color: #e2e8f0;
       padding: 16px;
       overflow-x: auto;
+      line-height: 1.6;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .code-content pre {
@@ -602,6 +651,14 @@ h4 {
       font-size: 0.9em;
       line-height: 1.6;
       white-space: pre;
+      color: #e5e7eb;
+    }
+
+    /* Syntax coloring */
+    .code-keyword { color: #7dd3fc; font-weight: 700; }
+    .code-string { color: #a5e38e; }
+    .code-number { color: #fbbf24; }
+    .code-comment { color: #94a3b8; font-style: italic; }
     }
 
 
@@ -682,77 +739,140 @@ h4 {
       margin-bottom: 8px;
     }
     
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --primary: #c4dbff;
-        --primary-light: #8fc7ff;
-        --accent: #5de5d7;
-        --accent-light: #8ef5ea;
-        --bg-light: #0f172a;
-        --card: #111827;
-        --text-dark: #e2e8f0;
-        --text-gray: #cbd5e1;
-        --border: #1f2937;
-        --muted: #94a3b8;
-        --text-light: #94a3b8;
-      }
-      
-      body {
-        background: radial-gradient(circle at 30% 20%, rgba(93, 229, 215, 0.12), transparent 32%),
-                    radial-gradient(circle at 70% 10%, rgba(143, 199, 255, 0.12), transparent 30%),
-                    #0b1220;
-        color: var(--text-dark);
-      }
-      
-      body::after {
-        background: radial-gradient(circle at 40% 60%, rgba(93, 229, 215, 0.08), transparent 32%),
-                    radial-gradient(circle at 70% 80%, rgba(12, 20, 38, 0.25), transparent 30%);
-      }
-      
-      header {
-        background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 22%),
-                    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06), transparent 18%),
-                    linear-gradient(135deg, #0a1323 0%, #0f2740 45%, #18b3a6 100%);
-        box-shadow: 0 18px 46px rgba(0,0,0,0.35);
-      }
-      
-      .nav-buttons {
-        background: rgba(15, 23, 42, 0.9);
-        border-color: rgba(31, 41, 55, 0.9);
-        box-shadow: 0 16px 36px rgba(0,0,0,0.35);
-      }
-      
-      .container {
-        background: linear-gradient(180deg, rgba(17,24,39,0.92) 0%, rgba(17,24,39,0.86) 100%);
-        border: 1px solid rgba(31, 41, 55, 0.9);
-        box-shadow: 0 28px 70px rgba(0,0,0,0.4);
-      }
-      
-      section {
-        background: linear-gradient(135deg, rgba(26,34,54,0.96), rgba(18,27,46,0.94));
-        border: 1px solid rgba(31, 41, 55, 0.85);
-        box-shadow: 0 22px 48px rgba(0,0,0,0.35);
-      }
-      
-      .caption {
-        color: var(--muted);
-      }
-      
-      img, .video-container {
-        border: 1px solid rgba(31, 41, 55, 0.9);
-        box-shadow: 0 20px 48px rgba(0,0,0,0.45);
-      }
-      
-      .team-member {
-        border: 1px solid rgba(31, 41, 55, 0.9);
-        background: linear-gradient(135deg, rgba(24, 144, 140, 0.12), rgba(26,34,54,0.95));
-        box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-      }
-      
-      footer {
-        background: linear-gradient(135deg, #0f172a 0%, #1c3a5c 100%);
-        box-shadow: 0 -10px 30px rgba(0,0,0,0.4);
-      }
+    /* Dark theme (driven by data-theme-active) */
+    html[data-theme-active="dark"] {
+      --primary: #c4dbff;
+      --primary-light: #8fc7ff;
+      --accent: #5de5d7;
+      --accent-light: #8ef5ea;
+      --bg-light: #0f172a;
+      --card: #111827;
+      --text-dark: #e2e8f0;
+      --text-gray: #cbd5e1;
+      --border: #1f2937;
+      --muted: #94a3b8;
+      --text-light: #94a3b8;
+    }
+
+    html[data-theme-active="dark"] body {
+      background: radial-gradient(circle at 30% 20%, rgba(93, 229, 215, 0.12), transparent 32%),
+                  radial-gradient(circle at 70% 10%, rgba(143, 199, 255, 0.12), transparent 30%),
+                  #0b1220;
+      color: var(--text-dark);
+    }
+    
+    html[data-theme-active="dark"] body::after {
+      background: radial-gradient(circle at 40% 60%, rgba(93, 229, 215, 0.08), transparent 32%),
+                  radial-gradient(circle at 70% 80%, rgba(12, 20, 38, 0.25), transparent 30%);
+    }
+    
+    html[data-theme-active="dark"] header {
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 22%),
+                  radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06), transparent 18%),
+                  linear-gradient(135deg, #0a1323 0%, #0f2740 45%, #18b3a6 100%);
+      box-shadow: 0 18px 46px rgba(0,0,0,0.35);
+    }
+    
+    html[data-theme-active="dark"] .nav-buttons {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: rgba(31, 41, 55, 0.9);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.35);
+    }
+    
+    html[data-theme-active="dark"] .container {
+      background: linear-gradient(180deg, rgba(17,24,39,0.92) 0%, rgba(17,24,39,0.86) 100%);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      box-shadow: 0 28px 70px rgba(0,0,0,0.4);
+    }
+    
+    html[data-theme-active="dark"] section {
+      background: linear-gradient(135deg, rgba(26,34,54,0.96), rgba(18,27,46,0.94));
+      border: 1px solid rgba(31, 41, 55, 0.85);
+      box-shadow: 0 22px 48px rgba(0,0,0,0.35);
+    }
+    
+    html[data-theme-active="dark"] .caption {
+      color: var(--muted);
+    }
+
+    html[data-theme-active="dark"] .hero-card {
+      background: rgba(17, 24, 39, 0.92);
+      border-color: rgba(41, 50, 73, 0.9);
+      box-shadow: 0 18px 36px rgba(0,0,0,0.45);
+      color: #e2e8f0;
+    }
+
+    html[data-theme-active="dark"] .back {
+      color: #5de5d7;
+      border-color: rgba(93, 229, 215, 0.5);
+      background: linear-gradient(135deg, rgba(24,144,140,0.12), rgba(17,24,39,0.9));
+      box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+    }
+
+    html[data-theme-active="dark"] details.code-block summary {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      color: #e2e8f0;
+      border-color: rgba(41, 50, 73, 0.9);
+    }
+
+    html[data-theme-active="dark"] details.code-block {
+      border-color: rgba(41, 50, 73, 0.9);
+      background: #0b1220;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+    }
+
+    html[data-theme-active="dark"] .theme-toggle {
+      background: rgba(17, 24, 39, 0.9);
+      border-color: rgba(41, 50, 73, 0.9);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.35);
+    }
+
+    html[data-theme-active="dark"] .theme-toggle button {
+      color: var(--text-dark);
+      background: linear-gradient(135deg, rgba(24, 144, 140, 0.14), rgba(17,24,39,0.9));
+      border-color: rgba(93, 229, 215, 0.2);
+    }
+
+    html[data-theme-active="dark"] .theme-toggle button.active {
+      border-color: rgba(93, 229, 215, 0.8);
+      background: linear-gradient(135deg, rgba(93,229,215,0.25), rgba(17,24,39,0.9));
+      color: var(--primary-light);
+    }
+    
+    html[data-theme-active="dark"] img,
+    html[data-theme-active="dark"] .video-container {
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.45);
+    }
+    
+    html[data-theme-active="dark"] .team-member {
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      background: linear-gradient(135deg, rgba(24, 144, 140, 0.12), rgba(26,34,54,0.95));
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    }
+    
+    html[data-theme-active="dark"] .specs-table {
+      background: #0f172a;
+      border-color: rgba(41, 50, 73, 0.9);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.4);
+    }
+    
+    html[data-theme-active="dark"] .specs-table th {
+      background: linear-gradient(135deg, #1f3a5a 0%, #256a7b 100%);
+      color: #e2e8f0;
+    }
+    
+    html[data-theme-active="dark"] .specs-table td {
+      border-color: rgba(41, 50, 73, 0.9);
+    }
+    
+    html[data-theme-active="dark"] .specs-table tr:hover {
+      background: rgba(93, 229, 215, 0.08);
+    }
+    
+    html[data-theme-active="dark"] footer {
+      background: linear-gradient(135deg, #0f172a 0%, #1c3a5c 100%);
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.4);
     }
     
     /* Responsive */
@@ -767,20 +887,30 @@ h4 {
       .nav-buttons a {font-size: 0.85em; padding: 8px 16px;}
       .hero-grid {grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));}
       .image-placeholder {height: 250px; font-size: 0.95em;}
+      .theme-row {justify-content: center;}
+      .theme-toggle {margin: 0 auto 10px;}
+      .nav-container {justify-content: center;}
     }
   </style>
 </head>
 <body>
 <header>
   <div class="header-content">
+    <div class="theme-row">
+      <div class="theme-toggle" aria-label="Theme toggle">
+        <button type="button" data-theme-choice="light">Light</button>
+        <button type="button" data-theme-choice="dark">Dark</button>
+        <button type="button" data-theme-choice="auto" class="active">Auto</button>
+      </div>
+    </div>
     <span class="project-badge">RISC-V SoC Tapeout</span>
     <h1>NanoLogic: A RISC-V-based System-on-Chip</h1>
     <p class="header-subtitle">Custom CV32E40P SoC with full-scan access, on-chip clock generation, and a demo-ready PCB for the EE6350 fabrication run.</p>
-    <div class="header-meta">
-      <span class="header-meta-item">EE6350 Spring 2025</span>
-      <span class="header-meta-item">Columbia University</span>
-      <span class="header-meta-item">TSMC 65nm</span>
-    </div>
+      <div class="header-meta">
+        <span class="header-meta-item">EE6350 Spring 2025</span>
+        <span class="header-meta-item">Columbia University</span>
+        <span class="header-meta-item">TSMC 65nm</span>
+      </div>
 
     <div class="hero-grid">
       <div class="hero-card">
@@ -3095,5 +3225,71 @@ static void print_pi_uart(int digits) {
   <p>EE6350 VLSI Design Lab · Department of Electrical Engineering · Columbia University</p>
   <p style="margin-top: 8px; font-size: 0.9em; opacity: 0.8;">Spring 2025</p>
 </footer>
+
+<script>
+  (function() {
+    const root = document.documentElement;
+    const buttons = Array.from(document.querySelectorAll('[data-theme-choice]'));
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function resolveTheme(choice) {
+      if (choice === 'dark' || choice === 'light') return choice;
+      return mediaQuery.matches ? 'dark' : 'light';
+    }
+
+    function applyTheme(choice) {
+      const resolved = resolveTheme(choice);
+      root.setAttribute('data-theme', choice);
+      root.setAttribute('data-theme-active', resolved);
+      buttons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.themeChoice === choice);
+      });
+    }
+
+    const saved = localStorage.getItem('theme-preference') || 'auto';
+    applyTheme(saved);
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const choice = btn.dataset.themeChoice;
+        localStorage.setItem('theme-preference', choice);
+        applyTheme(choice);
+      });
+    });
+
+    mediaQuery.addEventListener('change', () => {
+      const current = root.getAttribute('data-theme') || 'auto';
+      if (current === 'auto') {
+        applyTheme('auto');
+      }
+    });
+
+    // Lightweight code highlighting
+    const keywordPattern = /\b(const|static|inline|void|int|char|uint8_t|uint32_t|unsigned|volatile|return|if|else|for|while|break|continue|goto|switch|case|default|struct|typedef|include|define)\b/g;
+    const commentPattern = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)/g;
+    const numberPattern = /\b(0x[0-9a-fA-F]+|\d+)\b/g;
+    const stringPattern = /(\"[^\"]*\"|\'[^\']*\')/g;
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+    }
+
+    function highlight(codeText) {
+      let html = escapeHtml(codeText);
+      html = html.replace(commentPattern, '<span class="code-comment">$1</span>');
+      html = html.replace(stringPattern, '<span class="code-string">$1</span>');
+      html = html.replace(keywordPattern, '<span class="code-keyword">$1</span>');
+      html = html.replace(numberPattern, '<span class="code-number">$1</span>');
+      return html;
+    }
+
+    document.querySelectorAll('.code-content pre code, .code-content pre').forEach(block => {
+      const text = block.textContent;
+      block.innerHTML = highlight(text);
+    });
+  })();
+</script>
 </body>
 </html>
