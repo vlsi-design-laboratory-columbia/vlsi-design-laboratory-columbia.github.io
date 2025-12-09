@@ -676,7 +676,12 @@ To enable complete chip-level scan coverage, the wrappers include logic that rec
 </ul>
 </p>
 
-<div class="image-placeholder">Insert scan chain relative pictures</div>
+  <img src="../images/nanologic/scan_in.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;">
+   <p class="caption">Figure 5. Scan In Cell</p>
+   <br>
+    <img src="../images/nanologic/scan_out.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
+   <p class="caption">Figure 5. Scan Out Cell</p>
+   <br>
 
 
     <h4>On-Chip Interconnect and Bus Architecture</h4>
@@ -684,6 +689,8 @@ To enable complete chip-level scan coverage, the wrappers include logic that rec
 A central AMBA AHB system bus forms the primary communication backbone of the SoC. The bus is organized in a 1-master / 6-slave (M16S) topology, with the RISC-V CPU core acting as the only AHB master. It helps keep the interconnect simple, low-latency, and area-efficient.
 <br>
 <br>
+   <img src="../images/nanologic/ahb_picture.png" alt="System block diagram">
+   <p class="caption">Figure 5. AHB Interconnection [3]</p>
 Among the AHB slaves, the data memory (DMEM) is connected directly to the AHB bus as an AHB slave. All load/store instructions issued by the CPU are translated into AHB transactions through the LSU module, providing a straightforward path for data accesses.
 <br>
 <br>
@@ -2658,10 +2665,11 @@ static void print_pi_uart(int digits) {
     <h2>References</h2>
     <p class="instruction-text">[Replace with references: List academic papers, technical manuals, and other resources cited in your project.]</p>
     <ol style="margin-left: 25px; color: var(--text-gray);">
-      <li style="margin-bottom: 12px;"> 1: OpenHW Group, CV32E40P Documentation, https://docs.openhwgroup.org/projects/cv32e40p-user-manual/en/latest/intro.html</li>
-      <li style="margin-bottom: 12px;"> 2: ARM Ltd, AMBA® APB Protocol Specification, https://documentation-service.arm.com/static/63fe2c1356ea36189d4e79f3%3Ftoken%3D&ved=2ahUKEwiL-or6lKeRAxVPFVkFHbZNCjIQFnoECCMQAQ&usg=AOvVaw2XkJhpaIeA4ry31JCjoQdq</li>
-      <li style="margin-bottom: 12px;"> _: iRisc, iRisc - Fully Custom Risc-V SOC, https://gitfront.io/r/lafis002/nsQYcfC2svzE/iRisc/</li>
-      <li style="margin-bottom: 12px;"> _: riscv-collab, riscv-gnu-toolchain, https://github.com/riscv-collab/riscv-gnu-toolchain</li>
+      <li style="margin-bottom: 12px;"> CV32E40P Documentation: OpenHW Group, Introduction, https://docs.openhwgroup.org/projects/cv32e40p-user-manual/en/latest/intro.html</li>
+      <li style="margin-bottom: 12px;"> APB Protocol Documentation: ARM Ltd, AMBA® APB Protocol Specification, https://documentation-service.arm.com/static/63fe2c1356ea36189d4e79f3%3Ftoken%3D&ved=2ahUKEwiL-or6lKeRAxVPFVkFHbZNCjIQFnoECCMQAQ&usg=AOvVaw2XkJhpaIeA4ry31JCjoQdq</li>
+      <li style="margin-bottom: 12px;"> AHB Protocol Documentation: ARM Ltd, AMBA® AHB Protocol Specification, https://documentation-service.arm.com/static/6141bf0d674a052ae36ca811%3Ftoken%3D&ved=2ahUKEwjIooLn9K6RAxVF1fACHW1kCQkQFnoECAwQAQ&usg=AOvVaw0qphHfwpTSe1SQ0d2QgAIm</li>   
+      <li style="margin-bottom: 12px;"> 2024 iRisc Code: iRisc, iRisc - Fully Custom Risc-V SOC, https://gitfront.io/r/lafis002/nsQYcfC2svzE/iRisc/</li>
+      <li style="margin-bottom: 12px;"> RISC-V GNU Toolchain Github Repository: riscv-collab, riscv-gnu-toolchain, https://github.com/riscv-collab/riscv-gnu-toolchain</li>
       <li style="margin-bottom: 12px;">[Reference _: Author, Title, Publication, Year]</li>
     </ol>
   </section>
