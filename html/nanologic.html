@@ -684,7 +684,482 @@ To enable complete chip-level scan coverage, the wrappers include logic that rec
    <br>
 
 
-    <h4>On-Chip Interconnect and Bus Architecture</h4>
+    
+    <details class="code-block">
+      <summary>IMEM wrapper (imem_wrapper.sv)</summary>
+      <div class="code-content"><pre><code>//`include &quot;sram00.v&quot;
+`timescale 1 ns/1 ps
+
+module imem_wrapper (
+    // Clocks &amp; Reset
+    input logic        clk_i,          // System clock
+    input logic        sc2imem_clk,    // Scan chain clock
+    input logic        rst_ni,         // Active-low reset
+
+    // Power Management
+    input logic        RETN,           // Retention mode control
+    input logic [2:0]  EMA,            // Energy Management Adjustment (power optimization)
+
+    // CPU Interface (Core to IMEM)
+    input logic        core2imem_req,   // CPU memory request (active high)
+    input logic [31:0] core2imem_addr,  // 32-bit memory address from CPU
+
+    // Scan Chain Interface
+    input logic        sc2imem_ctrl,    // Selects between Scan Chain &amp; CPU control
+    input logic        sc2imem_req,     // Scan Chain memory request (active low)
+    input logic [31:0] sc2imem_addr,    // Scan Chain memory address
+    input logic        sc2imem_wen,     // Scan Chain Write Enable (active low)
+    input logic [31:0] sc2imem_wdata,   // Scan Chain Write Data
+
+    // IMEM Outputs
+    output logic       imem_rvalid_o,   // Read valid flag
+    output logic [31:0] imem_rdata_o    // Read Data from IMEM
+);
+
+    // Address Width for 8192 Words (log2(8192) = 13-bit)
+    localparam int Aw = $clog2(4096);  
+
+    // Internal Signals
+    logic clk_imem;               // IMEM clock (either system clock or scan chain clock)
+    logic imem_req, imem_req_delay; // Memory request
+    logic [Aw-1:0] imem_addr, imem_addr_delay; // Memory address (word-aligned)
+    logic imem_wen, imem_wen_delay; // Write enable
+    logic [3:0] imem_ben, imem_ben_delay; // Byte enable mask
+    logic [31:0] imem_wdata, imem_wdata_delay; // Write Data
+
+    // Clock Selection (Use either CPU clock or Scan Chain clock)
+    assign clk_imem = clk_i | sc2imem_clk;
+
+    // Multiplex between CPU and Scan Chain for IMEM access
+    assign imem_req   = sc2imem_ctrl ? sc2imem_req            : ~core2imem_req;
+    assign imem_addr  = sc2imem_ctrl ? sc2imem_addr[Aw-1+2:2] : core2imem_addr[Aw-1+2:2]; // Convert byte address to word address
+    assign imem_wen   = sc2imem_ctrl ? sc2imem_wen            : 1&#x27;b1; // Default to no write in CPU mode
+    assign imem_ben   = sc2imem_ctrl ? {4{sc2imem_wen}}       : 4&#x27;b1111; // Default to full-word access in CPU mode
+    assign imem_wdata = sc2imem_ctrl ? sc2imem_wdata          : 32&#x27;b0; // Default to 0 when CPU accesses
+
+    // Introduce Delays to Synchronize Signals
+	// DEL1 del01( .I(imem_req), .Z(imem_req_delay));
+	// DEL1 del02( .I(imem_addr[0]), .Z(imem_addr_delay[0]));
+	// DEL1 del03( .I(imem_addr[1]), .Z(imem_addr_delay[1]));
+	// DEL1 del04( .I(imem_addr[2]), .Z(imem_addr_delay[2]));
+	// DEL1 del05( .I(imem_addr[3]), .Z(imem_addr_delay[3]));
+	// DEL1 del06( .I(imem_addr[4]), .Z(imem_addr_delay[4]));
+	// DEL1 del07( .I(imem_addr[5]), .Z(imem_addr_delay[5]));
+	// DEL1 del08( .I(imem_addr[6]), .Z(imem_addr_delay[6]));
+	// DEL1 del09( .I(imem_addr[7]), .Z(imem_addr_delay[7]));
+	// DEL1 del10( .I(imem_addr[8]), .Z(imem_addr_delay[8]));
+	// DEL1 del11( .I(imem_addr[9]), .Z(imem_addr_delay[9]));
+	// DEL1 del12( .I(imem_addr[10]), .Z(imem_addr_delay[10]));
+	// DEL1 del13( .I(imem_addr[11]), .Z(imem_addr_delay[11]));
+	// DEL1 del14( .I(imem_addr[12]), .Z(imem_addr_delay[12]));
+    always @(imem_req) #5 imem_req_delay = imem_req;
+
+    always @(imem_addr[0]) #5 imem_addr_delay[0] = imem_addr[0];
+    always @(imem_addr[1]) #5 imem_addr_delay[1] = imem_addr[1];
+    always @(imem_addr[2]) #5 imem_addr_delay[2] = imem_addr[2];
+    always @(imem_addr[3]) #5 imem_addr_delay[3] = imem_addr[3];
+    always @(imem_addr[4]) #5 imem_addr_delay[4] = imem_addr[4];
+    always @(imem_addr[5]) #5 imem_addr_delay[5] = imem_addr[5];
+    always @(imem_addr[6]) #5 imem_addr_delay[6] = imem_addr[6];
+    always @(imem_addr[7]) #5 imem_addr_delay[7] = imem_addr[7];
+    always @(imem_addr[8]) #5 imem_addr_delay[8] = imem_addr[8];
+    always @(imem_addr[9]) #5 imem_addr_delay[9] = imem_addr[9];
+    always @(imem_addr[10]) #5 imem_addr_delay[10] = imem_addr[10];
+    always @(imem_addr[11]) #5 imem_addr_delay[11] = imem_addr[11];
+
+
+    // genvar i;
+    // generate
+    //     for (i = 0; i &lt; 13; i = i + 1) begin : addr_delay_gen
+    //         DEL1 del_addr(.clk(clk_imem), .I(imem_addr[i]), .Z(imem_addr_delay[i]));
+    //     end
+    // endgenerate
+
+    always @(imem_wdata) #50 imem_wdata_delay = imem_wdata;
+    always @(imem_wen)   #50 imem_wen_delay   = imem_wen;
+    always @(imem_ben)   #50 imem_ben_delay   = imem_ben;
+
+    // IMEM Instance (Pre-Synthesis Simulation)
+    sram00 imem (
+        .CLK(clk_imem), 
+        .CEN(imem_req_delay), 
+        .WEN(imem_ben_delay), 
+        .GWEN(imem_wen_delay), 
+        .A(imem_addr_delay), 
+        .D(imem_wdata_delay), 
+        .Q(imem_rdata_o), 
+        .EMA(3&#x27;b001), 
+        .RETN(RETN)
+    );
+
+    // Read Valid Signal (Output delayed by 1 cycle)
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) 
+            imem_rvalid_o &lt;= 1&#x27;b0;
+        else 
+            imem_rvalid_o &lt;= core2imem_req;
+    end
+
+endmodule
+
+
+</code></pre></div>
+    </details>
+
+
+    <details class="code-block">
+      <summary>DMEM wrapper (dmem_wrapper.sv)</summary>
+      <div class="code-content"><pre><code>`timescale 1ns/1ps
+
+module dmem_wrapper (
+    // Clocks &amp; Reset
+    input logic         clk_i,          // System clock
+    input logic         sc2dmem_clk,    // Scan Chain clock
+    input logic         rst_ni,         // Active-low reset
+
+    // Power Management
+    input logic         RETN,           // Retention mode control
+    input logic [2:0]   EMA,            // Energy Management Adjustment (power optimization)
+
+    // CPU Interface (Core to DMEM)
+    input logic         core2dmem_req,   // CPU request to access DMEM
+    input logic [31:0]  core2dmem_addr,  // 32-bit byte address from CPU
+    input logic         core2dmem_wen,   // Write enable (active low)
+    input logic [3:0]   core2dmem_ben,   // Byte enable (active low per byte)
+    input logic [31:0]  core2dmem_wdata, // Write data
+
+    // Scan Chain Interface (Test/Debug Access)
+    input logic         sc2dmem_ctrl,    // Selects between Scan Chain &amp; CPU control
+    input logic         sc2dmem_req,     // Scan Chain request (active low)
+    input logic [31:0]  sc2dmem_addr,    // Scan Chain memory address
+    input logic         sc2dmem_wen,     // Scan Chain Write Enable (active low)
+    input logic [3:0]   sc2dmem_ben,     // Scan Chain Byte Enable (active low)
+    input logic [31:0]  sc2dmem_wdata,   // Scan Chain Write Data
+
+    // DMEM Outputs
+    output logic        dmem_rvalid_o,   // Read valid flag
+    output logic [31:0] dmem_rdata_o     // Read Data from DMEM
+);
+
+    // Address Width for 8192 Words (log2(8192) = 13-bit)
+    localparam int Aw = $clog2(4096);
+
+    // Internal Signals
+    logic clk_dmem;                // DMEM clock (either system clock or scan chain clock)
+    logic dmem_req, dmem_req_delay; // Memory request
+    logic [Aw-1:0] dmem_addr, dmem_addr_delay; // Word-aligned memory address
+    logic dmem_wen, dmem_wen_delay; // Write enable signal
+    logic [3:0] dmem_ben, dmem_ben_delay; // Byte enable mask
+    logic [31:0] dmem_wdata, dmem_wdata_delay; // Write Data
+
+    // Clock Selection (Use either CPU clock or Scan Chain clock)
+    assign clk_dmem = clk_i | sc2dmem_clk;
+
+    // Multiplex between CPU and Scan Chain for DMEM access
+    assign dmem_req   = sc2dmem_ctrl ? sc2dmem_req             : core2dmem_req;
+    assign dmem_addr  = sc2dmem_ctrl ? sc2dmem_addr[Aw-1+2:2]  : core2dmem_addr; // Convert byte address to word address
+    assign dmem_wen   = sc2dmem_ctrl ? sc2dmem_wen             : core2dmem_wen;
+    assign dmem_ben   = sc2dmem_ctrl ? sc2dmem_ben             : ~core2dmem_ben;  // Convert active-high to active-low
+    assign dmem_wdata = sc2dmem_ctrl ? sc2dmem_wdata           : core2dmem_wdata;
+
+    // Introduce Delays to Synchronize Signals
+ // DEL4 del01( .I(dmem_req), .Z(dmem_req_delay));
+    always @(dmem_req) #5 dmem_req_delay = dmem_req;
+
+/*	DEL4 del02( .I(dmem_addr[0]), .Z(dmem_addr_delay[0]));
+	DEL4 del03( .I(dmem_addr[1]), .Z(dmem_addr_delay[1]));
+	DEL4 del04( .I(dmem_addr[2]), .Z(dmem_addr_delay[2]));
+	DEL4 del05( .I(dmem_addr[3]), .Z(dmem_addr_delay[3]));
+	DEL4 del06( .I(dmem_addr[4]), .Z(dmem_addr_delay[4]));
+	DEL4 del07( .I(dmem_addr[5]), .Z(dmem_addr_delay[5]));
+	DEL4 del08( .I(dmem_addr[6]), .Z(dmem_addr_delay[6]));
+	DEL4 del09( .I(dmem_addr[7]), .Z(dmem_addr_delay[7]));
+	DEL4 del10( .I(dmem_addr[8]), .Z(dmem_addr_delay[8]));
+	DEL4 del11( .I(dmem_addr[9]), .Z(dmem_addr_delay[9]));
+	DEL4 del11a( .I(dmem_addr[10]), .Z(dmem_addr_delay[10]));
+	DEL4 del11b( .I(dmem_addr[11]), .Z(dmem_addr_delay[11]));
+	DEL4 del11c( .I(dmem_addr[12]), .Z(dmem_addr_delay[12]));*/
+    always @(dmem_addr[0]) #5 dmem_addr_delay[0] = dmem_addr[0];
+    always @(dmem_addr[1]) #5 dmem_addr_delay[1] = dmem_addr[1];
+    always @(dmem_addr[2]) #5 dmem_addr_delay[2] = dmem_addr[2];
+    always @(dmem_addr[3]) #5 dmem_addr_delay[3] = dmem_addr[3];
+    always @(dmem_addr[4]) #5 dmem_addr_delay[4] = dmem_addr[4];
+    always @(dmem_addr[5]) #5 dmem_addr_delay[5] = dmem_addr[5];
+    always @(dmem_addr[6]) #5 dmem_addr_delay[6] = dmem_addr[6];
+    always @(dmem_addr[7]) #5 dmem_addr_delay[7] = dmem_addr[7];
+    always @(dmem_addr[8]) #5 dmem_addr_delay[8] = dmem_addr[8];
+    always @(dmem_addr[9]) #5 dmem_addr_delay[9] = dmem_addr[9];
+    always @(dmem_addr[10]) #5 dmem_addr_delay[10] = dmem_addr[10];
+    always @(dmem_addr[11]) #5 dmem_addr_delay[11] = dmem_addr[11];
+
+
+//	DEL4 del12( .I(dmem_wen), .Z(dmem_wen_delay));
+    always @(dmem_wen)   #5 dmem_wen_delay   = dmem_wen;
+
+    always @(dmem_ben[0]) #5 dmem_ben_delay[0] = dmem_ben[0];
+    always @(dmem_ben[1]) #5 dmem_ben_delay[1] = dmem_ben[1];
+    always @(dmem_ben[2]) #5 dmem_ben_delay[2] = dmem_ben[2];
+    always @(dmem_ben[3]) #5 dmem_ben_delay[3] = dmem_ben[3];
+/*
+	DEL4 del13( .I(dmem_ben[0]), .Z(dmem_ben_delay[0]));
+	DEL4 del14( .I(dmem_ben[1]), .Z(dmem_ben_delay[1]));
+	DEL4 del15( .I(dmem_ben[2]), .Z(dmem_ben_delay[2]));
+	DEL4 del16( .I(dmem_ben[3]), .Z(dmem_ben_delay[3]));
+
+
+	DEL4 del17( .I(dmem_wdata[0]), .Z(dmem_wdata_delay[0]));
+	DEL4 del18( .I(dmem_wdata[1]), .Z(dmem_wdata_delay[1]));
+	DEL4 del19( .I(dmem_wdata[2]), .Z(dmem_wdata_delay[2]));
+	DEL4 del20( .I(dmem_wdata[3]), .Z(dmem_wdata_delay[3]));
+	DEL4 del21( .I(dmem_wdata[4]), .Z(dmem_wdata_delay[4]));
+	DEL4 del22( .I(dmem_wdata[5]), .Z(dmem_wdata_delay[5]));
+	DEL4 del23( .I(dmem_wdata[6]), .Z(dmem_wdata_delay[6]));
+	DEL4 del24( .I(dmem_wdata[7]), .Z(dmem_wdata_delay[7]));
+	DEL4 del25( .I(dmem_wdata[8]), .Z(dmem_wdata_delay[8]));
+	DEL4 del26( .I(dmem_wdata[9]), .Z(dmem_wdata_delay[9]));
+	DEL4 del27( .I(dmem_wdata[10]), .Z(dmem_wdata_delay[10]));
+	DEL4 del28( .I(dmem_wdata[11]), .Z(dmem_wdata_delay[11]));
+	DEL4 del29( .I(dmem_wdata[12]), .Z(dmem_wdata_delay[12]));
+	DEL4 del30( .I(dmem_wdata[13]), .Z(dmem_wdata_delay[13]));
+	DEL4 del31( .I(dmem_wdata[14]), .Z(dmem_wdata_delay[14]));
+	DEL4 del32( .I(dmem_wdata[15]), .Z(dmem_wdata_delay[15]));
+	DEL4 del33( .I(dmem_wdata[16]), .Z(dmem_wdata_delay[16]));
+	DEL4 del34( .I(dmem_wdata[17]), .Z(dmem_wdata_delay[17]));
+	DEL4 del35( .I(dmem_wdata[18]), .Z(dmem_wdata_delay[18]));
+	DEL4 del36( .I(dmem_wdata[19]), .Z(dmem_wdata_delay[19]));
+	DEL4 del37( .I(dmem_wdata[20]), .Z(dmem_wdata_delay[20]));
+	DEL4 del38( .I(dmem_wdata[21]), .Z(dmem_wdata_delay[21]));
+	DEL4 del39( .I(dmem_wdata[22]), .Z(dmem_wdata_delay[22]));
+	DEL4 del40( .I(dmem_wdata[23]), .Z(dmem_wdata_delay[23]));
+	DEL4 del41( .I(dmem_wdata[24]), .Z(dmem_wdata_delay[24]));
+	DEL4 del42( .I(dmem_wdata[25]), .Z(dmem_wdata_delay[25]));
+	DEL4 del43( .I(dmem_wdata[26]), .Z(dmem_wdata_delay[26]));
+	DEL4 del44( .I(dmem_wdata[27]), .Z(dmem_wdata_delay[27]));
+	DEL4 del45( .I(dmem_wdata[28]), .Z(dmem_wdata_delay[28]));
+	DEL4 del46( .I(dmem_wdata[29]), .Z(dmem_wdata_delay[29]));
+	DEL4 del47( .I(dmem_wdata[30]), .Z(dmem_wdata_delay[30]));
+	DEL4 del48( .I(dmem_wdata[31]), .Z(dmem_wdata_delay[31]));*/
+    always @(dmem_wdata[0])  #5 dmem_wdata_delay[0]  = dmem_wdata[0];
+    always @(dmem_wdata[1])  #5 dmem_wdata_delay[1]  = dmem_wdata[1];
+    always @(dmem_wdata[2])  #5 dmem_wdata_delay[2]  = dmem_wdata[2];
+    always @(dmem_wdata[3])  #5 dmem_wdata_delay[3]  = dmem_wdata[3];
+    always @(dmem_wdata[4])  #5 dmem_wdata_delay[4]  = dmem_wdata[4];
+    always @(dmem_wdata[5])  #5 dmem_wdata_delay[5]  = dmem_wdata[5];
+    always @(dmem_wdata[6])  #5 dmem_wdata_delay[6]  = dmem_wdata[6];
+    always @(dmem_wdata[7])  #5 dmem_wdata_delay[7]  = dmem_wdata[7];
+    always @(dmem_wdata[8])  #5 dmem_wdata_delay[8]  = dmem_wdata[8];
+    always @(dmem_wdata[9])  #5 dmem_wdata_delay[9]  = dmem_wdata[9];
+    always @(dmem_wdata[10]) #5 dmem_wdata_delay[10] = dmem_wdata[10];
+    always @(dmem_wdata[11]) #5 dmem_wdata_delay[11] = dmem_wdata[11];
+    always @(dmem_wdata[12]) #5 dmem_wdata_delay[12] = dmem_wdata[12];
+    always @(dmem_wdata[13]) #5 dmem_wdata_delay[13] = dmem_wdata[13];
+    always @(dmem_wdata[14]) #5 dmem_wdata_delay[14] = dmem_wdata[14];
+    always @(dmem_wdata[15]) #5 dmem_wdata_delay[15] = dmem_wdata[15];
+    always @(dmem_wdata[16]) #5 dmem_wdata_delay[16] = dmem_wdata[16];
+    always @(dmem_wdata[17]) #5 dmem_wdata_delay[17] = dmem_wdata[17];
+    always @(dmem_wdata[18]) #5 dmem_wdata_delay[18] = dmem_wdata[18];
+    always @(dmem_wdata[19]) #5 dmem_wdata_delay[19] = dmem_wdata[19];
+    always @(dmem_wdata[20]) #5 dmem_wdata_delay[20] = dmem_wdata[20];
+    always @(dmem_wdata[21]) #5 dmem_wdata_delay[21] = dmem_wdata[21];
+    always @(dmem_wdata[22]) #5 dmem_wdata_delay[22] = dmem_wdata[22];
+    always @(dmem_wdata[23]) #5 dmem_wdata_delay[23] = dmem_wdata[23];
+    always @(dmem_wdata[24]) #5 dmem_wdata_delay[24] = dmem_wdata[24];
+    always @(dmem_wdata[25]) #5 dmem_wdata_delay[25] = dmem_wdata[25];
+    always @(dmem_wdata[26]) #5 dmem_wdata_delay[26] = dmem_wdata[26];
+    always @(dmem_wdata[27]) #5 dmem_wdata_delay[27] = dmem_wdata[27];
+    always @(dmem_wdata[28]) #5 dmem_wdata_delay[28] = dmem_wdata[28];
+    always @(dmem_wdata[29]) #5 dmem_wdata_delay[29] = dmem_wdata[29];
+    always @(dmem_wdata[30]) #5 dmem_wdata_delay[30] = dmem_wdata[30];
+    always @(dmem_wdata[31]) #5 dmem_wdata_delay[31] = dmem_wdata[31];
+
+
+    // Pre-Synthesis Simulation
+    sram00 dmem (
+        .CLK(clk_dmem),
+        .CEN(dmem_req_delay),
+        .WEN(dmem_ben_delay),
+        .GWEN(dmem_wen_delay),
+        .A(dmem_addr_delay),
+        .D(dmem_wdata_delay),
+        .Q(dmem_rdata_o),
+        .EMA(3&#x27;b001), // EMA fixed to 001 clears setup errors
+        .RETN(RETN)
+    );
+
+    // Post-Synthesis Simulation (Uncomment if needed)
+    // sram00 dmem(
+    //     .CLK(clk_dmem),
+    //     .CEN(dmem_req),
+    //     .WEN(dmem_ben),
+    //     .GWEN(dmem_wen),
+    //     .A(dmem_addr),
+    //     .D(dmem_wdata),
+    //     .Q(dmem_rdata_o),
+    //     .EMA(EMA),
+    //     .RETN(RETN)
+    // );
+
+    // Read Valid Signal (Output delayed by 1 cycle)
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni)
+            dmem_rvalid_o &lt;= 1&#x27;b0;
+        else
+            dmem_rvalid_o &lt;= ~dmem_req;
+    end
+
+endmodule
+</code></pre></div>
+    </details>
+
+
+    <details class="code-block">
+      <summary>DMEM AHB slave (dmem_slave.v)</summary>
+      <div class="code-content"><pre><code>`define ARM_UD_MODEL
+module dmem_slave  #(
+    parameter AW = 16
+) (
+    input              HCLK,
+    input              HRESETn,
+    input              HSEL,
+    input       [31:0] HADDR,
+    input       [ 1:0] HTRANS,
+    input              HWRITE,
+    input       [ 3:0] HSIZE,
+    input       [ 2:0] HBURST,
+    input       [ 3:0] HPROT, 
+
+    output reg  [ 3:0] SIZE,
+
+
+    input       [31:0] HWDATA,
+    output      [31:0] HRDATA,
+    output reg  [ 1:0] HRESP,
+    input              HREADY,
+    output reg         HREADYOUT,
+
+    output reg  [AW-1:0] A,
+    output      [31:0] D,
+    output reg         CEN,
+    output reg         WEN,
+    input       [31:0] Q
+
+);
+
+    //----------------------------------------------------
+    // The signals for SRAM
+    //----------------------------------------------------
+    parameter BITS = 32; //every word has 32 bits
+    parameter WORD_WIDTH = AW; //using 10 bits represent row address
+    
+    assign D = HWDATA;
+    assign HRDATA = Q;
+
+    //----------------------------------------------------------------------
+    // The definition for state machine
+    //----------------------------------------------------------------------
+    reg [1:0] state;
+    reg [1:0] next_state;
+    localparam idle = 2&#x27;b00, s1 = 2&#x27;b01, s2 = 2&#x27;b10, s3 = 2&#x27;b11;
+
+    //----------------------------------------------------------------------
+    // The state machine
+    //----------------------------------------------------------------------
+    always @(posedge HCLK, negedge HRESETn) begin
+        if (!HRESETn) begin
+            state &lt;= s1;
+        end
+        else begin
+            state &lt;= next_state;
+        end
+    end
+    
+    always @(*) begin
+        case(state)
+            s1: begin
+                if ((HSEL == 1&#x27;b1) &amp;&amp; (HWRITE == 1&#x27;b1) &amp;&amp; (HREADY == 1&#x27;b1)) begin
+                    next_state = s2;
+                end
+                else if ((HSEL == 1&#x27;b1) &amp;&amp; (HWRITE == 1&#x27;b0) &amp;&amp; (HREADY == 1&#x27;b1)) begin
+                    next_state = s3;
+                end
+                else begin
+                    next_state = s1;
+                end
+            end
+            s2: begin 
+                next_state = s1;
+            end
+            s3: begin 
+                next_state = s1;
+            end
+            default: begin
+                next_state = s1;
+            end
+        endcase
+    end
+
+    always @(posedge HCLK, negedge HRESETn) begin
+        if(!HRESETn) begin
+            HREADYOUT &lt;= 1&#x27;b1;
+            HRESP &lt;= 2&#x27;b00;
+            A &lt;= 16&#x27;b0;
+            CEN &lt;= 1&#x27;b1;
+            WEN &lt;= 1&#x27;b1;
+        end
+        else begin
+
+    	    SIZE  &lt;= HSIZE;
+
+            case(next_state)
+                s1: begin
+                    HREADYOUT &lt;= 1&#x27;b1;
+                    HRESP &lt;= 2&#x27;b00;
+                    if ((HSEL == 1&#x27;b1) &amp;&amp; (HWRITE == 1&#x27;b1) &amp;&amp; (HREADY == 1&#x27;b1)) begin
+                        CEN &lt;= 1&#x27;b0;
+                        WEN &lt;= 1&#x27;b0;
+                        A &lt;= HADDR[WORD_WIDTH-1+2:2];
+                    end
+                    else if ((HSEL == 1&#x27;b1) &amp;&amp; (HWRITE == 1&#x27;b0) &amp;&amp; (HREADY == 1&#x27;b1)) begin
+                        CEN &lt;= 1&#x27;b0;
+                        WEN &lt;= 1&#x27;b1;
+                        A &lt;= HADDR[WORD_WIDTH-1+2:2];
+                    end
+                    else begin
+                        CEN &lt;= 1&#x27;b1;
+                        WEN &lt;= 1&#x27;b1;
+                        A &lt;= A;
+                    end
+                end
+                s2: begin
+                    HREADYOUT &lt;= 1&#x27;b0;
+                    HRESP &lt;= 2&#x27;b00;
+                    CEN &lt;= 1&#x27;b0;
+                    WEN &lt;= 1&#x27;b0;
+                    A &lt;= HADDR[WORD_WIDTH-1+2:2];
+                end
+                s3: begin
+                    HREADYOUT &lt;= 1&#x27;b0;
+                    HRESP &lt;= 2&#x27;b00;
+                    CEN &lt;= 1&#x27;b0;
+                    WEN &lt;= 1&#x27;b1;
+                    A &lt;= HADDR[WORD_WIDTH-1+2:2];
+                end
+                default: begin
+                    HREADYOUT &lt;= 1&#x27;b1;
+                    HRESP &lt;= 2&#x27;b00;
+                    CEN &lt;= 1&#x27;b1;
+                    WEN &lt;= 1&#x27;b1;
+                    A &lt;= A;
+                end
+            endcase
+        end
+    end
+
+endmodule
+</code></pre></div>
+    </details>
+
+<h4>On-Chip Interconnect and Bus Architecture</h4>
 <p>
 A central AMBA AHB system bus forms the primary communication backbone of the SoC. The bus is organized in a 1-master / 6-slave (M16S) topology, with the RISC-V CPU core acting as the only AHB master. It helps keep the interconnect simple, low-latency, and area-efficient.
 <br>
@@ -713,7 +1188,934 @@ The AHB-to-APB bridge decouples the higher-speed AHB domain from the simpler APB
 </p>
 <img src="../images/nanologic/apb.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br><br>
             <p class="caption">Figure 6. APB FSM Diagram [2]</p>
-    <h4>Peripherals</h4>
+    
+    <details class="code-block">
+      <summary>AHB-to-APB bridge (AHB_APB_brig.v)</summary>
+      <div class="code-content"><pre><code>//For UART address space
+//
+//Add byte enable signal: HSIZE
+
+module AHB_APB_brig
+
+(
+
+	input	[31:0]	HADDR,
+	input	[31:0]	HWDATA,
+	input	[31:0]	PRDATA,
+	
+	input	[1:0]	HTRANS,
+	input	HREADYin,
+	input	HWRITE,
+	input	HRESETn,
+	input	HCLK,
+	
+	input	[2:0]	HSIZE,
+	
+	input           HSEL,
+	input	[3:0]	H_BE,	//Added for byte addr enable
+
+	output	[12:0]	PADDR,
+	output	[31:0]	PWDATA,
+	output	[31:0]	HRDATA,
+	
+	output	[1:0]	HRESP,
+	
+	output	PWRITE,
+	output	PENABLE,
+	output	HREADYout,
+	
+	output	[2:0]	PSEL
+
+);
+
+
+wire	[31:0]ADDR_1,ADDR_2,ADDR_3,
+	      DATA_1,DATA_2,DATA_3;
+
+wire	w_reg,vld;
+wire [2:0]tmp_sel;
+
+//Added for address mismatch 
+wire [31:0] PADDR_fsm;
+assign PADDR = PADDR_fsm[12:0];
+
+reg	[31:0]	HADDR_BE;
+
+
+
+
+
+always@(*) begin
+	HADDR_BE = HADDR[12:0];
+end
+
+
+ahb_slave SLAVE(.HADDR(HADDR_BE),	  	.HWDATA(HWDATA),	.HTRANS(HTRANS),
+		.HREADYin(HREADYin),	.HWRITE(HWRITE),	.HRESP(HRESP), 
+		.HRDATA(HRDATA),	.HSIZE(HSIZE),		.HCLK(HCLK),
+		.HRESETn(HRESETn),	.HSEL(HSEL),			.PRDATA(PRDATA),	.HADDR_1(ADDR_1),
+		.HWDATA_1(DATA_1),	.HADDR_2(ADDR_2),	.HWDATA_2(DATA_2),
+		.HADDR_3(ADDR_3),	.HWDATA_3(DATA_3),	.HWRITEreg(w_reg),
+		.valid(vld),		.TEMP_SEL(tmp_sel));
+
+
+fsm FSM(.HADDR_1(ADDR_1),		.HADDR_2(ADDR_2),	.HADDR_3(ADDR_3),
+	.HWDATA_1(DATA_1),		.HWDATA_2(DATA_2),	.HWDATA_3(DATA_3),
+	.HWRITE(HWRITE),		.HWRITEreg(w_reg),	.HSIZE(HSIZE),
+        .TEMP_SEL(tmp_sel),		.valid(vld),		.PADDR(PADDR_fsm),
+	.PWDATA(PWDATA),		.PSEL(PSEL),		.PWRITE(PWRITE),
+	.PENABLE(PENABLE),		.HCLK(HCLK),		.HRESETn(HRESETn),
+	.HTRANS(HTRANS),		.HREADYout(HREADYout));
+
+
+
+
+endmodule
+
+
+
+
+
+
+
+	
+
+	
+</code></pre></div>
+    </details>
+
+
+    <details class="code-block">
+      <summary>AHB interconnect (amba_ahb_m1s6.v)</summary>
+      <div class="code-content"><pre><code>//---------------------------------------------------------------------------
+// gen_amba_ahb.v generated by &quot;gen_amba_ahb (20210710)&quot;
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+module amba_ahb_m1s6
+     #(parameter P_NUM=6 // num of slaves
+               , P_HSEL0_START=32&#x27;h00000000, P_HSEL0_SIZE=32&#x27;h10000000 //DMEM
+               , P_HSEL1_START=32&#x27;h10000000, P_HSEL1_SIZE=32&#x27;h10000000 //GPIO
+               , P_HSEL2_START=32&#x27;h20000000, P_HSEL2_SIZE=32&#x27;h10000000 //UART
+               , P_HSEL3_START=32&#x27;h30000000, P_HSEL3_SIZE=32&#x27;h10000000 //SPI
+               , P_HSEL4_START=32&#x27;h40000000, P_HSEL4_SIZE=32&#x27;h10000000 //I2C
+               , P_HSEL5_START=32&#x27;h50000000, P_HSEL5_SIZE=32&#x27;h10000000 //Timers
+               )
+(
+        input   wire         HRESETn
+      , input   wire         HCLK
+      , input   wire  [31:0] M_HADDR
+      , input   wire  [ 1:0] M_HTRANS
+      , input   wire         M_HWRITE
+      , input   wire  [ 3:0] M_HSIZE
+      , input   wire  [ 2:0] M_HBURST
+      , input   wire  [ 3:0] M_HPROT
+      , input   wire  [31:0] M_HWDATA
+      , output  wire  [31:0] M_HRDATA
+      , output  wire  [ 1:0] M_HRESP
+      , output  wire         M_HREADY
+      , output  wire  [31:0] S_HADDR
+      , output  wire  [ 1:0] S_HTRANS
+      , output  wire  [ 3:0] S_HSIZE
+      , output  wire  [ 2:0] S_HBURST
+      , output  wire  [ 3:0] S_HPROT
+      , output  wire         S_HWRITE
+      , output  wire  [31:0] S_HWDATA
+      , output  wire         S_HREADY
+      , output  wire         S0_HSEL
+      , input   wire         S0_HREADY
+      , input   wire  [ 1:0] S0_HRESP
+      , input   wire  [31:0] S0_HRDATA
+      , output  wire         S1_HSEL
+      , input   wire         S1_HREADY
+      , input   wire  [ 1:0] S1_HRESP
+      , input   wire  [31:0] S1_HRDATA
+      , output  wire         S2_HSEL
+      , input   wire         S2_HREADY
+      , input   wire  [ 1:0] S2_HRESP
+      , input   wire  [31:0] S2_HRDATA
+      , output  wire         S3_HSEL
+      , input   wire         S3_HREADY
+      , input   wire  [ 1:0] S3_HRESP
+      , input   wire  [31:0] S3_HRDATA
+      , output  wire         S4_HSEL
+      , input   wire         S4_HREADY
+      , input   wire  [ 1:0] S4_HRESP
+      , input   wire  [31:0] S4_HRDATA
+      , output  wire         S5_HSEL
+      , input   wire         S5_HREADY
+      , input   wire  [ 1:0] S5_HRESP
+      , input   wire  [31:0] S5_HRDATA
+      , input   wire         REMAP
+);
+   wire        HSELd; // default slave
+   wire [31:0] HRDATAd;
+   wire [ 1:0] HRESPd;
+   wire        HREADYd;
+   assign S_HADDR  = M_HADDR;
+   assign S_HTRANS = M_HTRANS;
+   assign S_HSIZE  = M_HSIZE;
+   assign S_HBURST = M_HBURST;
+   assign S_HWRITE = M_HWRITE;
+   assign S_HPROT  = M_HPROT;
+   assign S_HWDATA = M_HWDATA;
+   assign S_HREADY = M_HREADY;
+   ahb_decoder_s6
+      #(.P_NUM(6)
+       ,.P_HSEL0_START(P_HSEL0_START),.P_HSEL0_SIZE(P_HSEL0_SIZE)
+       ,.P_HSEL1_START(P_HSEL1_START),.P_HSEL1_SIZE(P_HSEL1_SIZE)
+       ,.P_HSEL2_START(P_HSEL2_START),.P_HSEL2_SIZE(P_HSEL2_SIZE)
+       ,.P_HSEL3_START(P_HSEL3_START),.P_HSEL3_SIZE(P_HSEL3_SIZE)
+       ,.P_HSEL4_START(P_HSEL4_START),.P_HSEL4_SIZE(P_HSEL4_SIZE)
+       ,.P_HSEL5_START(P_HSEL5_START),.P_HSEL5_SIZE(P_HSEL5_SIZE)
+       )
+   u_ahb_decoder (
+                 .HADDR(M_HADDR)
+                ,.HSELd(HSELd)
+                ,.HSEL0(S0_HSEL)
+                ,.HSEL1(S1_HSEL)
+                ,.HSEL2(S2_HSEL)
+                ,.HSEL3(S3_HSEL)
+                ,.HSEL4(S4_HSEL)
+                ,.HSEL5(S5_HSEL)
+                ,.REMAP(REMAP));
+   ahb_s2m_s6 u_ahb_s2m (
+                 .HRESETn(HRESETn)
+                ,.HCLK   (HCLK   )
+                ,.HRDATA (M_HRDATA)
+                ,.HRESP  (M_HRESP )
+                ,.HREADY (M_HREADY)
+                ,.HSEL0  (S0_HSEL)
+                ,.HRDATA0(S0_HRDATA)
+                ,.HRESP0 (S0_HRESP)
+                ,.HREADY0(S0_HREADY)
+                ,.HSEL1  (S1_HSEL)
+                ,.HRDATA1(S1_HRDATA)
+                ,.HRESP1 (S1_HRESP)
+                ,.HREADY1(S1_HREADY)
+                ,.HSEL2  (S2_HSEL)
+                ,.HRDATA2(S2_HRDATA)
+                ,.HRESP2 (S2_HRESP)
+                ,.HREADY2(S2_HREADY)
+                ,.HSEL3  (S3_HSEL)
+                ,.HRDATA3(S3_HRDATA)
+                ,.HRESP3 (S3_HRESP)
+                ,.HREADY3(S3_HREADY)
+                ,.HSEL4  (S4_HSEL)
+                ,.HRDATA4(S4_HRDATA)
+                ,.HRESP4 (S4_HRESP)
+                ,.HREADY4(S4_HREADY)
+                ,.HSEL5  (S5_HSEL)
+                ,.HRDATA5(S5_HRDATA)
+                ,.HRESP5 (S5_HRESP)
+                ,.HREADY5(S5_HREADY)
+                ,.HSELd  (HSELd  )
+                ,.HRDATAd(HRDATAd)
+                ,.HRESPd (HRESPd )
+                ,.HREADYd(HREADYd));
+   ahb_default_slave u_ahb_default_slave (
+                 .HRESETn  (HRESETn  )
+                ,.HCLK     (HCLK     )
+                ,.HSEL     (HSELd    )
+                ,.HADDR    (S_HADDR  )
+                ,.HTRANS   (S_HTRANS )
+                ,.HWRITE   (S_HWRITE )
+                ,.HSIZE    (S_HSIZE  )
+                ,.HBURST   (S_HBURST )
+                ,.HWDATA   (S_HWDATA )
+                ,.HRDATA   (HRDATAd  )
+                ,.HRESP    (HRESPd   )
+                ,.HREADYin (S_HREADY )
+                ,.HREADYout(HREADYd  ));
+endmodule
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+module ahb_decoder_s6
+     #(parameter P_NUM        =6
+               , P_HSEL0_START=32&#x27;h00000000, P_HSEL0_SIZE=32&#x27;h10000000
+               , P_HSEL0_END  =P_HSEL0_START+P_HSEL0_SIZE
+               , P_HSEL1_START=32&#x27;h10000000, P_HSEL1_SIZE=32&#x27;h10000000
+               , P_HSEL1_END  =P_HSEL1_START+P_HSEL1_SIZE
+               , P_HSEL2_START=32&#x27;h20000000, P_HSEL2_SIZE=32&#x27;h10000000
+               , P_HSEL2_END  =P_HSEL2_START+P_HSEL2_SIZE
+               , P_HSEL3_START=32&#x27;h30000000, P_HSEL3_SIZE=32&#x27;h10000000
+               , P_HSEL3_END  =P_HSEL3_START+P_HSEL3_SIZE
+               , P_HSEL4_START=32&#x27;h40000000, P_HSEL4_SIZE=32&#x27;h10000000
+               , P_HSEL4_END  =P_HSEL4_START+P_HSEL4_SIZE
+               , P_HSEL5_START=32&#x27;h50000000, P_HSEL5_SIZE=32&#x27;h10000000
+               , P_HSEL5_END  =P_HSEL5_START+P_HSEL5_SIZE
+               )
+(
+       input   wire [31:0] HADDR
+     , output  wire        HSELd // default slave
+     , output  wire        HSEL0
+     , output  wire        HSEL1
+     , output  wire        HSEL2
+     , output  wire        HSEL3
+     , output  wire        HSEL4
+     , output  wire        HSEL5
+     , input   wire        REMAP
+);
+   wire [5:0] ihsel;
+   wire       ihseld = ~|ihsel;
+   assign HSELd = ihseld;
+   assign HSEL0 = (REMAP) ? ihsel[1] : ihsel[0];
+   assign HSEL1 = (REMAP) ? ihsel[0] : ihsel[1];
+   assign HSEL2 = ihsel[2];
+   assign HSEL3 = ihsel[3];
+   assign HSEL4 = ihsel[4];
+   assign HSEL5 = ihsel[5];
+   assign ihsel[0] = ((P_NUM&gt;0)&amp;&amp;(HADDR&gt;=P_HSEL0_START)&amp;&amp;(HADDR&lt;P_HSEL0_END)) ? 1&#x27;b1 : 1&#x27;b0;
+   assign ihsel[1] = ((P_NUM&gt;1)&amp;&amp;(HADDR&gt;=P_HSEL1_START)&amp;&amp;(HADDR&lt;P_HSEL1_END)) ? 1&#x27;b1 : 1&#x27;b0;
+   assign ihsel[2] = ((P_NUM&gt;2)&amp;&amp;(HADDR&gt;=P_HSEL2_START)&amp;&amp;(HADDR&lt;P_HSEL2_END)) ? 1&#x27;b1 : 1&#x27;b0;
+   assign ihsel[3] = ((P_NUM&gt;3)&amp;&amp;(HADDR&gt;=P_HSEL3_START)&amp;&amp;(HADDR&lt;P_HSEL3_END)) ? 1&#x27;b1 : 1&#x27;b0;
+   assign ihsel[4] = ((P_NUM&gt;4)&amp;&amp;(HADDR&gt;=P_HSEL4_START)&amp;&amp;(HADDR&lt;P_HSEL4_END)) ? 1&#x27;b1 : 1&#x27;b0;
+   assign ihsel[5] = ((P_NUM&gt;5)&amp;&amp;(HADDR&gt;=P_HSEL5_START)&amp;&amp;(HADDR&lt;P_HSEL5_END)) ? 1&#x27;b1 : 1&#x27;b0;
+   `ifdef RIGOR
+   // synthesis translate_off
+   initial begin
+       if (P_HSEL0_SIZE==0) $display(&quot;%m ERROR P_HSEL0_SIZE should be positive 32-bit&quot;);
+       if (P_HSEL1_SIZE==0) $display(&quot;%m ERROR P_HSEL1_SIZE should be positive 32-bit&quot;);
+       if (P_HSEL2_SIZE==0) $display(&quot;%m ERROR P_HSEL2_SIZE should be positive 32-bit&quot;);
+       if (P_HSEL3_SIZE==0) $display(&quot;%m ERROR P_HSEL3_SIZE should be positive 32-bit&quot;);
+       if (P_HSEL4_SIZE==0) $display(&quot;%m ERROR P_HSEL4_SIZE should be positive 32-bit&quot;);
+       if (P_HSEL5_SIZE==0) $display(&quot;%m ERROR P_HSEL5_SIZE should be positive 32-bit&quot;);
+       if ((P_HSEL0_END&gt;P_HSEL1_START)&amp;&amp;
+           (P_HSEL0_END&lt;=P_HSEL1_END)) $display(&quot;%m ERROR address range overlapped 0:1&quot;);
+       if ((P_HSEL0_END&gt;P_HSEL2_START)&amp;&amp;
+           (P_HSEL0_END&lt;=P_HSEL2_END)) $display(&quot;%m ERROR address range overlapped 0:2&quot;);
+       if ((P_HSEL0_END&gt;P_HSEL3_START)&amp;&amp;
+           (P_HSEL0_END&lt;=P_HSEL3_END)) $display(&quot;%m ERROR address range overlapped 0:3&quot;);
+       if ((P_HSEL0_END&gt;P_HSEL4_START)&amp;&amp;
+           (P_HSEL0_END&lt;=P_HSEL4_END)) $display(&quot;%m ERROR address range overlapped 0:4&quot;);
+       if ((P_HSEL0_END&gt;P_HSEL5_START)&amp;&amp;
+           (P_HSEL0_END&lt;=P_HSEL5_END)) $display(&quot;%m ERROR address range overlapped 0:5&quot;);
+       if ((P_HSEL1_END&gt;P_HSEL0_START)&amp;&amp;
+           (P_HSEL1_END&lt;=P_HSEL0_END)) $display(&quot;%m ERROR address range overlapped 1:0&quot;);
+       if ((P_HSEL1_END&gt;P_HSEL2_START)&amp;&amp;
+           (P_HSEL1_END&lt;=P_HSEL2_END)) $display(&quot;%m ERROR address range overlapped 1:2&quot;);
+       if ((P_HSEL1_END&gt;P_HSEL3_START)&amp;&amp;
+           (P_HSEL1_END&lt;=P_HSEL3_END)) $display(&quot;%m ERROR address range overlapped 1:3&quot;);
+       if ((P_HSEL1_END&gt;P_HSEL4_START)&amp;&amp;
+           (P_HSEL1_END&lt;=P_HSEL4_END)) $display(&quot;%m ERROR address range overlapped 1:4&quot;);
+       if ((P_HSEL1_END&gt;P_HSEL5_START)&amp;&amp;
+           (P_HSEL1_END&lt;=P_HSEL5_END)) $display(&quot;%m ERROR address range overlapped 1:5&quot;);
+       if ((P_HSEL2_END&gt;P_HSEL0_START)&amp;&amp;
+           (P_HSEL2_END&lt;=P_HSEL0_END)) $display(&quot;%m ERROR address range overlapped 2:0&quot;);
+       if ((P_HSEL2_END&gt;P_HSEL1_START)&amp;&amp;
+           (P_HSEL2_END&lt;=P_HSEL1_END)) $display(&quot;%m ERROR address range overlapped 2:1&quot;);
+       if ((P_HSEL2_END&gt;P_HSEL3_START)&amp;&amp;
+           (P_HSEL2_END&lt;=P_HSEL3_END)) $display(&quot;%m ERROR address range overlapped 2:3&quot;);
+       if ((P_HSEL2_END&gt;P_HSEL4_START)&amp;&amp;
+           (P_HSEL2_END&lt;=P_HSEL4_END)) $display(&quot;%m ERROR address range overlapped 2:4&quot;);
+       if ((P_HSEL2_END&gt;P_HSEL5_START)&amp;&amp;
+           (P_HSEL2_END&lt;=P_HSEL5_END)) $display(&quot;%m ERROR address range overlapped 2:5&quot;);
+       if ((P_HSEL3_END&gt;P_HSEL0_START)&amp;&amp;
+           (P_HSEL3_END&lt;=P_HSEL0_END)) $display(&quot;%m ERROR address range overlapped 3:0&quot;);
+       if ((P_HSEL3_END&gt;P_HSEL1_START)&amp;&amp;
+           (P_HSEL3_END&lt;=P_HSEL1_END)) $display(&quot;%m ERROR address range overlapped 3:1&quot;);
+       if ((P_HSEL3_END&gt;P_HSEL2_START)&amp;&amp;
+           (P_HSEL3_END&lt;=P_HSEL2_END)) $display(&quot;%m ERROR address range overlapped 3:2&quot;);
+       if ((P_HSEL3_END&gt;P_HSEL4_START)&amp;&amp;
+           (P_HSEL3_END&lt;=P_HSEL4_END)) $display(&quot;%m ERROR address range overlapped 3:4&quot;);
+       if ((P_HSEL3_END&gt;P_HSEL5_START)&amp;&amp;
+           (P_HSEL3_END&lt;=P_HSEL5_END)) $display(&quot;%m ERROR address range overlapped 3:5&quot;);
+       if ((P_HSEL4_END&gt;P_HSEL0_START)&amp;&amp;
+           (P_HSEL4_END&lt;=P_HSEL0_END)) $display(&quot;%m ERROR address range overlapped 4:0&quot;);
+       if ((P_HSEL4_END&gt;P_HSEL1_START)&amp;&amp;
+           (P_HSEL4_END&lt;=P_HSEL1_END)) $display(&quot;%m ERROR address range overlapped 4:1&quot;);
+       if ((P_HSEL4_END&gt;P_HSEL2_START)&amp;&amp;
+           (P_HSEL4_END&lt;=P_HSEL2_END)) $display(&quot;%m ERROR address range overlapped 4:2&quot;);
+       if ((P_HSEL4_END&gt;P_HSEL3_START)&amp;&amp;
+           (P_HSEL4_END&lt;=P_HSEL3_END)) $display(&quot;%m ERROR address range overlapped 4:3&quot;);
+       if ((P_HSEL4_END&gt;P_HSEL5_START)&amp;&amp;
+           (P_HSEL4_END&lt;=P_HSEL5_END)) $display(&quot;%m ERROR address range overlapped 4:5&quot;);
+       if ((P_HSEL5_END&gt;P_HSEL0_START)&amp;&amp;
+           (P_HSEL5_END&lt;=P_HSEL0_END)) $display(&quot;%m ERROR address range overlapped 5:0&quot;);
+       if ((P_HSEL5_END&gt;P_HSEL1_START)&amp;&amp;
+           (P_HSEL5_END&lt;=P_HSEL1_END)) $display(&quot;%m ERROR address range overlapped 5:1&quot;);
+       if ((P_HSEL5_END&gt;P_HSEL2_START)&amp;&amp;
+           (P_HSEL5_END&lt;=P_HSEL2_END)) $display(&quot;%m ERROR address range overlapped 5:2&quot;);
+       if ((P_HSEL5_END&gt;P_HSEL3_START)&amp;&amp;
+           (P_HSEL5_END&lt;=P_HSEL3_END)) $display(&quot;%m ERROR address range overlapped 5:3&quot;);
+       if ((P_HSEL5_END&gt;P_HSEL4_START)&amp;&amp;
+           (P_HSEL5_END&lt;=P_HSEL4_END)) $display(&quot;%m ERROR address range overlapped 5:4&quot;);
+   end
+   // synthesis translate_on
+   `endif
+endmodule
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+module ahb_s2m_s6
+(
+       input   wire         HRESETn
+     , input   wire         HCLK
+     , input   wire         HSELd
+     , input   wire         HSEL0
+     , input   wire         HSEL1
+     , input   wire         HSEL2
+     , input   wire         HSEL3
+     , input   wire         HSEL4
+     , input   wire         HSEL5
+     , output  reg   [31:0] HRDATA
+     , output  reg   [ 1:0] HRESP
+     , output  reg          HREADY
+     , input   wire  [31:0] HRDATA0
+     , input   wire  [ 1:0] HRESP0
+     , input   wire         HREADY0
+     , input   wire  [31:0] HRDATA1
+     , input   wire  [ 1:0] HRESP1
+     , input   wire         HREADY1
+     , input   wire  [31:0] HRDATA2
+     , input   wire  [ 1:0] HRESP2
+     , input   wire         HREADY2
+     , input   wire  [31:0] HRDATA3
+     , input   wire  [ 1:0] HRESP3
+     , input   wire         HREADY3
+     , input   wire  [31:0] HRDATA4
+     , input   wire  [ 1:0] HRESP4
+     , input   wire         HREADY4
+     , input   wire  [31:0] HRDATA5
+     , input   wire  [ 1:0] HRESP5
+     , input   wire         HREADY5
+     , input   wire  [31:0] HRDATAd
+     , input   wire  [ 1:0] HRESPd
+     , input   wire         HREADYd
+);
+  localparam D_HSEL0 = 7&#x27;h1;
+  localparam D_HSEL1 = 7&#x27;h2;
+  localparam D_HSEL2 = 7&#x27;h4;
+  localparam D_HSEL3 = 7&#x27;h8;
+  localparam D_HSEL4 = 7&#x27;h10;
+  localparam D_HSEL5 = 7&#x27;h20;
+  localparam D_HSELd = 7&#x27;h40;
+  wire [6:0] _hsel = {HSELd,HSEL5,HSEL4,HSEL3,HSEL2,HSEL1,HSEL0};
+  reg  [6:0] _hsel_reg;
+  always @ (posedge HCLK or negedge HRESETn) begin
+    if (HRESETn==1&#x27;b0)   _hsel_reg &lt;= 7&#x27;h0;
+    else if(HREADY) _hsel_reg &lt;= _hsel; // default HREADY must be 1&#x27;b1
+  end
+  always @ (_hsel_reg or HREADYd or HREADY0 or HREADY1 or HREADY2 or HREADY3 or HREADY4 or HREADY5) begin
+    case(_hsel_reg)
+      D_HSEL0: HREADY = HREADY0;
+      D_HSEL1: HREADY = HREADY1;
+      D_HSEL2: HREADY = HREADY2;
+      D_HSEL3: HREADY = HREADY3;
+      D_HSEL4: HREADY = HREADY4;
+      D_HSEL5: HREADY = HREADY5;
+      D_HSELd: HREADY = HREADYd;
+      default: HREADY = 1&#x27;b1;
+    endcase
+  end
+  always @ (_hsel_reg or HRDATAd or HRDATA0 or HRDATA1 or HRDATA2 or HRDATA3 or HRDATA4 or HRDATA5) begin
+    case(_hsel_reg)
+      D_HSEL0: HRDATA = HRDATA0;
+      D_HSEL1: HRDATA = HRDATA1;
+      D_HSEL2: HRDATA = HRDATA2;
+      D_HSEL3: HRDATA = HRDATA3;
+      D_HSEL4: HRDATA = HRDATA4;
+      D_HSEL5: HRDATA = HRDATA5;
+      D_HSELd: HRDATA = HRDATAd;
+      default: HRDATA = 32&#x27;b0;
+    endcase
+  end
+  always @ (_hsel_reg or HRESPd or HRESP0 or HRESP1 or HRESP2 or HRESP3 or HRESP4 or HRESP5) begin
+    case(_hsel_reg)
+      D_HSEL0: HRESP = HRESP0;
+      D_HSEL1: HRESP = HRESP1;
+      D_HSEL2: HRESP = HRESP2;
+      D_HSEL3: HRESP = HRESP3;
+      D_HSEL4: HRESP = HRESP4;
+      D_HSEL5: HRESP = HRESP5;
+      D_HSELd: HRESP = HRESPd;
+      default: HRESP = 2&#x27;b01; //`HRESP_ERROR;
+    endcase
+  end
+endmodule
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+`ifndef AHB_DEFAULT_SLAVE_V
+`define AHB_DEFAULT_SLAVE_V
+module ahb_default_slave
+(
+       input   wire         HRESETn
+     , input   wire         HCLK
+     , input   wire         HSEL
+     , input   wire  [31:0] HADDR
+     , input   wire  [ 1:0] HTRANS
+     , input   wire         HWRITE
+     , input   wire  [ 3:0] HSIZE
+     , input   wire  [ 2:0] HBURST
+     , input   wire  [31:0] HWDATA
+     , output  wire  [31:0] HRDATA
+     , output  reg   [ 1:0] HRESP
+     , input   wire         HREADYin
+     , output  reg          HREADYout
+);
+   assign HRDATA = 32&#x27;h0;
+   localparam STH_IDLE   = 2&#x27;h0
+            , STH_WRITE  = 2&#x27;h1
+            , STH_READ0  = 2&#x27;h2;
+   reg [1:0] state=STH_IDLE;
+   always @ (posedge HCLK or negedge HRESETn) begin
+       if (HRESETn==0) begin
+           HRESP     &lt;= 2&#x27;b00; 
+           HREADYout &lt;= 1&#x27;b1;
+           state     &lt;= STH_IDLE;
+       end else begin 
+           case (state)
+           STH_IDLE: begin
+                if (HSEL &amp;&amp; HREADYin) begin
+                   case (HTRANS)
+                   2&#x27;b00, 2&#x27;b01: begin
+                          HREADYout &lt;= 1&#x27;b1;
+                          HRESP     &lt;= 2&#x27;b00; //`HRESP_OKAY;
+                          state     &lt;= STH_IDLE;
+                    end // HTRANS_IDLE or HTRANS_BUSY
+                   2&#x27;b10, 2&#x27;b11: begin
+                          HREADYout &lt;= 1&#x27;b0;
+                          HRESP     &lt;= 2&#x27;b01; //`HRESP_ERROR;
+                          if (HWRITE) begin
+                              state &lt;= STH_WRITE;
+                          end else begin
+                              state &lt;= STH_READ0;
+                          end
+                    end // HTRANS_NONSEQ or HTRANS_SEQ
+                   endcase // HTRANS
+                end else begin// if (HSEL &amp;&amp; HREADYin)
+                    HREADYout &lt;= 1&#x27;b1;
+                    HRESP     &lt;= 2&#x27;b00; //`HRESP_OKAY;
+                end
+                end // STH_IDLE
+           STH_WRITE: begin
+                     HREADYout &lt;= 1&#x27;b1;
+                     HRESP     &lt;= 2&#x27;b01; //`HRESP_ERROR;
+                     state     &lt;= STH_IDLE;
+                end // STH_WRITE
+           STH_READ0: begin
+                    HREADYout &lt;= 1&#x27;b1;
+                    HRESP     &lt;= 2&#x27;b01; //`HRESP_ERROR;
+                    state     &lt;= STH_IDLE;
+                end // STH_READ0
+           endcase // state
+       end // if (HRESETn==0)
+   end // always
+endmodule
+`endif
+//---------------------------------------------------------------------------
+/* Copyright 2018 Ando Ki (andoki@gmail.com)
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+</code></pre></div>
+    </details>
+
+
+    <details class="code-block">
+      <summary>AHB/APB bus top (arm_bus_top.sv)</summary>
+      <div class="code-content"><pre><code>// apb_top.sv
+// Top-level module for APB bus.
+
+module arm_bus_top #(
+    parameter AW = 16
+) 
+(
+    input   wire        HRESETn,
+    input   wire        HCLK,
+
+    //CV32E40P
+    input   wire [31:0] ADDR,
+    input   wire        WE, // write enable
+    input   wire        REQUST, // enable
+    input   wire [31:0] WDATA, // write data
+    input   wire [ 3:0] SIZE, // can be connected to byte enable signal
+
+    output  reg  [31:0] RDATA, // read data
+    output  reg         GRANT, // grant signal 
+    output  reg         RVALID, // rvalid signal 
+    output              ERROR,
+    
+    //dmem
+    output       [3:0]  data_size,
+
+    output       [AW-1:0] data_A,
+    output       [31:0] data_D,
+    output              data_CEN,
+    output              data_WEN,
+    input        [31:0] data_Q,
+
+    //GPIO
+    output	[12:0]	GPIO_PADDR,
+    output	[31:0]	GPIO_PWDATA,
+    output		GPIO_PWRITE,
+    output		GPIO_PENABLE,
+    output	[2:0]	GPIO_PSEL,
+    input	[31:0]	GPIO_PRDATA,    
+
+    //UART
+    output	[12:0]	UART_PADDR,
+    output	[31:0]	UART_PWDATA,
+    output		UART_PWRITE,
+    output		UART_PENABLE,
+    output	[2:0]	UART_PSEL,
+    input	[31:0]	UART_PRDATA,
+
+
+    //SPI
+    output      [12:0]  SPI_PADDR,
+    output      [31:0]  SPI_PWDATA,
+    output              SPI_PWRITE,
+    output              SPI_PENABLE,
+    output      [2:0]   SPI_PSEL,
+    input       [31:0]  SPI_PRDATA,
+
+    //I2C
+    output      [12:0] I2C_PADDR,
+    output	[31:0] I2C_PWDATA,
+    output	       I2C_PWRITE,
+    output             I2C_PENABLE,
+    output	[2:0]  I2C_PSEL,
+    input	[31:0] I2C_PRDATA,
+
+    //timers
+    output      [12:0] TIMER_PADDR,
+    output      [31:0] TIMER_PWDATA,
+    output             TIMER_PWRITE,
+    output	       TIMER_PENABLE,
+    output      [2:0]  TIMER_PSEL,
+    input       [31:0] TIMER_PRDATA
+
+);
+
+    wire         M_HBUSREQ;
+
+    wire         M_HGRANT;
+    wire  [31:0] M_HADDR;
+    wire  [ 1:0] M_HTRANS;
+    wire         M_HWRITE;
+    wire  [ 3:0] M_HSIZE;
+    wire  [ 2:0] M_HBURST;
+    wire  [ 3:0] M_HPROT;
+    wire  [31:0] M_HWDATA;
+
+
+    wire  [31:0] M_HRDATA;
+    wire  [ 1:0] M_HRESP;
+    wire         M_HREADY;
+
+    wire  [31:0] S_HADDR;
+    wire  [ 1:0] S_HTRANS;
+    wire  [ 3:0] S_HSIZE;
+    wire  [ 2:0] S_HBURST;
+    wire  [ 3:0] S_HPROT;
+    wire         S_HWRITE;
+    wire  [31:0] S_HWDATA;
+    wire         S_HREADY;
+
+    wire         S0_HSEL;
+    wire         S0_HREADY;
+    wire  [ 1:0] S0_HRESP;
+    wire  [31:0] S0_HRDATA;
+
+
+
+    wire         S1_HSEL;
+    wire         S1_HREADY;
+    wire  [ 1:0] S1_HRESP;
+    wire  [31:0] S1_HRDATA;
+
+
+    wire         S2_HSEL;
+    wire         S2_HREADY;
+    wire  [ 1:0] S2_HRESP;
+    wire  [31:0] S2_HRDATA;
+
+
+
+    wire         S3_HSEL;
+    wire         S3_HREADY;
+    wire  [ 1:0] S3_HRESP;
+    wire  [31:0] S3_HRDATA;
+
+    wire         S4_HSEL;
+    wire         S4_HREADY;
+    wire  [ 1:0] S4_HRESP;
+    wire  [31:0] S4_HRDATA;
+
+    wire         S5_HSEL;
+    wire         S5_HREADY;
+    wire  [ 1:0] S5_HRESP;
+    wire  [31:0] S5_HRDATA;
+
+
+    wire         REMAP;
+
+
+    amba_ahb_m1s6 u_amba_ahb_m1s6 (
+       .HRESETn		(HRESETn	),	//input
+       .HCLK		(HCLK   	),	//input
+       .M_HADDR		(M_HADDR  	),	//input
+       .M_HTRANS	(M_HTRANS 	),	//input
+       .M_HSIZE		(M_HSIZE  	),	//input
+       .M_HBURST	(M_HBURST 	),	//input
+       .M_HPROT		(M_HPROT  	),	//input
+       .M_HWRITE	(M_HWRITE 	),	//input
+       .M_HWDATA	(M_HWDATA 	),	//input                               	                                  	
+       .M_HRDATA	(M_HRDATA  	),
+       .M_HRESP		(M_HRESP	),
+       .M_HREADY	(M_HREADY  	),
+                                   
+       .S_HADDR		(S_HADDR	),
+       .S_HWRITE	(S_HWRITE  	),
+       .S_HTRANS	(S_HTRANS  	),
+       .S_HSIZE		(S_HSIZE	),
+       .S_HBURST	(S_HBURST  	),
+       .S_HWDATA	(S_HWDATA  	),
+       .S_HPROT		(S_HPROT	),
+       .S_HREADY	(S_HREADY  	),
+
+
+                                   
+       .S0_HSEL		(S0_HSEL	),
+       .S0_HREADY	(S0_HREADY 	),
+       .S0_HRESP	(S0_HRESP  	),
+       .S0_HRDATA	(S0_HRDATA 	),
+     
+                                   	
+       .S1_HSEL		(S1_HSEL        ),
+       .S1_HREADY	(S1_HREADY 	),
+       .S1_HRESP	(S1_HRESP  	),
+       .S1_HRDATA	(S1_HRDATA 	),
+   
+                                   	
+       .S2_HSEL		(S2_HSEL        ),
+       .S2_HREADY	(S2_HREADY 	),
+       .S2_HRESP	(S2_HRESP  	),
+       .S2_HRDATA	(S2_HRDATA 	),
+ 
+
+       .S3_HSEL		(S3_HSEL        ),
+       .S3_HREADY	(S3_HREADY 	),
+       .S3_HRESP	(S3_HRESP  	),
+       .S3_HRDATA	(S3_HRDATA 	),
+
+
+       .S4_HSEL		(S4_HSEL        ),
+       .S4_HREADY	(S4_HREADY 	),
+       .S4_HRESP	(S4_HRESP  	),
+       .S4_HRDATA	(S4_HRDATA 	),
+
+       .S5_HSEL		(S5_HSEL        ),
+       .S5_HREADY	(S5_HREADY 	),
+       .S5_HRESP	(S5_HRESP  	),
+       .S5_HRDATA	(S5_HRDATA 	),
+
+
+
+
+
+       .REMAP		(1&#x27;b0	  	) // always 1&#x27;b0
+);
+
+
+    LSU_master u_LSU_master (
+        .HRESETn    ( HRESETn   ),	//input
+        .HCLK       ( HCLK      ),	//input	 
+
+	//Connect to core 
+        .ADDR       ( ADDR      ),	//input to core
+        .WE         ( WE        ),	//input to core
+        .REQUST     ( REQUST    ),	//input to core
+        .WDATA      ( WDATA     ),	//input to core
+        //.SIZE       ( 3&#x27;b010    ),            
+        .SIZE       ( SIZE      ),	//input to core
+        .RDATA      ( RDATA     ),	//output to core
+        .GRANT      ( GRANT     ),	//output to core
+        .RVALID     ( RVALID    ),	//output to core
+        .ERROR      ( ERROR     ),	//output to core
+
+	//Connect to AHB bus
+
+
+        .HADDR      ( M_HADDR   ),	//output
+        .HTRANS     ( M_HTRANS  ),	//output
+        .HWRITE     ( M_HWRITE  ),	//output
+        .HSIZE      ( M_HSIZE   ),	//output
+        .HBURST     ( M_HBURST  ),	//output
+        .HPROT      ( M_HPROT   ),	//output
+        .HWDATA     ( M_HWDATA  ),	//output
+        .HRDATA     ( M_HRDATA  ),	//input
+        .HRESP      ( M_HRESP   ),	//input
+        .HREADY     ( M_HREADY  ) 	//input
+    );
+
+   dmem_slave #(.AW(AW) ) u_dmem_slave (
+        //Connect to AHB bus
+        .HRESETn    ( HRESETn   ),
+        .HCLK       ( HCLK      ),
+        .HSEL       ( S0_HSEL   ),
+        .HADDR      ( S_HADDR   ),
+        .HTRANS     ( S_HTRANS  ),
+        .HWRITE     ( S_HWRITE  ),
+        .HSIZE      ( S_HSIZE   ),
+        .HBURST     ( S_HBURST  ),
+        .HPROT      ( S_HPROT   ),
+        .HWDATA     ( S_HWDATA  ),
+        .HRDATA     ( S0_HRDATA ),
+        .HRESP      ( S0_HRESP  ),
+        .HREADY     ( S_HREADY  ),
+        .HREADYOUT  ( S0_HREADY ),
+
+        //Connect to dmem
+        .SIZE       ( data_size ),
+        .A          ( data_A    ),
+        .D          ( data_D    ),
+        .CEN        ( data_CEN  ),
+        .WEN        ( data_WEN  ),
+        .Q          ( data_Q    )
+    );
+
+
+ AHB_APB_brig u_AHB_APB_2_GPIO (
+	//Connect to AHB bus
+	.HADDR		( S_HADDR ),
+	.HWDATA		( S_HWDATA ),
+	.HTRANS		( S_HTRANS ),
+	.HREADYin	( S_HREADY ),
+	.HWRITE		( S_HWRITE ),
+	.HRESP		( S1_HRESP ),
+	.HRDATA		( S1_HRDATA ),
+	.HREADYout	( S1_HREADY ),
+	.HSIZE		( S_HSIZE[2:0] ),
+	.HRESETn	( HRESETn ),
+	.HCLK		( HCLK ),
+        
+	.HSEL     	( S1_HSEL   ),
+	.H_BE		( S_HSIZE	),
+	
+	//Connect to AHB_APB_brig  -&gt; GPIO
+	.PADDR		( GPIO_PADDR ),
+	.PWDATA		( GPIO_PWDATA ),
+	.PSEL		( GPIO_PSEL ),
+	.PWRITE		( GPIO_PWRITE ),
+	.PENABLE	( GPIO_PENABLE ),
+	.PRDATA		( GPIO_PRDATA )
+    );
+
+
+    AHB_APB_brig u_AHB_APB_2_UART (
+	//Connect to AHB bus
+	.HADDR		( S_HADDR ),
+	.HWDATA		( S_HWDATA ),
+	.HTRANS		( S_HTRANS ),
+	.HREADYin	( S_HREADY ),
+	.HWRITE		( S_HWRITE ),
+	.HRESP		( S2_HRESP ),
+	.HRDATA		( S2_HRDATA ),
+	.HREADYout	( S2_HREADY ),
+	.HSIZE		( S_HSIZE[2:0] ),
+	.HRESETn	( HRESETn ),
+	.HCLK		( HCLK ),
+        
+	.HSEL     	( S2_HSEL   ),
+	.H_BE		( S_HSIZE	),
+	
+	//Connect to AHB_APB_brig  -&gt; UART
+	.PADDR		( UART_PADDR ),
+	.PWDATA		( UART_PWDATA ),
+	.PSEL		( UART_PSEL ),
+	.PWRITE		( UART_PWRITE ),
+	.PENABLE	( UART_PENABLE ),
+	.PRDATA		( UART_PRDATA )
+    );
+
+
+    AHB_APB_brig u_AHB_APB_2_SPI (
+        //Connect to AHB bus
+        .HADDR          ( S_HADDR ),
+        .HWDATA         ( S_HWDATA ),
+        .HTRANS         ( S_HTRANS ),
+        .HREADYin       ( S_HREADY ),
+        .HWRITE         ( S_HWRITE ),
+        .HRESP          ( S3_HRESP ),
+        .HRDATA         ( S3_HRDATA ),
+        .HREADYout      ( S3_HREADY ),
+        .HSIZE          ( S_HSIZE[2:0] ),
+        .HRESETn        ( HRESETn ),
+        .HCLK           ( HCLK ),
+
+        .HSEL           ( S3_HSEL   ),
+        .H_BE           ( S_HSIZE       ),
+
+        //Connect to AHB_APB_brig  -&gt; SPI
+        .PADDR          ( SPI_PADDR ),
+        .PWDATA         ( SPI_PWDATA ),
+        .PSEL           ( SPI_PSEL ),
+        .PWRITE         ( SPI_PWRITE ),
+        .PENABLE        ( SPI_PENABLE ),
+	.PRDATA		( SPI_PRDATA  )
+    );
+
+ AHB_APB_brig u_AHB_APB_2_I2C (
+        //Connect to AHB bus
+        .HADDR          ( S_HADDR ),
+        .HWDATA         ( S_HWDATA ),
+        .HTRANS         ( S_HTRANS ),
+        .HREADYin       ( S_HREADY ),
+        .HWRITE         ( S_HWRITE ),
+        .HRESP          ( S4_HRESP ),
+        .HRDATA         ( S4_HRDATA ),
+        .HREADYout      ( S4_HREADY ),
+        .HSIZE          ( S_HSIZE[2:0] ),
+        .HRESETn        ( HRESETn ),
+        .HCLK           ( HCLK ),
+
+        .HSEL           ( S4_HSEL   ),
+        .H_BE           ( S_HSIZE       ),
+
+        //Connect to AHB_APB_brig  -&gt;I2C
+        .PADDR          ( I2C_PADDR ),
+        .PWDATA         ( I2C_PWDATA ),
+        .PSEL           ( I2C_PSEL ),
+        .PWRITE         ( I2C_PWRITE ),
+        .PENABLE        ( I2C_PENABLE ),
+	.PRDATA		( I2C_PRDATA  )
+    );
+
+ AHB_APB_brig u_AHB_APB_2_TIMER (
+        //Connect to AHB bus
+        .HADDR          ( S_HADDR ),
+        .HWDATA         ( S_HWDATA ),
+        .HTRANS         ( S_HTRANS ),
+        .HREADYin       ( S_HREADY ),
+        .HWRITE         ( S_HWRITE ),
+        .HRESP          ( S5_HRESP ),
+        .HRDATA         ( S5_HRDATA ),
+        .HREADYout      ( S5_HREADY ),
+        .HSIZE          ( S_HSIZE[2:0] ),
+        .HRESETn        ( HRESETn ),
+        .HCLK           ( HCLK ),
+
+        .HSEL           ( S5_HSEL   ),
+        .H_BE           ( S_HSIZE       ),
+
+        //Connect to AHB_APB_brig  -&gt; TIMER
+        .PADDR          ( TIMER_PADDR ),
+        .PWDATA         ( TIMER_PWDATA ),
+        .PSEL           ( TIMER_PSEL ),
+        .PWRITE         ( TIMER_PWRITE ),
+        .PENABLE        ( TIMER_PENABLE ),
+	.PRDATA		( TIMER_PRDATA  )
+    );
+
+endmodule
+</code></pre></div>
+    </details>
+
+<h4>Peripherals</h4>
 <p>
 <strong>SPI</strong><br>
 The first of the peripherals is SPI (Serial Peripheral Interface). SPI is a high-speed, full-duplex, synchronous serial communication protocol commonly used for data transmission between microcontrollers and peripherals. In our design, we use the open-source SPI from Pulp-Platform Group to connect with the display.
@@ -758,6 +2160,1596 @@ These signals are flattened into a single contiguous scan path:<br>
    <img src="../images/nanologic/scanchain.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
    <p class="caption">Figure 5. Scan Chain</p>
 </p>
+
+    <details class="code-block">
+      <summary>Scan chain (scan_chain.v)</summary>
+      <div class="code-content"><pre><code>//Scan chain module
+module scan_chain(i_imem_rdata, i_dmem_rdata, sc_en_cnt, sc_clkgen_fc, sc_clkgen_div, sc_imem_ctrl, sc_imem_req, sc_imem_addr, sc_imem_wen, sc_imem_wdata, sc_imem_clk, sc_dmem_ctrl, sc_dmem_req, sc_dmem_addr, sc_dmem_wen, sc_dmem_ben, sc_dmem_wdata, sc_dmem_clk, sc_fsm_mode, sc_fsm_indef, sc_fsm_cycle, phi, phib, scan_i0o1, load, scan_in, scan_out, phi_out, phib_out, scan_i0o1_out, load_out, VDD, VSS );
+input [31:0] i_imem_rdata;
+input [31:0] i_dmem_rdata;
+output sc_en_cnt;
+output [4:0] sc_clkgen_fc;
+output [3:0] sc_clkgen_div;
+output sc_imem_ctrl;
+output sc_imem_req;
+output [31:0] sc_imem_addr;
+output sc_imem_wen;
+output [31:0] sc_imem_wdata;
+output sc_imem_clk;
+output sc_dmem_ctrl;
+output sc_dmem_req;
+output [31:0] sc_dmem_addr;
+output sc_dmem_wen;
+output [3:0] sc_dmem_ben;
+output [31:0] sc_dmem_wdata;
+output sc_dmem_clk;
+output sc_fsm_mode;
+output sc_fsm_indef;
+output [31:0] sc_fsm_cycle;
+wire [247:0] phi_int, phib_int, scan_i0o1_int, load_int, scan_int;
+input phi, phib, scan_i0o1, load, scan_in;
+output phi_out, phib_out, scan_i0o1_out, load_out;
+output scan_out;
+inout VDD, VSS;
+
+so_bit scan_cell_0_0(.VDD(VDD),.VSS(VSS),.phi(phi),.phib(phib),
+.scan_i0o1(scan_i0o1),.load(load),.scan_in(scan_in),
+.chip_out(i_imem_rdata[0]),
+.phi_out(phi_int[0]),.phib_out(phib_int[0]),.scan_i0o1_out(scan_i0o1_int[0]),
+.load_out(load_int[0]),.scan_out(scan_int[0]));
+
+
+so_bit scan_cell_0_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[0]),.phib(phib_int[0]),
+.scan_i0o1(scan_i0o1_int[0]),.load(load_int[0]),.scan_in(scan_int[0]),
+.chip_out(i_imem_rdata[1]),
+.phi_out(phi_int[1]),.phib_out(phib_int[1]),.scan_i0o1_out(scan_i0o1_int[1]),
+.load_out(load_int[1]),.scan_out(scan_int[1]));
+
+
+so_bit scan_cell_0_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[1]),.phib(phib_int[1]),
+.scan_i0o1(scan_i0o1_int[1]),.load(load_int[1]),.scan_in(scan_int[1]),
+.chip_out(i_imem_rdata[2]),
+.phi_out(phi_int[2]),.phib_out(phib_int[2]),.scan_i0o1_out(scan_i0o1_int[2]),
+.load_out(load_int[2]),.scan_out(scan_int[2]));
+
+
+so_bit scan_cell_0_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[2]),.phib(phib_int[2]),
+.scan_i0o1(scan_i0o1_int[2]),.load(load_int[2]),.scan_in(scan_int[2]),
+.chip_out(i_imem_rdata[3]),
+.phi_out(phi_int[3]),.phib_out(phib_int[3]),.scan_i0o1_out(scan_i0o1_int[3]),
+.load_out(load_int[3]),.scan_out(scan_int[3]));
+
+
+so_bit scan_cell_0_4(.VDD(VDD),.VSS(VSS),.phi(phi_int[3]),.phib(phib_int[3]),
+.scan_i0o1(scan_i0o1_int[3]),.load(load_int[3]),.scan_in(scan_int[3]),
+.chip_out(i_imem_rdata[4]),
+.phi_out(phi_int[4]),.phib_out(phib_int[4]),.scan_i0o1_out(scan_i0o1_int[4]),
+.load_out(load_int[4]),.scan_out(scan_int[4]));
+
+
+so_bit scan_cell_0_5(.VDD(VDD),.VSS(VSS),.phi(phi_int[4]),.phib(phib_int[4]),
+.scan_i0o1(scan_i0o1_int[4]),.load(load_int[4]),.scan_in(scan_int[4]),
+.chip_out(i_imem_rdata[5]),
+.phi_out(phi_int[5]),.phib_out(phib_int[5]),.scan_i0o1_out(scan_i0o1_int[5]),
+.load_out(load_int[5]),.scan_out(scan_int[5]));
+
+
+so_bit scan_cell_0_6(.VDD(VDD),.VSS(VSS),.phi(phi_int[5]),.phib(phib_int[5]),
+.scan_i0o1(scan_i0o1_int[5]),.load(load_int[5]),.scan_in(scan_int[5]),
+.chip_out(i_imem_rdata[6]),
+.phi_out(phi_int[6]),.phib_out(phib_int[6]),.scan_i0o1_out(scan_i0o1_int[6]),
+.load_out(load_int[6]),.scan_out(scan_int[6]));
+
+
+so_bit scan_cell_0_7(.VDD(VDD),.VSS(VSS),.phi(phi_int[6]),.phib(phib_int[6]),
+.scan_i0o1(scan_i0o1_int[6]),.load(load_int[6]),.scan_in(scan_int[6]),
+.chip_out(i_imem_rdata[7]),
+.phi_out(phi_int[7]),.phib_out(phib_int[7]),.scan_i0o1_out(scan_i0o1_int[7]),
+.load_out(load_int[7]),.scan_out(scan_int[7]));
+
+
+so_bit scan_cell_0_8(.VDD(VDD),.VSS(VSS),.phi(phi_int[7]),.phib(phib_int[7]),
+.scan_i0o1(scan_i0o1_int[7]),.load(load_int[7]),.scan_in(scan_int[7]),
+.chip_out(i_imem_rdata[8]),
+.phi_out(phi_int[8]),.phib_out(phib_int[8]),.scan_i0o1_out(scan_i0o1_int[8]),
+.load_out(load_int[8]),.scan_out(scan_int[8]));
+
+
+so_bit scan_cell_0_9(.VDD(VDD),.VSS(VSS),.phi(phi_int[8]),.phib(phib_int[8]),
+.scan_i0o1(scan_i0o1_int[8]),.load(load_int[8]),.scan_in(scan_int[8]),
+.chip_out(i_imem_rdata[9]),
+.phi_out(phi_int[9]),.phib_out(phib_int[9]),.scan_i0o1_out(scan_i0o1_int[9]),
+.load_out(load_int[9]),.scan_out(scan_int[9]));
+
+
+so_bit scan_cell_0_10(.VDD(VDD),.VSS(VSS),.phi(phi_int[9]),.phib(phib_int[9]),
+.scan_i0o1(scan_i0o1_int[9]),.load(load_int[9]),.scan_in(scan_int[9]),
+.chip_out(i_imem_rdata[10]),
+.phi_out(phi_int[10]),.phib_out(phib_int[10]),.scan_i0o1_out(scan_i0o1_int[10]),
+.load_out(load_int[10]),.scan_out(scan_int[10]));
+
+
+so_bit scan_cell_0_11(.VDD(VDD),.VSS(VSS),.phi(phi_int[10]),.phib(phib_int[10]),
+.scan_i0o1(scan_i0o1_int[10]),.load(load_int[10]),.scan_in(scan_int[10]),
+.chip_out(i_imem_rdata[11]),
+.phi_out(phi_int[11]),.phib_out(phib_int[11]),.scan_i0o1_out(scan_i0o1_int[11]),
+.load_out(load_int[11]),.scan_out(scan_int[11]));
+
+
+so_bit scan_cell_0_12(.VDD(VDD),.VSS(VSS),.phi(phi_int[11]),.phib(phib_int[11]),
+.scan_i0o1(scan_i0o1_int[11]),.load(load_int[11]),.scan_in(scan_int[11]),
+.chip_out(i_imem_rdata[12]),
+.phi_out(phi_int[12]),.phib_out(phib_int[12]),.scan_i0o1_out(scan_i0o1_int[12]),
+.load_out(load_int[12]),.scan_out(scan_int[12]));
+
+
+so_bit scan_cell_0_13(.VDD(VDD),.VSS(VSS),.phi(phi_int[12]),.phib(phib_int[12]),
+.scan_i0o1(scan_i0o1_int[12]),.load(load_int[12]),.scan_in(scan_int[12]),
+.chip_out(i_imem_rdata[13]),
+.phi_out(phi_int[13]),.phib_out(phib_int[13]),.scan_i0o1_out(scan_i0o1_int[13]),
+.load_out(load_int[13]),.scan_out(scan_int[13]));
+
+
+so_bit scan_cell_0_14(.VDD(VDD),.VSS(VSS),.phi(phi_int[13]),.phib(phib_int[13]),
+.scan_i0o1(scan_i0o1_int[13]),.load(load_int[13]),.scan_in(scan_int[13]),
+.chip_out(i_imem_rdata[14]),
+.phi_out(phi_int[14]),.phib_out(phib_int[14]),.scan_i0o1_out(scan_i0o1_int[14]),
+.load_out(load_int[14]),.scan_out(scan_int[14]));
+
+
+so_bit scan_cell_0_15(.VDD(VDD),.VSS(VSS),.phi(phi_int[14]),.phib(phib_int[14]),
+.scan_i0o1(scan_i0o1_int[14]),.load(load_int[14]),.scan_in(scan_int[14]),
+.chip_out(i_imem_rdata[15]),
+.phi_out(phi_int[15]),.phib_out(phib_int[15]),.scan_i0o1_out(scan_i0o1_int[15]),
+.load_out(load_int[15]),.scan_out(scan_int[15]));
+
+
+so_bit scan_cell_0_16(.VDD(VDD),.VSS(VSS),.phi(phi_int[15]),.phib(phib_int[15]),
+.scan_i0o1(scan_i0o1_int[15]),.load(load_int[15]),.scan_in(scan_int[15]),
+.chip_out(i_imem_rdata[16]),
+.phi_out(phi_int[16]),.phib_out(phib_int[16]),.scan_i0o1_out(scan_i0o1_int[16]),
+.load_out(load_int[16]),.scan_out(scan_int[16]));
+
+
+so_bit scan_cell_0_17(.VDD(VDD),.VSS(VSS),.phi(phi_int[16]),.phib(phib_int[16]),
+.scan_i0o1(scan_i0o1_int[16]),.load(load_int[16]),.scan_in(scan_int[16]),
+.chip_out(i_imem_rdata[17]),
+.phi_out(phi_int[17]),.phib_out(phib_int[17]),.scan_i0o1_out(scan_i0o1_int[17]),
+.load_out(load_int[17]),.scan_out(scan_int[17]));
+
+
+so_bit scan_cell_0_18(.VDD(VDD),.VSS(VSS),.phi(phi_int[17]),.phib(phib_int[17]),
+.scan_i0o1(scan_i0o1_int[17]),.load(load_int[17]),.scan_in(scan_int[17]),
+.chip_out(i_imem_rdata[18]),
+.phi_out(phi_int[18]),.phib_out(phib_int[18]),.scan_i0o1_out(scan_i0o1_int[18]),
+.load_out(load_int[18]),.scan_out(scan_int[18]));
+
+
+so_bit scan_cell_0_19(.VDD(VDD),.VSS(VSS),.phi(phi_int[18]),.phib(phib_int[18]),
+.scan_i0o1(scan_i0o1_int[18]),.load(load_int[18]),.scan_in(scan_int[18]),
+.chip_out(i_imem_rdata[19]),
+.phi_out(phi_int[19]),.phib_out(phib_int[19]),.scan_i0o1_out(scan_i0o1_int[19]),
+.load_out(load_int[19]),.scan_out(scan_int[19]));
+
+
+so_bit scan_cell_0_20(.VDD(VDD),.VSS(VSS),.phi(phi_int[19]),.phib(phib_int[19]),
+.scan_i0o1(scan_i0o1_int[19]),.load(load_int[19]),.scan_in(scan_int[19]),
+.chip_out(i_imem_rdata[20]),
+.phi_out(phi_int[20]),.phib_out(phib_int[20]),.scan_i0o1_out(scan_i0o1_int[20]),
+.load_out(load_int[20]),.scan_out(scan_int[20]));
+
+
+so_bit scan_cell_0_21(.VDD(VDD),.VSS(VSS),.phi(phi_int[20]),.phib(phib_int[20]),
+.scan_i0o1(scan_i0o1_int[20]),.load(load_int[20]),.scan_in(scan_int[20]),
+.chip_out(i_imem_rdata[21]),
+.phi_out(phi_int[21]),.phib_out(phib_int[21]),.scan_i0o1_out(scan_i0o1_int[21]),
+.load_out(load_int[21]),.scan_out(scan_int[21]));
+
+
+so_bit scan_cell_0_22(.VDD(VDD),.VSS(VSS),.phi(phi_int[21]),.phib(phib_int[21]),
+.scan_i0o1(scan_i0o1_int[21]),.load(load_int[21]),.scan_in(scan_int[21]),
+.chip_out(i_imem_rdata[22]),
+.phi_out(phi_int[22]),.phib_out(phib_int[22]),.scan_i0o1_out(scan_i0o1_int[22]),
+.load_out(load_int[22]),.scan_out(scan_int[22]));
+
+
+so_bit scan_cell_0_23(.VDD(VDD),.VSS(VSS),.phi(phi_int[22]),.phib(phib_int[22]),
+.scan_i0o1(scan_i0o1_int[22]),.load(load_int[22]),.scan_in(scan_int[22]),
+.chip_out(i_imem_rdata[23]),
+.phi_out(phi_int[23]),.phib_out(phib_int[23]),.scan_i0o1_out(scan_i0o1_int[23]),
+.load_out(load_int[23]),.scan_out(scan_int[23]));
+
+
+so_bit scan_cell_0_24(.VDD(VDD),.VSS(VSS),.phi(phi_int[23]),.phib(phib_int[23]),
+.scan_i0o1(scan_i0o1_int[23]),.load(load_int[23]),.scan_in(scan_int[23]),
+.chip_out(i_imem_rdata[24]),
+.phi_out(phi_int[24]),.phib_out(phib_int[24]),.scan_i0o1_out(scan_i0o1_int[24]),
+.load_out(load_int[24]),.scan_out(scan_int[24]));
+
+
+so_bit scan_cell_0_25(.VDD(VDD),.VSS(VSS),.phi(phi_int[24]),.phib(phib_int[24]),
+.scan_i0o1(scan_i0o1_int[24]),.load(load_int[24]),.scan_in(scan_int[24]),
+.chip_out(i_imem_rdata[25]),
+.phi_out(phi_int[25]),.phib_out(phib_int[25]),.scan_i0o1_out(scan_i0o1_int[25]),
+.load_out(load_int[25]),.scan_out(scan_int[25]));
+
+
+so_bit scan_cell_0_26(.VDD(VDD),.VSS(VSS),.phi(phi_int[25]),.phib(phib_int[25]),
+.scan_i0o1(scan_i0o1_int[25]),.load(load_int[25]),.scan_in(scan_int[25]),
+.chip_out(i_imem_rdata[26]),
+.phi_out(phi_int[26]),.phib_out(phib_int[26]),.scan_i0o1_out(scan_i0o1_int[26]),
+.load_out(load_int[26]),.scan_out(scan_int[26]));
+
+
+so_bit scan_cell_0_27(.VDD(VDD),.VSS(VSS),.phi(phi_int[26]),.phib(phib_int[26]),
+.scan_i0o1(scan_i0o1_int[26]),.load(load_int[26]),.scan_in(scan_int[26]),
+.chip_out(i_imem_rdata[27]),
+.phi_out(phi_int[27]),.phib_out(phib_int[27]),.scan_i0o1_out(scan_i0o1_int[27]),
+.load_out(load_int[27]),.scan_out(scan_int[27]));
+
+
+so_bit scan_cell_0_28(.VDD(VDD),.VSS(VSS),.phi(phi_int[27]),.phib(phib_int[27]),
+.scan_i0o1(scan_i0o1_int[27]),.load(load_int[27]),.scan_in(scan_int[27]),
+.chip_out(i_imem_rdata[28]),
+.phi_out(phi_int[28]),.phib_out(phib_int[28]),.scan_i0o1_out(scan_i0o1_int[28]),
+.load_out(load_int[28]),.scan_out(scan_int[28]));
+
+
+so_bit scan_cell_0_29(.VDD(VDD),.VSS(VSS),.phi(phi_int[28]),.phib(phib_int[28]),
+.scan_i0o1(scan_i0o1_int[28]),.load(load_int[28]),.scan_in(scan_int[28]),
+.chip_out(i_imem_rdata[29]),
+.phi_out(phi_int[29]),.phib_out(phib_int[29]),.scan_i0o1_out(scan_i0o1_int[29]),
+.load_out(load_int[29]),.scan_out(scan_int[29]));
+
+
+so_bit scan_cell_0_30(.VDD(VDD),.VSS(VSS),.phi(phi_int[29]),.phib(phib_int[29]),
+.scan_i0o1(scan_i0o1_int[29]),.load(load_int[29]),.scan_in(scan_int[29]),
+.chip_out(i_imem_rdata[30]),
+.phi_out(phi_int[30]),.phib_out(phib_int[30]),.scan_i0o1_out(scan_i0o1_int[30]),
+.load_out(load_int[30]),.scan_out(scan_int[30]));
+
+
+so_bit scan_cell_0_31(.VDD(VDD),.VSS(VSS),.phi(phi_int[30]),.phib(phib_int[30]),
+.scan_i0o1(scan_i0o1_int[30]),.load(load_int[30]),.scan_in(scan_int[30]),
+.chip_out(i_imem_rdata[31]),
+.phi_out(phi_int[31]),.phib_out(phib_int[31]),.scan_i0o1_out(scan_i0o1_int[31]),
+.load_out(load_int[31]),.scan_out(scan_int[31]));
+
+
+so_bit scan_cell_1_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[31]),.phib(phib_int[31]),
+.scan_i0o1(scan_i0o1_int[31]),.load(load_int[31]),.scan_in(scan_int[31]),
+.chip_out(i_dmem_rdata[0]),
+.phi_out(phi_int[32]),.phib_out(phib_int[32]),.scan_i0o1_out(scan_i0o1_int[32]),
+.load_out(load_int[32]),.scan_out(scan_int[32]));
+
+
+so_bit scan_cell_1_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[32]),.phib(phib_int[32]),
+.scan_i0o1(scan_i0o1_int[32]),.load(load_int[32]),.scan_in(scan_int[32]),
+.chip_out(i_dmem_rdata[1]),
+.phi_out(phi_int[33]),.phib_out(phib_int[33]),.scan_i0o1_out(scan_i0o1_int[33]),
+.load_out(load_int[33]),.scan_out(scan_int[33]));
+
+
+so_bit scan_cell_1_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[33]),.phib(phib_int[33]),
+.scan_i0o1(scan_i0o1_int[33]),.load(load_int[33]),.scan_in(scan_int[33]),
+.chip_out(i_dmem_rdata[2]),
+.phi_out(phi_int[34]),.phib_out(phib_int[34]),.scan_i0o1_out(scan_i0o1_int[34]),
+.load_out(load_int[34]),.scan_out(scan_int[34]));
+
+
+so_bit scan_cell_1_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[34]),.phib(phib_int[34]),
+.scan_i0o1(scan_i0o1_int[34]),.load(load_int[34]),.scan_in(scan_int[34]),
+.chip_out(i_dmem_rdata[3]),
+.phi_out(phi_int[35]),.phib_out(phib_int[35]),.scan_i0o1_out(scan_i0o1_int[35]),
+.load_out(load_int[35]),.scan_out(scan_int[35]));
+
+
+so_bit scan_cell_1_4(.VDD(VDD),.VSS(VSS),.phi(phi_int[35]),.phib(phib_int[35]),
+.scan_i0o1(scan_i0o1_int[35]),.load(load_int[35]),.scan_in(scan_int[35]),
+.chip_out(i_dmem_rdata[4]),
+.phi_out(phi_int[36]),.phib_out(phib_int[36]),.scan_i0o1_out(scan_i0o1_int[36]),
+.load_out(load_int[36]),.scan_out(scan_int[36]));
+
+
+so_bit scan_cell_1_5(.VDD(VDD),.VSS(VSS),.phi(phi_int[36]),.phib(phib_int[36]),
+.scan_i0o1(scan_i0o1_int[36]),.load(load_int[36]),.scan_in(scan_int[36]),
+.chip_out(i_dmem_rdata[5]),
+.phi_out(phi_int[37]),.phib_out(phib_int[37]),.scan_i0o1_out(scan_i0o1_int[37]),
+.load_out(load_int[37]),.scan_out(scan_int[37]));
+
+
+so_bit scan_cell_1_6(.VDD(VDD),.VSS(VSS),.phi(phi_int[37]),.phib(phib_int[37]),
+.scan_i0o1(scan_i0o1_int[37]),.load(load_int[37]),.scan_in(scan_int[37]),
+.chip_out(i_dmem_rdata[6]),
+.phi_out(phi_int[38]),.phib_out(phib_int[38]),.scan_i0o1_out(scan_i0o1_int[38]),
+.load_out(load_int[38]),.scan_out(scan_int[38]));
+
+
+so_bit scan_cell_1_7(.VDD(VDD),.VSS(VSS),.phi(phi_int[38]),.phib(phib_int[38]),
+.scan_i0o1(scan_i0o1_int[38]),.load(load_int[38]),.scan_in(scan_int[38]),
+.chip_out(i_dmem_rdata[7]),
+.phi_out(phi_int[39]),.phib_out(phib_int[39]),.scan_i0o1_out(scan_i0o1_int[39]),
+.load_out(load_int[39]),.scan_out(scan_int[39]));
+
+
+so_bit scan_cell_1_8(.VDD(VDD),.VSS(VSS),.phi(phi_int[39]),.phib(phib_int[39]),
+.scan_i0o1(scan_i0o1_int[39]),.load(load_int[39]),.scan_in(scan_int[39]),
+.chip_out(i_dmem_rdata[8]),
+.phi_out(phi_int[40]),.phib_out(phib_int[40]),.scan_i0o1_out(scan_i0o1_int[40]),
+.load_out(load_int[40]),.scan_out(scan_int[40]));
+
+
+so_bit scan_cell_1_9(.VDD(VDD),.VSS(VSS),.phi(phi_int[40]),.phib(phib_int[40]),
+.scan_i0o1(scan_i0o1_int[40]),.load(load_int[40]),.scan_in(scan_int[40]),
+.chip_out(i_dmem_rdata[9]),
+.phi_out(phi_int[41]),.phib_out(phib_int[41]),.scan_i0o1_out(scan_i0o1_int[41]),
+.load_out(load_int[41]),.scan_out(scan_int[41]));
+
+
+so_bit scan_cell_1_10(.VDD(VDD),.VSS(VSS),.phi(phi_int[41]),.phib(phib_int[41]),
+.scan_i0o1(scan_i0o1_int[41]),.load(load_int[41]),.scan_in(scan_int[41]),
+.chip_out(i_dmem_rdata[10]),
+.phi_out(phi_int[42]),.phib_out(phib_int[42]),.scan_i0o1_out(scan_i0o1_int[42]),
+.load_out(load_int[42]),.scan_out(scan_int[42]));
+
+
+so_bit scan_cell_1_11(.VDD(VDD),.VSS(VSS),.phi(phi_int[42]),.phib(phib_int[42]),
+.scan_i0o1(scan_i0o1_int[42]),.load(load_int[42]),.scan_in(scan_int[42]),
+.chip_out(i_dmem_rdata[11]),
+.phi_out(phi_int[43]),.phib_out(phib_int[43]),.scan_i0o1_out(scan_i0o1_int[43]),
+.load_out(load_int[43]),.scan_out(scan_int[43]));
+
+
+so_bit scan_cell_1_12(.VDD(VDD),.VSS(VSS),.phi(phi_int[43]),.phib(phib_int[43]),
+.scan_i0o1(scan_i0o1_int[43]),.load(load_int[43]),.scan_in(scan_int[43]),
+.chip_out(i_dmem_rdata[12]),
+.phi_out(phi_int[44]),.phib_out(phib_int[44]),.scan_i0o1_out(scan_i0o1_int[44]),
+.load_out(load_int[44]),.scan_out(scan_int[44]));
+
+
+so_bit scan_cell_1_13(.VDD(VDD),.VSS(VSS),.phi(phi_int[44]),.phib(phib_int[44]),
+.scan_i0o1(scan_i0o1_int[44]),.load(load_int[44]),.scan_in(scan_int[44]),
+.chip_out(i_dmem_rdata[13]),
+.phi_out(phi_int[45]),.phib_out(phib_int[45]),.scan_i0o1_out(scan_i0o1_int[45]),
+.load_out(load_int[45]),.scan_out(scan_int[45]));
+
+
+so_bit scan_cell_1_14(.VDD(VDD),.VSS(VSS),.phi(phi_int[45]),.phib(phib_int[45]),
+.scan_i0o1(scan_i0o1_int[45]),.load(load_int[45]),.scan_in(scan_int[45]),
+.chip_out(i_dmem_rdata[14]),
+.phi_out(phi_int[46]),.phib_out(phib_int[46]),.scan_i0o1_out(scan_i0o1_int[46]),
+.load_out(load_int[46]),.scan_out(scan_int[46]));
+
+
+so_bit scan_cell_1_15(.VDD(VDD),.VSS(VSS),.phi(phi_int[46]),.phib(phib_int[46]),
+.scan_i0o1(scan_i0o1_int[46]),.load(load_int[46]),.scan_in(scan_int[46]),
+.chip_out(i_dmem_rdata[15]),
+.phi_out(phi_int[47]),.phib_out(phib_int[47]),.scan_i0o1_out(scan_i0o1_int[47]),
+.load_out(load_int[47]),.scan_out(scan_int[47]));
+
+
+so_bit scan_cell_1_16(.VDD(VDD),.VSS(VSS),.phi(phi_int[47]),.phib(phib_int[47]),
+.scan_i0o1(scan_i0o1_int[47]),.load(load_int[47]),.scan_in(scan_int[47]),
+.chip_out(i_dmem_rdata[16]),
+.phi_out(phi_int[48]),.phib_out(phib_int[48]),.scan_i0o1_out(scan_i0o1_int[48]),
+.load_out(load_int[48]),.scan_out(scan_int[48]));
+
+
+so_bit scan_cell_1_17(.VDD(VDD),.VSS(VSS),.phi(phi_int[48]),.phib(phib_int[48]),
+.scan_i0o1(scan_i0o1_int[48]),.load(load_int[48]),.scan_in(scan_int[48]),
+.chip_out(i_dmem_rdata[17]),
+.phi_out(phi_int[49]),.phib_out(phib_int[49]),.scan_i0o1_out(scan_i0o1_int[49]),
+.load_out(load_int[49]),.scan_out(scan_int[49]));
+
+
+so_bit scan_cell_1_18(.VDD(VDD),.VSS(VSS),.phi(phi_int[49]),.phib(phib_int[49]),
+.scan_i0o1(scan_i0o1_int[49]),.load(load_int[49]),.scan_in(scan_int[49]),
+.chip_out(i_dmem_rdata[18]),
+.phi_out(phi_int[50]),.phib_out(phib_int[50]),.scan_i0o1_out(scan_i0o1_int[50]),
+.load_out(load_int[50]),.scan_out(scan_int[50]));
+
+
+so_bit scan_cell_1_19(.VDD(VDD),.VSS(VSS),.phi(phi_int[50]),.phib(phib_int[50]),
+.scan_i0o1(scan_i0o1_int[50]),.load(load_int[50]),.scan_in(scan_int[50]),
+.chip_out(i_dmem_rdata[19]),
+.phi_out(phi_int[51]),.phib_out(phib_int[51]),.scan_i0o1_out(scan_i0o1_int[51]),
+.load_out(load_int[51]),.scan_out(scan_int[51]));
+
+
+so_bit scan_cell_1_20(.VDD(VDD),.VSS(VSS),.phi(phi_int[51]),.phib(phib_int[51]),
+.scan_i0o1(scan_i0o1_int[51]),.load(load_int[51]),.scan_in(scan_int[51]),
+.chip_out(i_dmem_rdata[20]),
+.phi_out(phi_int[52]),.phib_out(phib_int[52]),.scan_i0o1_out(scan_i0o1_int[52]),
+.load_out(load_int[52]),.scan_out(scan_int[52]));
+
+
+so_bit scan_cell_1_21(.VDD(VDD),.VSS(VSS),.phi(phi_int[52]),.phib(phib_int[52]),
+.scan_i0o1(scan_i0o1_int[52]),.load(load_int[52]),.scan_in(scan_int[52]),
+.chip_out(i_dmem_rdata[21]),
+.phi_out(phi_int[53]),.phib_out(phib_int[53]),.scan_i0o1_out(scan_i0o1_int[53]),
+.load_out(load_int[53]),.scan_out(scan_int[53]));
+
+
+so_bit scan_cell_1_22(.VDD(VDD),.VSS(VSS),.phi(phi_int[53]),.phib(phib_int[53]),
+.scan_i0o1(scan_i0o1_int[53]),.load(load_int[53]),.scan_in(scan_int[53]),
+.chip_out(i_dmem_rdata[22]),
+.phi_out(phi_int[54]),.phib_out(phib_int[54]),.scan_i0o1_out(scan_i0o1_int[54]),
+.load_out(load_int[54]),.scan_out(scan_int[54]));
+
+
+so_bit scan_cell_1_23(.VDD(VDD),.VSS(VSS),.phi(phi_int[54]),.phib(phib_int[54]),
+.scan_i0o1(scan_i0o1_int[54]),.load(load_int[54]),.scan_in(scan_int[54]),
+.chip_out(i_dmem_rdata[23]),
+.phi_out(phi_int[55]),.phib_out(phib_int[55]),.scan_i0o1_out(scan_i0o1_int[55]),
+.load_out(load_int[55]),.scan_out(scan_int[55]));
+
+
+so_bit scan_cell_1_24(.VDD(VDD),.VSS(VSS),.phi(phi_int[55]),.phib(phib_int[55]),
+.scan_i0o1(scan_i0o1_int[55]),.load(load_int[55]),.scan_in(scan_int[55]),
+.chip_out(i_dmem_rdata[24]),
+.phi_out(phi_int[56]),.phib_out(phib_int[56]),.scan_i0o1_out(scan_i0o1_int[56]),
+.load_out(load_int[56]),.scan_out(scan_int[56]));
+
+
+so_bit scan_cell_1_25(.VDD(VDD),.VSS(VSS),.phi(phi_int[56]),.phib(phib_int[56]),
+.scan_i0o1(scan_i0o1_int[56]),.load(load_int[56]),.scan_in(scan_int[56]),
+.chip_out(i_dmem_rdata[25]),
+.phi_out(phi_int[57]),.phib_out(phib_int[57]),.scan_i0o1_out(scan_i0o1_int[57]),
+.load_out(load_int[57]),.scan_out(scan_int[57]));
+
+
+so_bit scan_cell_1_26(.VDD(VDD),.VSS(VSS),.phi(phi_int[57]),.phib(phib_int[57]),
+.scan_i0o1(scan_i0o1_int[57]),.load(load_int[57]),.scan_in(scan_int[57]),
+.chip_out(i_dmem_rdata[26]),
+.phi_out(phi_int[58]),.phib_out(phib_int[58]),.scan_i0o1_out(scan_i0o1_int[58]),
+.load_out(load_int[58]),.scan_out(scan_int[58]));
+
+
+so_bit scan_cell_1_27(.VDD(VDD),.VSS(VSS),.phi(phi_int[58]),.phib(phib_int[58]),
+.scan_i0o1(scan_i0o1_int[58]),.load(load_int[58]),.scan_in(scan_int[58]),
+.chip_out(i_dmem_rdata[27]),
+.phi_out(phi_int[59]),.phib_out(phib_int[59]),.scan_i0o1_out(scan_i0o1_int[59]),
+.load_out(load_int[59]),.scan_out(scan_int[59]));
+
+
+so_bit scan_cell_1_28(.VDD(VDD),.VSS(VSS),.phi(phi_int[59]),.phib(phib_int[59]),
+.scan_i0o1(scan_i0o1_int[59]),.load(load_int[59]),.scan_in(scan_int[59]),
+.chip_out(i_dmem_rdata[28]),
+.phi_out(phi_int[60]),.phib_out(phib_int[60]),.scan_i0o1_out(scan_i0o1_int[60]),
+.load_out(load_int[60]),.scan_out(scan_int[60]));
+
+
+so_bit scan_cell_1_29(.VDD(VDD),.VSS(VSS),.phi(phi_int[60]),.phib(phib_int[60]),
+.scan_i0o1(scan_i0o1_int[60]),.load(load_int[60]),.scan_in(scan_int[60]),
+.chip_out(i_dmem_rdata[29]),
+.phi_out(phi_int[61]),.phib_out(phib_int[61]),.scan_i0o1_out(scan_i0o1_int[61]),
+.load_out(load_int[61]),.scan_out(scan_int[61]));
+
+
+so_bit scan_cell_1_30(.VDD(VDD),.VSS(VSS),.phi(phi_int[61]),.phib(phib_int[61]),
+.scan_i0o1(scan_i0o1_int[61]),.load(load_int[61]),.scan_in(scan_int[61]),
+.chip_out(i_dmem_rdata[30]),
+.phi_out(phi_int[62]),.phib_out(phib_int[62]),.scan_i0o1_out(scan_i0o1_int[62]),
+.load_out(load_int[62]),.scan_out(scan_int[62]));
+
+
+so_bit scan_cell_1_31(.VDD(VDD),.VSS(VSS),.phi(phi_int[62]),.phib(phib_int[62]),
+.scan_i0o1(scan_i0o1_int[62]),.load(load_int[62]),.scan_in(scan_int[62]),
+.chip_out(i_dmem_rdata[31]),
+.phi_out(phi_int[63]),.phib_out(phib_int[63]),.scan_i0o1_out(scan_i0o1_int[63]),
+.load_out(load_int[63]),.scan_out(scan_int[63]));
+
+
+si_bit scan_cell_2_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[63]),.phib(phib_int[63]),
+.scan_i0o1(scan_i0o1_int[63]),.load(load_int[63]),.scan_in(scan_int[63]),
+.phi_out(phi_int[64]),.phib_out(phib_int[64]),.scan_i0o1_out(scan_i0o1_int[64]),
+.load_out(load_int[64]),.scan_out(scan_int[64]),.chip_in(sc_en_cnt));
+
+
+si_bit scan_cell_3_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[64]),.phib(phib_int[64]),
+.scan_i0o1(scan_i0o1_int[64]),.load(load_int[64]),.scan_in(scan_int[64]),
+.phi_out(phi_int[65]),.phib_out(phib_int[65]),.scan_i0o1_out(scan_i0o1_int[65]),
+.load_out(load_int[65]),.scan_out(scan_int[65]),.chip_in(sc_clkgen_fc[0]));
+
+
+si_bit scan_cell_3_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[65]),.phib(phib_int[65]),
+.scan_i0o1(scan_i0o1_int[65]),.load(load_int[65]),.scan_in(scan_int[65]),
+.phi_out(phi_int[66]),.phib_out(phib_int[66]),.scan_i0o1_out(scan_i0o1_int[66]),
+.load_out(load_int[66]),.scan_out(scan_int[66]),.chip_in(sc_clkgen_fc[1]));
+
+
+si_bit scan_cell_3_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[66]),.phib(phib_int[66]),
+.scan_i0o1(scan_i0o1_int[66]),.load(load_int[66]),.scan_in(scan_int[66]),
+.phi_out(phi_int[67]),.phib_out(phib_int[67]),.scan_i0o1_out(scan_i0o1_int[67]),
+.load_out(load_int[67]),.scan_out(scan_int[67]),.chip_in(sc_clkgen_fc[2]));
+
+
+si_bit scan_cell_3_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[67]),.phib(phib_int[67]),
+.scan_i0o1(scan_i0o1_int[67]),.load(load_int[67]),.scan_in(scan_int[67]),
+.phi_out(phi_int[68]),.phib_out(phib_int[68]),.scan_i0o1_out(scan_i0o1_int[68]),
+.load_out(load_int[68]),.scan_out(scan_int[68]),.chip_in(sc_clkgen_fc[3]));
+
+
+si_bit scan_cell_3_4(.VDD(VDD),.VSS(VSS),.phi(phi_int[68]),.phib(phib_int[68]),
+.scan_i0o1(scan_i0o1_int[68]),.load(load_int[68]),.scan_in(scan_int[68]),
+.phi_out(phi_int[69]),.phib_out(phib_int[69]),.scan_i0o1_out(scan_i0o1_int[69]),
+.load_out(load_int[69]),.scan_out(scan_int[69]),.chip_in(sc_clkgen_fc[4]));
+
+
+si_bit scan_cell_4_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[69]),.phib(phib_int[69]),
+.scan_i0o1(scan_i0o1_int[69]),.load(load_int[69]),.scan_in(scan_int[69]),
+.phi_out(phi_int[70]),.phib_out(phib_int[70]),.scan_i0o1_out(scan_i0o1_int[70]),
+.load_out(load_int[70]),.scan_out(scan_int[70]),.chip_in(sc_clkgen_div[0]));
+
+
+si_bit scan_cell_4_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[70]),.phib(phib_int[70]),
+.scan_i0o1(scan_i0o1_int[70]),.load(load_int[70]),.scan_in(scan_int[70]),
+.phi_out(phi_int[71]),.phib_out(phib_int[71]),.scan_i0o1_out(scan_i0o1_int[71]),
+.load_out(load_int[71]),.scan_out(scan_int[71]),.chip_in(sc_clkgen_div[1]));
+
+
+si_bit scan_cell_4_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[71]),.phib(phib_int[71]),
+.scan_i0o1(scan_i0o1_int[71]),.load(load_int[71]),.scan_in(scan_int[71]),
+.phi_out(phi_int[72]),.phib_out(phib_int[72]),.scan_i0o1_out(scan_i0o1_int[72]),
+.load_out(load_int[72]),.scan_out(scan_int[72]),.chip_in(sc_clkgen_div[2]));
+
+
+si_bit scan_cell_4_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[72]),.phib(phib_int[72]),
+.scan_i0o1(scan_i0o1_int[72]),.load(load_int[72]),.scan_in(scan_int[72]),
+.phi_out(phi_int[73]),.phib_out(phib_int[73]),.scan_i0o1_out(scan_i0o1_int[73]),
+.load_out(load_int[73]),.scan_out(scan_int[73]),.chip_in(sc_clkgen_div[3]));
+
+
+si_bit scan_cell_5_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[73]),.phib(phib_int[73]),
+.scan_i0o1(scan_i0o1_int[73]),.load(load_int[73]),.scan_in(scan_int[73]),
+.phi_out(phi_int[74]),.phib_out(phib_int[74]),.scan_i0o1_out(scan_i0o1_int[74]),
+.load_out(load_int[74]),.scan_out(scan_int[74]),.chip_in(sc_imem_ctrl));
+
+
+si_bit scan_cell_6_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[74]),.phib(phib_int[74]),
+.scan_i0o1(scan_i0o1_int[74]),.load(load_int[74]),.scan_in(scan_int[74]),
+.phi_out(phi_int[75]),.phib_out(phib_int[75]),.scan_i0o1_out(scan_i0o1_int[75]),
+.load_out(load_int[75]),.scan_out(scan_int[75]),.chip_in(sc_imem_req));
+
+
+si_bit scan_cell_7_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[75]),.phib(phib_int[75]),
+.scan_i0o1(scan_i0o1_int[75]),.load(load_int[75]),.scan_in(scan_int[75]),
+.phi_out(phi_int[76]),.phib_out(phib_int[76]),.scan_i0o1_out(scan_i0o1_int[76]),
+.load_out(load_int[76]),.scan_out(scan_int[76]),.chip_in(sc_imem_addr[0]));
+
+
+si_bit scan_cell_7_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[76]),.phib(phib_int[76]),
+.scan_i0o1(scan_i0o1_int[76]),.load(load_int[76]),.scan_in(scan_int[76]),
+.phi_out(phi_int[77]),.phib_out(phib_int[77]),.scan_i0o1_out(scan_i0o1_int[77]),
+.load_out(load_int[77]),.scan_out(scan_int[77]),.chip_in(sc_imem_addr[1]));
+
+
+si_bit scan_cell_7_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[77]),.phib(phib_int[77]),
+.scan_i0o1(scan_i0o1_int[77]),.load(load_int[77]),.scan_in(scan_int[77]),
+.phi_out(phi_int[78]),.phib_out(phib_int[78]),.scan_i0o1_out(scan_i0o1_int[78]),
+.load_out(load_int[78]),.scan_out(scan_int[78]),.chip_in(sc_imem_addr[2]));
+
+
+si_bit scan_cell_7_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[78]),.phib(phib_int[78]),
+.scan_i0o1(scan_i0o1_int[78]),.load(load_int[78]),.scan_in(scan_int[78]),
+.phi_out(phi_int[79]),.phib_out(phib_int[79]),.scan_i0o1_out(scan_i0o1_int[79]),
+.load_out(load_int[79]),.scan_out(scan_int[79]),.chip_in(sc_imem_addr[3]));
+
+
+si_bit scan_cell_7_4(.VDD(VDD),.VSS(VSS),.phi(phi_int[79]),.phib(phib_int[79]),
+.scan_i0o1(scan_i0o1_int[79]),.load(load_int[79]),.scan_in(scan_int[79]),
+.phi_out(phi_int[80]),.phib_out(phib_int[80]),.scan_i0o1_out(scan_i0o1_int[80]),
+.load_out(load_int[80]),.scan_out(scan_int[80]),.chip_in(sc_imem_addr[4]));
+
+
+si_bit scan_cell_7_5(.VDD(VDD),.VSS(VSS),.phi(phi_int[80]),.phib(phib_int[80]),
+.scan_i0o1(scan_i0o1_int[80]),.load(load_int[80]),.scan_in(scan_int[80]),
+.phi_out(phi_int[81]),.phib_out(phib_int[81]),.scan_i0o1_out(scan_i0o1_int[81]),
+.load_out(load_int[81]),.scan_out(scan_int[81]),.chip_in(sc_imem_addr[5]));
+
+
+si_bit scan_cell_7_6(.VDD(VDD),.VSS(VSS),.phi(phi_int[81]),.phib(phib_int[81]),
+.scan_i0o1(scan_i0o1_int[81]),.load(load_int[81]),.scan_in(scan_int[81]),
+.phi_out(phi_int[82]),.phib_out(phib_int[82]),.scan_i0o1_out(scan_i0o1_int[82]),
+.load_out(load_int[82]),.scan_out(scan_int[82]),.chip_in(sc_imem_addr[6]));
+
+
+si_bit scan_cell_7_7(.VDD(VDD),.VSS(VSS),.phi(phi_int[82]),.phib(phib_int[82]),
+.scan_i0o1(scan_i0o1_int[82]),.load(load_int[82]),.scan_in(scan_int[82]),
+.phi_out(phi_int[83]),.phib_out(phib_int[83]),.scan_i0o1_out(scan_i0o1_int[83]),
+.load_out(load_int[83]),.scan_out(scan_int[83]),.chip_in(sc_imem_addr[7]));
+
+
+si_bit scan_cell_7_8(.VDD(VDD),.VSS(VSS),.phi(phi_int[83]),.phib(phib_int[83]),
+.scan_i0o1(scan_i0o1_int[83]),.load(load_int[83]),.scan_in(scan_int[83]),
+.phi_out(phi_int[84]),.phib_out(phib_int[84]),.scan_i0o1_out(scan_i0o1_int[84]),
+.load_out(load_int[84]),.scan_out(scan_int[84]),.chip_in(sc_imem_addr[8]));
+
+
+si_bit scan_cell_7_9(.VDD(VDD),.VSS(VSS),.phi(phi_int[84]),.phib(phib_int[84]),
+.scan_i0o1(scan_i0o1_int[84]),.load(load_int[84]),.scan_in(scan_int[84]),
+.phi_out(phi_int[85]),.phib_out(phib_int[85]),.scan_i0o1_out(scan_i0o1_int[85]),
+.load_out(load_int[85]),.scan_out(scan_int[85]),.chip_in(sc_imem_addr[9]));
+
+
+si_bit scan_cell_7_10(.VDD(VDD),.VSS(VSS),.phi(phi_int[85]),.phib(phib_int[85]),
+.scan_i0o1(scan_i0o1_int[85]),.load(load_int[85]),.scan_in(scan_int[85]),
+.phi_out(phi_int[86]),.phib_out(phib_int[86]),.scan_i0o1_out(scan_i0o1_int[86]),
+.load_out(load_int[86]),.scan_out(scan_int[86]),.chip_in(sc_imem_addr[10]));
+
+
+si_bit scan_cell_7_11(.VDD(VDD),.VSS(VSS),.phi(phi_int[86]),.phib(phib_int[86]),
+.scan_i0o1(scan_i0o1_int[86]),.load(load_int[86]),.scan_in(scan_int[86]),
+.phi_out(phi_int[87]),.phib_out(phib_int[87]),.scan_i0o1_out(scan_i0o1_int[87]),
+.load_out(load_int[87]),.scan_out(scan_int[87]),.chip_in(sc_imem_addr[11]));
+
+
+si_bit scan_cell_7_12(.VDD(VDD),.VSS(VSS),.phi(phi_int[87]),.phib(phib_int[87]),
+.scan_i0o1(scan_i0o1_int[87]),.load(load_int[87]),.scan_in(scan_int[87]),
+.phi_out(phi_int[88]),.phib_out(phib_int[88]),.scan_i0o1_out(scan_i0o1_int[88]),
+.load_out(load_int[88]),.scan_out(scan_int[88]),.chip_in(sc_imem_addr[12]));
+
+
+si_bit scan_cell_7_13(.VDD(VDD),.VSS(VSS),.phi(phi_int[88]),.phib(phib_int[88]),
+.scan_i0o1(scan_i0o1_int[88]),.load(load_int[88]),.scan_in(scan_int[88]),
+.phi_out(phi_int[89]),.phib_out(phib_int[89]),.scan_i0o1_out(scan_i0o1_int[89]),
+.load_out(load_int[89]),.scan_out(scan_int[89]),.chip_in(sc_imem_addr[13]));
+
+
+si_bit scan_cell_7_14(.VDD(VDD),.VSS(VSS),.phi(phi_int[89]),.phib(phib_int[89]),
+.scan_i0o1(scan_i0o1_int[89]),.load(load_int[89]),.scan_in(scan_int[89]),
+.phi_out(phi_int[90]),.phib_out(phib_int[90]),.scan_i0o1_out(scan_i0o1_int[90]),
+.load_out(load_int[90]),.scan_out(scan_int[90]),.chip_in(sc_imem_addr[14]));
+
+
+si_bit scan_cell_7_15(.VDD(VDD),.VSS(VSS),.phi(phi_int[90]),.phib(phib_int[90]),
+.scan_i0o1(scan_i0o1_int[90]),.load(load_int[90]),.scan_in(scan_int[90]),
+.phi_out(phi_int[91]),.phib_out(phib_int[91]),.scan_i0o1_out(scan_i0o1_int[91]),
+.load_out(load_int[91]),.scan_out(scan_int[91]),.chip_in(sc_imem_addr[15]));
+
+
+si_bit scan_cell_7_16(.VDD(VDD),.VSS(VSS),.phi(phi_int[91]),.phib(phib_int[91]),
+.scan_i0o1(scan_i0o1_int[91]),.load(load_int[91]),.scan_in(scan_int[91]),
+.phi_out(phi_int[92]),.phib_out(phib_int[92]),.scan_i0o1_out(scan_i0o1_int[92]),
+.load_out(load_int[92]),.scan_out(scan_int[92]),.chip_in(sc_imem_addr[16]));
+
+
+si_bit scan_cell_7_17(.VDD(VDD),.VSS(VSS),.phi(phi_int[92]),.phib(phib_int[92]),
+.scan_i0o1(scan_i0o1_int[92]),.load(load_int[92]),.scan_in(scan_int[92]),
+.phi_out(phi_int[93]),.phib_out(phib_int[93]),.scan_i0o1_out(scan_i0o1_int[93]),
+.load_out(load_int[93]),.scan_out(scan_int[93]),.chip_in(sc_imem_addr[17]));
+
+
+si_bit scan_cell_7_18(.VDD(VDD),.VSS(VSS),.phi(phi_int[93]),.phib(phib_int[93]),
+.scan_i0o1(scan_i0o1_int[93]),.load(load_int[93]),.scan_in(scan_int[93]),
+.phi_out(phi_int[94]),.phib_out(phib_int[94]),.scan_i0o1_out(scan_i0o1_int[94]),
+.load_out(load_int[94]),.scan_out(scan_int[94]),.chip_in(sc_imem_addr[18]));
+
+
+si_bit scan_cell_7_19(.VDD(VDD),.VSS(VSS),.phi(phi_int[94]),.phib(phib_int[94]),
+.scan_i0o1(scan_i0o1_int[94]),.load(load_int[94]),.scan_in(scan_int[94]),
+.phi_out(phi_int[95]),.phib_out(phib_int[95]),.scan_i0o1_out(scan_i0o1_int[95]),
+.load_out(load_int[95]),.scan_out(scan_int[95]),.chip_in(sc_imem_addr[19]));
+
+
+si_bit scan_cell_7_20(.VDD(VDD),.VSS(VSS),.phi(phi_int[95]),.phib(phib_int[95]),
+.scan_i0o1(scan_i0o1_int[95]),.load(load_int[95]),.scan_in(scan_int[95]),
+.phi_out(phi_int[96]),.phib_out(phib_int[96]),.scan_i0o1_out(scan_i0o1_int[96]),
+.load_out(load_int[96]),.scan_out(scan_int[96]),.chip_in(sc_imem_addr[20]));
+
+
+si_bit scan_cell_7_21(.VDD(VDD),.VSS(VSS),.phi(phi_int[96]),.phib(phib_int[96]),
+.scan_i0o1(scan_i0o1_int[96]),.load(load_int[96]),.scan_in(scan_int[96]),
+.phi_out(phi_int[97]),.phib_out(phib_int[97]),.scan_i0o1_out(scan_i0o1_int[97]),
+.load_out(load_int[97]),.scan_out(scan_int[97]),.chip_in(sc_imem_addr[21]));
+
+
+si_bit scan_cell_7_22(.VDD(VDD),.VSS(VSS),.phi(phi_int[97]),.phib(phib_int[97]),
+.scan_i0o1(scan_i0o1_int[97]),.load(load_int[97]),.scan_in(scan_int[97]),
+.phi_out(phi_int[98]),.phib_out(phib_int[98]),.scan_i0o1_out(scan_i0o1_int[98]),
+.load_out(load_int[98]),.scan_out(scan_int[98]),.chip_in(sc_imem_addr[22]));
+
+
+si_bit scan_cell_7_23(.VDD(VDD),.VSS(VSS),.phi(phi_int[98]),.phib(phib_int[98]),
+.scan_i0o1(scan_i0o1_int[98]),.load(load_int[98]),.scan_in(scan_int[98]),
+.phi_out(phi_int[99]),.phib_out(phib_int[99]),.scan_i0o1_out(scan_i0o1_int[99]),
+.load_out(load_int[99]),.scan_out(scan_int[99]),.chip_in(sc_imem_addr[23]));
+
+
+si_bit scan_cell_7_24(.VDD(VDD),.VSS(VSS),.phi(phi_int[99]),.phib(phib_int[99]),
+.scan_i0o1(scan_i0o1_int[99]),.load(load_int[99]),.scan_in(scan_int[99]),
+.phi_out(phi_int[100]),.phib_out(phib_int[100]),.scan_i0o1_out(scan_i0o1_int[100]),
+.load_out(load_int[100]),.scan_out(scan_int[100]),.chip_in(sc_imem_addr[24]));
+
+
+si_bit scan_cell_7_25(.VDD(VDD),.VSS(VSS),.phi(phi_int[100]),.phib(phib_int[100]),
+.scan_i0o1(scan_i0o1_int[100]),.load(load_int[100]),.scan_in(scan_int[100]),
+.phi_out(phi_int[101]),.phib_out(phib_int[101]),.scan_i0o1_out(scan_i0o1_int[101]),
+.load_out(load_int[101]),.scan_out(scan_int[101]),.chip_in(sc_imem_addr[25]));
+
+
+si_bit scan_cell_7_26(.VDD(VDD),.VSS(VSS),.phi(phi_int[101]),.phib(phib_int[101]),
+.scan_i0o1(scan_i0o1_int[101]),.load(load_int[101]),.scan_in(scan_int[101]),
+.phi_out(phi_int[102]),.phib_out(phib_int[102]),.scan_i0o1_out(scan_i0o1_int[102]),
+.load_out(load_int[102]),.scan_out(scan_int[102]),.chip_in(sc_imem_addr[26]));
+
+
+si_bit scan_cell_7_27(.VDD(VDD),.VSS(VSS),.phi(phi_int[102]),.phib(phib_int[102]),
+.scan_i0o1(scan_i0o1_int[102]),.load(load_int[102]),.scan_in(scan_int[102]),
+.phi_out(phi_int[103]),.phib_out(phib_int[103]),.scan_i0o1_out(scan_i0o1_int[103]),
+.load_out(load_int[103]),.scan_out(scan_int[103]),.chip_in(sc_imem_addr[27]));
+
+
+si_bit scan_cell_7_28(.VDD(VDD),.VSS(VSS),.phi(phi_int[103]),.phib(phib_int[103]),
+.scan_i0o1(scan_i0o1_int[103]),.load(load_int[103]),.scan_in(scan_int[103]),
+.phi_out(phi_int[104]),.phib_out(phib_int[104]),.scan_i0o1_out(scan_i0o1_int[104]),
+.load_out(load_int[104]),.scan_out(scan_int[104]),.chip_in(sc_imem_addr[28]));
+
+
+si_bit scan_cell_7_29(.VDD(VDD),.VSS(VSS),.phi(phi_int[104]),.phib(phib_int[104]),
+.scan_i0o1(scan_i0o1_int[104]),.load(load_int[104]),.scan_in(scan_int[104]),
+.phi_out(phi_int[105]),.phib_out(phib_int[105]),.scan_i0o1_out(scan_i0o1_int[105]),
+.load_out(load_int[105]),.scan_out(scan_int[105]),.chip_in(sc_imem_addr[29]));
+
+
+si_bit scan_cell_7_30(.VDD(VDD),.VSS(VSS),.phi(phi_int[105]),.phib(phib_int[105]),
+.scan_i0o1(scan_i0o1_int[105]),.load(load_int[105]),.scan_in(scan_int[105]),
+.phi_out(phi_int[106]),.phib_out(phib_int[106]),.scan_i0o1_out(scan_i0o1_int[106]),
+.load_out(load_int[106]),.scan_out(scan_int[106]),.chip_in(sc_imem_addr[30]));
+
+
+si_bit scan_cell_7_31(.VDD(VDD),.VSS(VSS),.phi(phi_int[106]),.phib(phib_int[106]),
+.scan_i0o1(scan_i0o1_int[106]),.load(load_int[106]),.scan_in(scan_int[106]),
+.phi_out(phi_int[107]),.phib_out(phib_int[107]),.scan_i0o1_out(scan_i0o1_int[107]),
+.load_out(load_int[107]),.scan_out(scan_int[107]),.chip_in(sc_imem_addr[31]));
+
+
+si_bit scan_cell_8_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[107]),.phib(phib_int[107]),
+.scan_i0o1(scan_i0o1_int[107]),.load(load_int[107]),.scan_in(scan_int[107]),
+.phi_out(phi_int[108]),.phib_out(phib_int[108]),.scan_i0o1_out(scan_i0o1_int[108]),
+.load_out(load_int[108]),.scan_out(scan_int[108]),.chip_in(sc_imem_wen));
+
+
+si_bit scan_cell_9_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[108]),.phib(phib_int[108]),
+.scan_i0o1(scan_i0o1_int[108]),.load(load_int[108]),.scan_in(scan_int[108]),
+.phi_out(phi_int[109]),.phib_out(phib_int[109]),.scan_i0o1_out(scan_i0o1_int[109]),
+.load_out(load_int[109]),.scan_out(scan_int[109]),.chip_in(sc_imem_wdata[0]));
+
+
+si_bit scan_cell_9_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[109]),.phib(phib_int[109]),
+.scan_i0o1(scan_i0o1_int[109]),.load(load_int[109]),.scan_in(scan_int[109]),
+.phi_out(phi_int[110]),.phib_out(phib_int[110]),.scan_i0o1_out(scan_i0o1_int[110]),
+.load_out(load_int[110]),.scan_out(scan_int[110]),.chip_in(sc_imem_wdata[1]));
+
+
+si_bit scan_cell_9_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[110]),.phib(phib_int[110]),
+.scan_i0o1(scan_i0o1_int[110]),.load(load_int[110]),.scan_in(scan_int[110]),
+.phi_out(phi_int[111]),.phib_out(phib_int[111]),.scan_i0o1_out(scan_i0o1_int[111]),
+.load_out(load_int[111]),.scan_out(scan_int[111]),.chip_in(sc_imem_wdata[2]));
+
+
+si_bit scan_cell_9_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[111]),.phib(phib_int[111]),
+.scan_i0o1(scan_i0o1_int[111]),.load(load_int[111]),.scan_in(scan_int[111]),
+.phi_out(phi_int[112]),.phib_out(phib_int[112]),.scan_i0o1_out(scan_i0o1_int[112]),
+.load_out(load_int[112]),.scan_out(scan_int[112]),.chip_in(sc_imem_wdata[3]));
+
+
+si_bit scan_cell_9_4(.VDD(VDD),.VSS(VSS),.phi(phi_int[112]),.phib(phib_int[112]),
+.scan_i0o1(scan_i0o1_int[112]),.load(load_int[112]),.scan_in(scan_int[112]),
+.phi_out(phi_int[113]),.phib_out(phib_int[113]),.scan_i0o1_out(scan_i0o1_int[113]),
+.load_out(load_int[113]),.scan_out(scan_int[113]),.chip_in(sc_imem_wdata[4]));
+
+
+si_bit scan_cell_9_5(.VDD(VDD),.VSS(VSS),.phi(phi_int[113]),.phib(phib_int[113]),
+.scan_i0o1(scan_i0o1_int[113]),.load(load_int[113]),.scan_in(scan_int[113]),
+.phi_out(phi_int[114]),.phib_out(phib_int[114]),.scan_i0o1_out(scan_i0o1_int[114]),
+.load_out(load_int[114]),.scan_out(scan_int[114]),.chip_in(sc_imem_wdata[5]));
+
+
+si_bit scan_cell_9_6(.VDD(VDD),.VSS(VSS),.phi(phi_int[114]),.phib(phib_int[114]),
+.scan_i0o1(scan_i0o1_int[114]),.load(load_int[114]),.scan_in(scan_int[114]),
+.phi_out(phi_int[115]),.phib_out(phib_int[115]),.scan_i0o1_out(scan_i0o1_int[115]),
+.load_out(load_int[115]),.scan_out(scan_int[115]),.chip_in(sc_imem_wdata[6]));
+
+
+si_bit scan_cell_9_7(.VDD(VDD),.VSS(VSS),.phi(phi_int[115]),.phib(phib_int[115]),
+.scan_i0o1(scan_i0o1_int[115]),.load(load_int[115]),.scan_in(scan_int[115]),
+.phi_out(phi_int[116]),.phib_out(phib_int[116]),.scan_i0o1_out(scan_i0o1_int[116]),
+.load_out(load_int[116]),.scan_out(scan_int[116]),.chip_in(sc_imem_wdata[7]));
+
+
+si_bit scan_cell_9_8(.VDD(VDD),.VSS(VSS),.phi(phi_int[116]),.phib(phib_int[116]),
+.scan_i0o1(scan_i0o1_int[116]),.load(load_int[116]),.scan_in(scan_int[116]),
+.phi_out(phi_int[117]),.phib_out(phib_int[117]),.scan_i0o1_out(scan_i0o1_int[117]),
+.load_out(load_int[117]),.scan_out(scan_int[117]),.chip_in(sc_imem_wdata[8]));
+
+
+si_bit scan_cell_9_9(.VDD(VDD),.VSS(VSS),.phi(phi_int[117]),.phib(phib_int[117]),
+.scan_i0o1(scan_i0o1_int[117]),.load(load_int[117]),.scan_in(scan_int[117]),
+.phi_out(phi_int[118]),.phib_out(phib_int[118]),.scan_i0o1_out(scan_i0o1_int[118]),
+.load_out(load_int[118]),.scan_out(scan_int[118]),.chip_in(sc_imem_wdata[9]));
+
+
+si_bit scan_cell_9_10(.VDD(VDD),.VSS(VSS),.phi(phi_int[118]),.phib(phib_int[118]),
+.scan_i0o1(scan_i0o1_int[118]),.load(load_int[118]),.scan_in(scan_int[118]),
+.phi_out(phi_int[119]),.phib_out(phib_int[119]),.scan_i0o1_out(scan_i0o1_int[119]),
+.load_out(load_int[119]),.scan_out(scan_int[119]),.chip_in(sc_imem_wdata[10]));
+
+
+si_bit scan_cell_9_11(.VDD(VDD),.VSS(VSS),.phi(phi_int[119]),.phib(phib_int[119]),
+.scan_i0o1(scan_i0o1_int[119]),.load(load_int[119]),.scan_in(scan_int[119]),
+.phi_out(phi_int[120]),.phib_out(phib_int[120]),.scan_i0o1_out(scan_i0o1_int[120]),
+.load_out(load_int[120]),.scan_out(scan_int[120]),.chip_in(sc_imem_wdata[11]));
+
+
+si_bit scan_cell_9_12(.VDD(VDD),.VSS(VSS),.phi(phi_int[120]),.phib(phib_int[120]),
+.scan_i0o1(scan_i0o1_int[120]),.load(load_int[120]),.scan_in(scan_int[120]),
+.phi_out(phi_int[121]),.phib_out(phib_int[121]),.scan_i0o1_out(scan_i0o1_int[121]),
+.load_out(load_int[121]),.scan_out(scan_int[121]),.chip_in(sc_imem_wdata[12]));
+
+
+si_bit scan_cell_9_13(.VDD(VDD),.VSS(VSS),.phi(phi_int[121]),.phib(phib_int[121]),
+.scan_i0o1(scan_i0o1_int[121]),.load(load_int[121]),.scan_in(scan_int[121]),
+.phi_out(phi_int[122]),.phib_out(phib_int[122]),.scan_i0o1_out(scan_i0o1_int[122]),
+.load_out(load_int[122]),.scan_out(scan_int[122]),.chip_in(sc_imem_wdata[13]));
+
+
+si_bit scan_cell_9_14(.VDD(VDD),.VSS(VSS),.phi(phi_int[122]),.phib(phib_int[122]),
+.scan_i0o1(scan_i0o1_int[122]),.load(load_int[122]),.scan_in(scan_int[122]),
+.phi_out(phi_int[123]),.phib_out(phib_int[123]),.scan_i0o1_out(scan_i0o1_int[123]),
+.load_out(load_int[123]),.scan_out(scan_int[123]),.chip_in(sc_imem_wdata[14]));
+
+
+si_bit scan_cell_9_15(.VDD(VDD),.VSS(VSS),.phi(phi_int[123]),.phib(phib_int[123]),
+.scan_i0o1(scan_i0o1_int[123]),.load(load_int[123]),.scan_in(scan_int[123]),
+.phi_out(phi_int[124]),.phib_out(phib_int[124]),.scan_i0o1_out(scan_i0o1_int[124]),
+.load_out(load_int[124]),.scan_out(scan_int[124]),.chip_in(sc_imem_wdata[15]));
+
+
+si_bit scan_cell_9_16(.VDD(VDD),.VSS(VSS),.phi(phi_int[124]),.phib(phib_int[124]),
+.scan_i0o1(scan_i0o1_int[124]),.load(load_int[124]),.scan_in(scan_int[124]),
+.phi_out(phi_int[125]),.phib_out(phib_int[125]),.scan_i0o1_out(scan_i0o1_int[125]),
+.load_out(load_int[125]),.scan_out(scan_int[125]),.chip_in(sc_imem_wdata[16]));
+
+
+si_bit scan_cell_9_17(.VDD(VDD),.VSS(VSS),.phi(phi_int[125]),.phib(phib_int[125]),
+.scan_i0o1(scan_i0o1_int[125]),.load(load_int[125]),.scan_in(scan_int[125]),
+.phi_out(phi_int[126]),.phib_out(phib_int[126]),.scan_i0o1_out(scan_i0o1_int[126]),
+.load_out(load_int[126]),.scan_out(scan_int[126]),.chip_in(sc_imem_wdata[17]));
+
+
+si_bit scan_cell_9_18(.VDD(VDD),.VSS(VSS),.phi(phi_int[126]),.phib(phib_int[126]),
+.scan_i0o1(scan_i0o1_int[126]),.load(load_int[126]),.scan_in(scan_int[126]),
+.phi_out(phi_int[127]),.phib_out(phib_int[127]),.scan_i0o1_out(scan_i0o1_int[127]),
+.load_out(load_int[127]),.scan_out(scan_int[127]),.chip_in(sc_imem_wdata[18]));
+
+
+si_bit scan_cell_9_19(.VDD(VDD),.VSS(VSS),.phi(phi_int[127]),.phib(phib_int[127]),
+.scan_i0o1(scan_i0o1_int[127]),.load(load_int[127]),.scan_in(scan_int[127]),
+.phi_out(phi_int[128]),.phib_out(phib_int[128]),.scan_i0o1_out(scan_i0o1_int[128]),
+.load_out(load_int[128]),.scan_out(scan_int[128]),.chip_in(sc_imem_wdata[19]));
+
+
+si_bit scan_cell_9_20(.VDD(VDD),.VSS(VSS),.phi(phi_int[128]),.phib(phib_int[128]),
+.scan_i0o1(scan_i0o1_int[128]),.load(load_int[128]),.scan_in(scan_int[128]),
+.phi_out(phi_int[129]),.phib_out(phib_int[129]),.scan_i0o1_out(scan_i0o1_int[129]),
+.load_out(load_int[129]),.scan_out(scan_int[129]),.chip_in(sc_imem_wdata[20]));
+
+
+si_bit scan_cell_9_21(.VDD(VDD),.VSS(VSS),.phi(phi_int[129]),.phib(phib_int[129]),
+.scan_i0o1(scan_i0o1_int[129]),.load(load_int[129]),.scan_in(scan_int[129]),
+.phi_out(phi_int[130]),.phib_out(phib_int[130]),.scan_i0o1_out(scan_i0o1_int[130]),
+.load_out(load_int[130]),.scan_out(scan_int[130]),.chip_in(sc_imem_wdata[21]));
+
+
+si_bit scan_cell_9_22(.VDD(VDD),.VSS(VSS),.phi(phi_int[130]),.phib(phib_int[130]),
+.scan_i0o1(scan_i0o1_int[130]),.load(load_int[130]),.scan_in(scan_int[130]),
+.phi_out(phi_int[131]),.phib_out(phib_int[131]),.scan_i0o1_out(scan_i0o1_int[131]),
+.load_out(load_int[131]),.scan_out(scan_int[131]),.chip_in(sc_imem_wdata[22]));
+
+
+si_bit scan_cell_9_23(.VDD(VDD),.VSS(VSS),.phi(phi_int[131]),.phib(phib_int[131]),
+.scan_i0o1(scan_i0o1_int[131]),.load(load_int[131]),.scan_in(scan_int[131]),
+.phi_out(phi_int[132]),.phib_out(phib_int[132]),.scan_i0o1_out(scan_i0o1_int[132]),
+.load_out(load_int[132]),.scan_out(scan_int[132]),.chip_in(sc_imem_wdata[23]));
+
+
+si_bit scan_cell_9_24(.VDD(VDD),.VSS(VSS),.phi(phi_int[132]),.phib(phib_int[132]),
+.scan_i0o1(scan_i0o1_int[132]),.load(load_int[132]),.scan_in(scan_int[132]),
+.phi_out(phi_int[133]),.phib_out(phib_int[133]),.scan_i0o1_out(scan_i0o1_int[133]),
+.load_out(load_int[133]),.scan_out(scan_int[133]),.chip_in(sc_imem_wdata[24]));
+
+
+si_bit scan_cell_9_25(.VDD(VDD),.VSS(VSS),.phi(phi_int[133]),.phib(phib_int[133]),
+.scan_i0o1(scan_i0o1_int[133]),.load(load_int[133]),.scan_in(scan_int[133]),
+.phi_out(phi_int[134]),.phib_out(phib_int[134]),.scan_i0o1_out(scan_i0o1_int[134]),
+.load_out(load_int[134]),.scan_out(scan_int[134]),.chip_in(sc_imem_wdata[25]));
+
+
+si_bit scan_cell_9_26(.VDD(VDD),.VSS(VSS),.phi(phi_int[134]),.phib(phib_int[134]),
+.scan_i0o1(scan_i0o1_int[134]),.load(load_int[134]),.scan_in(scan_int[134]),
+.phi_out(phi_int[135]),.phib_out(phib_int[135]),.scan_i0o1_out(scan_i0o1_int[135]),
+.load_out(load_int[135]),.scan_out(scan_int[135]),.chip_in(sc_imem_wdata[26]));
+
+
+si_bit scan_cell_9_27(.VDD(VDD),.VSS(VSS),.phi(phi_int[135]),.phib(phib_int[135]),
+.scan_i0o1(scan_i0o1_int[135]),.load(load_int[135]),.scan_in(scan_int[135]),
+.phi_out(phi_int[136]),.phib_out(phib_int[136]),.scan_i0o1_out(scan_i0o1_int[136]),
+.load_out(load_int[136]),.scan_out(scan_int[136]),.chip_in(sc_imem_wdata[27]));
+
+
+si_bit scan_cell_9_28(.VDD(VDD),.VSS(VSS),.phi(phi_int[136]),.phib(phib_int[136]),
+.scan_i0o1(scan_i0o1_int[136]),.load(load_int[136]),.scan_in(scan_int[136]),
+.phi_out(phi_int[137]),.phib_out(phib_int[137]),.scan_i0o1_out(scan_i0o1_int[137]),
+.load_out(load_int[137]),.scan_out(scan_int[137]),.chip_in(sc_imem_wdata[28]));
+
+
+si_bit scan_cell_9_29(.VDD(VDD),.VSS(VSS),.phi(phi_int[137]),.phib(phib_int[137]),
+.scan_i0o1(scan_i0o1_int[137]),.load(load_int[137]),.scan_in(scan_int[137]),
+.phi_out(phi_int[138]),.phib_out(phib_int[138]),.scan_i0o1_out(scan_i0o1_int[138]),
+.load_out(load_int[138]),.scan_out(scan_int[138]),.chip_in(sc_imem_wdata[29]));
+
+
+si_bit scan_cell_9_30(.VDD(VDD),.VSS(VSS),.phi(phi_int[138]),.phib(phib_int[138]),
+.scan_i0o1(scan_i0o1_int[138]),.load(load_int[138]),.scan_in(scan_int[138]),
+.phi_out(phi_int[139]),.phib_out(phib_int[139]),.scan_i0o1_out(scan_i0o1_int[139]),
+.load_out(load_int[139]),.scan_out(scan_int[139]),.chip_in(sc_imem_wdata[30]));
+
+
+si_bit scan_cell_9_31(.VDD(VDD),.VSS(VSS),.phi(phi_int[139]),.phib(phib_int[139]),
+.scan_i0o1(scan_i0o1_int[139]),.load(load_int[139]),.scan_in(scan_int[139]),
+.phi_out(phi_int[140]),.phib_out(phib_int[140]),.scan_i0o1_out(scan_i0o1_int[140]),
+.load_out(load_int[140]),.scan_out(scan_int[140]),.chip_in(sc_imem_wdata[31]));
+
+
+si_bit scan_cell_10_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[140]),.phib(phib_int[140]),
+.scan_i0o1(scan_i0o1_int[140]),.load(load_int[140]),.scan_in(scan_int[140]),
+.phi_out(phi_int[141]),.phib_out(phib_int[141]),.scan_i0o1_out(scan_i0o1_int[141]),
+.load_out(load_int[141]),.scan_out(scan_int[141]),.chip_in(sc_imem_clk));
+
+
+si_bit scan_cell_11_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[141]),.phib(phib_int[141]),
+.scan_i0o1(scan_i0o1_int[141]),.load(load_int[141]),.scan_in(scan_int[141]),
+.phi_out(phi_int[142]),.phib_out(phib_int[142]),.scan_i0o1_out(scan_i0o1_int[142]),
+.load_out(load_int[142]),.scan_out(scan_int[142]),.chip_in(sc_dmem_ctrl));
+
+
+si_bit scan_cell_12_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[142]),.phib(phib_int[142]),
+.scan_i0o1(scan_i0o1_int[142]),.load(load_int[142]),.scan_in(scan_int[142]),
+.phi_out(phi_int[143]),.phib_out(phib_int[143]),.scan_i0o1_out(scan_i0o1_int[143]),
+.load_out(load_int[143]),.scan_out(scan_int[143]),.chip_in(sc_dmem_req));
+
+
+si_bit scan_cell_13_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[143]),.phib(phib_int[143]),
+.scan_i0o1(scan_i0o1_int[143]),.load(load_int[143]),.scan_in(scan_int[143]),
+.phi_out(phi_int[144]),.phib_out(phib_int[144]),.scan_i0o1_out(scan_i0o1_int[144]),
+.load_out(load_int[144]),.scan_out(scan_int[144]),.chip_in(sc_dmem_addr[0]));
+
+
+si_bit scan_cell_13_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[144]),.phib(phib_int[144]),
+.scan_i0o1(scan_i0o1_int[144]),.load(load_int[144]),.scan_in(scan_int[144]),
+.phi_out(phi_int[145]),.phib_out(phib_int[145]),.scan_i0o1_out(scan_i0o1_int[145]),
+.load_out(load_int[145]),.scan_out(scan_int[145]),.chip_in(sc_dmem_addr[1]));
+
+
+si_bit scan_cell_13_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[145]),.phib(phib_int[145]),
+.scan_i0o1(scan_i0o1_int[145]),.load(load_int[145]),.scan_in(scan_int[145]),
+.phi_out(phi_int[146]),.phib_out(phib_int[146]),.scan_i0o1_out(scan_i0o1_int[146]),
+.load_out(load_int[146]),.scan_out(scan_int[146]),.chip_in(sc_dmem_addr[2]));
+
+
+si_bit scan_cell_13_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[146]),.phib(phib_int[146]),
+.scan_i0o1(scan_i0o1_int[146]),.load(load_int[146]),.scan_in(scan_int[146]),
+.phi_out(phi_int[147]),.phib_out(phib_int[147]),.scan_i0o1_out(scan_i0o1_int[147]),
+.load_out(load_int[147]),.scan_out(scan_int[147]),.chip_in(sc_dmem_addr[3]));
+
+
+si_bit scan_cell_13_4(.VDD(VDD),.VSS(VSS),.phi(phi_int[147]),.phib(phib_int[147]),
+.scan_i0o1(scan_i0o1_int[147]),.load(load_int[147]),.scan_in(scan_int[147]),
+.phi_out(phi_int[148]),.phib_out(phib_int[148]),.scan_i0o1_out(scan_i0o1_int[148]),
+.load_out(load_int[148]),.scan_out(scan_int[148]),.chip_in(sc_dmem_addr[4]));
+
+
+si_bit scan_cell_13_5(.VDD(VDD),.VSS(VSS),.phi(phi_int[148]),.phib(phib_int[148]),
+.scan_i0o1(scan_i0o1_int[148]),.load(load_int[148]),.scan_in(scan_int[148]),
+.phi_out(phi_int[149]),.phib_out(phib_int[149]),.scan_i0o1_out(scan_i0o1_int[149]),
+.load_out(load_int[149]),.scan_out(scan_int[149]),.chip_in(sc_dmem_addr[5]));
+
+
+si_bit scan_cell_13_6(.VDD(VDD),.VSS(VSS),.phi(phi_int[149]),.phib(phib_int[149]),
+.scan_i0o1(scan_i0o1_int[149]),.load(load_int[149]),.scan_in(scan_int[149]),
+.phi_out(phi_int[150]),.phib_out(phib_int[150]),.scan_i0o1_out(scan_i0o1_int[150]),
+.load_out(load_int[150]),.scan_out(scan_int[150]),.chip_in(sc_dmem_addr[6]));
+
+
+si_bit scan_cell_13_7(.VDD(VDD),.VSS(VSS),.phi(phi_int[150]),.phib(phib_int[150]),
+.scan_i0o1(scan_i0o1_int[150]),.load(load_int[150]),.scan_in(scan_int[150]),
+.phi_out(phi_int[151]),.phib_out(phib_int[151]),.scan_i0o1_out(scan_i0o1_int[151]),
+.load_out(load_int[151]),.scan_out(scan_int[151]),.chip_in(sc_dmem_addr[7]));
+
+
+si_bit scan_cell_13_8(.VDD(VDD),.VSS(VSS),.phi(phi_int[151]),.phib(phib_int[151]),
+.scan_i0o1(scan_i0o1_int[151]),.load(load_int[151]),.scan_in(scan_int[151]),
+.phi_out(phi_int[152]),.phib_out(phib_int[152]),.scan_i0o1_out(scan_i0o1_int[152]),
+.load_out(load_int[152]),.scan_out(scan_int[152]),.chip_in(sc_dmem_addr[8]));
+
+
+si_bit scan_cell_13_9(.VDD(VDD),.VSS(VSS),.phi(phi_int[152]),.phib(phib_int[152]),
+.scan_i0o1(scan_i0o1_int[152]),.load(load_int[152]),.scan_in(scan_int[152]),
+.phi_out(phi_int[153]),.phib_out(phib_int[153]),.scan_i0o1_out(scan_i0o1_int[153]),
+.load_out(load_int[153]),.scan_out(scan_int[153]),.chip_in(sc_dmem_addr[9]));
+
+
+si_bit scan_cell_13_10(.VDD(VDD),.VSS(VSS),.phi(phi_int[153]),.phib(phib_int[153]),
+.scan_i0o1(scan_i0o1_int[153]),.load(load_int[153]),.scan_in(scan_int[153]),
+.phi_out(phi_int[154]),.phib_out(phib_int[154]),.scan_i0o1_out(scan_i0o1_int[154]),
+.load_out(load_int[154]),.scan_out(scan_int[154]),.chip_in(sc_dmem_addr[10]));
+
+
+si_bit scan_cell_13_11(.VDD(VDD),.VSS(VSS),.phi(phi_int[154]),.phib(phib_int[154]),
+.scan_i0o1(scan_i0o1_int[154]),.load(load_int[154]),.scan_in(scan_int[154]),
+.phi_out(phi_int[155]),.phib_out(phib_int[155]),.scan_i0o1_out(scan_i0o1_int[155]),
+.load_out(load_int[155]),.scan_out(scan_int[155]),.chip_in(sc_dmem_addr[11]));
+
+
+si_bit scan_cell_13_12(.VDD(VDD),.VSS(VSS),.phi(phi_int[155]),.phib(phib_int[155]),
+.scan_i0o1(scan_i0o1_int[155]),.load(load_int[155]),.scan_in(scan_int[155]),
+.phi_out(phi_int[156]),.phib_out(phib_int[156]),.scan_i0o1_out(scan_i0o1_int[156]),
+.load_out(load_int[156]),.scan_out(scan_int[156]),.chip_in(sc_dmem_addr[12]));
+
+
+si_bit scan_cell_13_13(.VDD(VDD),.VSS(VSS),.phi(phi_int[156]),.phib(phib_int[156]),
+.scan_i0o1(scan_i0o1_int[156]),.load(load_int[156]),.scan_in(scan_int[156]),
+.phi_out(phi_int[157]),.phib_out(phib_int[157]),.scan_i0o1_out(scan_i0o1_int[157]),
+.load_out(load_int[157]),.scan_out(scan_int[157]),.chip_in(sc_dmem_addr[13]));
+
+
+si_bit scan_cell_13_14(.VDD(VDD),.VSS(VSS),.phi(phi_int[157]),.phib(phib_int[157]),
+.scan_i0o1(scan_i0o1_int[157]),.load(load_int[157]),.scan_in(scan_int[157]),
+.phi_out(phi_int[158]),.phib_out(phib_int[158]),.scan_i0o1_out(scan_i0o1_int[158]),
+.load_out(load_int[158]),.scan_out(scan_int[158]),.chip_in(sc_dmem_addr[14]));
+
+
+si_bit scan_cell_13_15(.VDD(VDD),.VSS(VSS),.phi(phi_int[158]),.phib(phib_int[158]),
+.scan_i0o1(scan_i0o1_int[158]),.load(load_int[158]),.scan_in(scan_int[158]),
+.phi_out(phi_int[159]),.phib_out(phib_int[159]),.scan_i0o1_out(scan_i0o1_int[159]),
+.load_out(load_int[159]),.scan_out(scan_int[159]),.chip_in(sc_dmem_addr[15]));
+
+
+si_bit scan_cell_13_16(.VDD(VDD),.VSS(VSS),.phi(phi_int[159]),.phib(phib_int[159]),
+.scan_i0o1(scan_i0o1_int[159]),.load(load_int[159]),.scan_in(scan_int[159]),
+.phi_out(phi_int[160]),.phib_out(phib_int[160]),.scan_i0o1_out(scan_i0o1_int[160]),
+.load_out(load_int[160]),.scan_out(scan_int[160]),.chip_in(sc_dmem_addr[16]));
+
+
+si_bit scan_cell_13_17(.VDD(VDD),.VSS(VSS),.phi(phi_int[160]),.phib(phib_int[160]),
+.scan_i0o1(scan_i0o1_int[160]),.load(load_int[160]),.scan_in(scan_int[160]),
+.phi_out(phi_int[161]),.phib_out(phib_int[161]),.scan_i0o1_out(scan_i0o1_int[161]),
+.load_out(load_int[161]),.scan_out(scan_int[161]),.chip_in(sc_dmem_addr[17]));
+
+
+si_bit scan_cell_13_18(.VDD(VDD),.VSS(VSS),.phi(phi_int[161]),.phib(phib_int[161]),
+.scan_i0o1(scan_i0o1_int[161]),.load(load_int[161]),.scan_in(scan_int[161]),
+.phi_out(phi_int[162]),.phib_out(phib_int[162]),.scan_i0o1_out(scan_i0o1_int[162]),
+.load_out(load_int[162]),.scan_out(scan_int[162]),.chip_in(sc_dmem_addr[18]));
+
+
+si_bit scan_cell_13_19(.VDD(VDD),.VSS(VSS),.phi(phi_int[162]),.phib(phib_int[162]),
+.scan_i0o1(scan_i0o1_int[162]),.load(load_int[162]),.scan_in(scan_int[162]),
+.phi_out(phi_int[163]),.phib_out(phib_int[163]),.scan_i0o1_out(scan_i0o1_int[163]),
+.load_out(load_int[163]),.scan_out(scan_int[163]),.chip_in(sc_dmem_addr[19]));
+
+
+si_bit scan_cell_13_20(.VDD(VDD),.VSS(VSS),.phi(phi_int[163]),.phib(phib_int[163]),
+.scan_i0o1(scan_i0o1_int[163]),.load(load_int[163]),.scan_in(scan_int[163]),
+.phi_out(phi_int[164]),.phib_out(phib_int[164]),.scan_i0o1_out(scan_i0o1_int[164]),
+.load_out(load_int[164]),.scan_out(scan_int[164]),.chip_in(sc_dmem_addr[20]));
+
+
+si_bit scan_cell_13_21(.VDD(VDD),.VSS(VSS),.phi(phi_int[164]),.phib(phib_int[164]),
+.scan_i0o1(scan_i0o1_int[164]),.load(load_int[164]),.scan_in(scan_int[164]),
+.phi_out(phi_int[165]),.phib_out(phib_int[165]),.scan_i0o1_out(scan_i0o1_int[165]),
+.load_out(load_int[165]),.scan_out(scan_int[165]),.chip_in(sc_dmem_addr[21]));
+
+
+si_bit scan_cell_13_22(.VDD(VDD),.VSS(VSS),.phi(phi_int[165]),.phib(phib_int[165]),
+.scan_i0o1(scan_i0o1_int[165]),.load(load_int[165]),.scan_in(scan_int[165]),
+.phi_out(phi_int[166]),.phib_out(phib_int[166]),.scan_i0o1_out(scan_i0o1_int[166]),
+.load_out(load_int[166]),.scan_out(scan_int[166]),.chip_in(sc_dmem_addr[22]));
+
+
+si_bit scan_cell_13_23(.VDD(VDD),.VSS(VSS),.phi(phi_int[166]),.phib(phib_int[166]),
+.scan_i0o1(scan_i0o1_int[166]),.load(load_int[166]),.scan_in(scan_int[166]),
+.phi_out(phi_int[167]),.phib_out(phib_int[167]),.scan_i0o1_out(scan_i0o1_int[167]),
+.load_out(load_int[167]),.scan_out(scan_int[167]),.chip_in(sc_dmem_addr[23]));
+
+
+si_bit scan_cell_13_24(.VDD(VDD),.VSS(VSS),.phi(phi_int[167]),.phib(phib_int[167]),
+.scan_i0o1(scan_i0o1_int[167]),.load(load_int[167]),.scan_in(scan_int[167]),
+.phi_out(phi_int[168]),.phib_out(phib_int[168]),.scan_i0o1_out(scan_i0o1_int[168]),
+.load_out(load_int[168]),.scan_out(scan_int[168]),.chip_in(sc_dmem_addr[24]));
+
+
+si_bit scan_cell_13_25(.VDD(VDD),.VSS(VSS),.phi(phi_int[168]),.phib(phib_int[168]),
+.scan_i0o1(scan_i0o1_int[168]),.load(load_int[168]),.scan_in(scan_int[168]),
+.phi_out(phi_int[169]),.phib_out(phib_int[169]),.scan_i0o1_out(scan_i0o1_int[169]),
+.load_out(load_int[169]),.scan_out(scan_int[169]),.chip_in(sc_dmem_addr[25]));
+
+
+si_bit scan_cell_13_26(.VDD(VDD),.VSS(VSS),.phi(phi_int[169]),.phib(phib_int[169]),
+.scan_i0o1(scan_i0o1_int[169]),.load(load_int[169]),.scan_in(scan_int[169]),
+.phi_out(phi_int[170]),.phib_out(phib_int[170]),.scan_i0o1_out(scan_i0o1_int[170]),
+.load_out(load_int[170]),.scan_out(scan_int[170]),.chip_in(sc_dmem_addr[26]));
+
+
+si_bit scan_cell_13_27(.VDD(VDD),.VSS(VSS),.phi(phi_int[170]),.phib(phib_int[170]),
+.scan_i0o1(scan_i0o1_int[170]),.load(load_int[170]),.scan_in(scan_int[170]),
+.phi_out(phi_int[171]),.phib_out(phib_int[171]),.scan_i0o1_out(scan_i0o1_int[171]),
+.load_out(load_int[171]),.scan_out(scan_int[171]),.chip_in(sc_dmem_addr[27]));
+
+
+si_bit scan_cell_13_28(.VDD(VDD),.VSS(VSS),.phi(phi_int[171]),.phib(phib_int[171]),
+.scan_i0o1(scan_i0o1_int[171]),.load(load_int[171]),.scan_in(scan_int[171]),
+.phi_out(phi_int[172]),.phib_out(phib_int[172]),.scan_i0o1_out(scan_i0o1_int[172]),
+.load_out(load_int[172]),.scan_out(scan_int[172]),.chip_in(sc_dmem_addr[28]));
+
+
+si_bit scan_cell_13_29(.VDD(VDD),.VSS(VSS),.phi(phi_int[172]),.phib(phib_int[172]),
+.scan_i0o1(scan_i0o1_int[172]),.load(load_int[172]),.scan_in(scan_int[172]),
+.phi_out(phi_int[173]),.phib_out(phib_int[173]),.scan_i0o1_out(scan_i0o1_int[173]),
+.load_out(load_int[173]),.scan_out(scan_int[173]),.chip_in(sc_dmem_addr[29]));
+
+
+si_bit scan_cell_13_30(.VDD(VDD),.VSS(VSS),.phi(phi_int[173]),.phib(phib_int[173]),
+.scan_i0o1(scan_i0o1_int[173]),.load(load_int[173]),.scan_in(scan_int[173]),
+.phi_out(phi_int[174]),.phib_out(phib_int[174]),.scan_i0o1_out(scan_i0o1_int[174]),
+.load_out(load_int[174]),.scan_out(scan_int[174]),.chip_in(sc_dmem_addr[30]));
+
+
+si_bit scan_cell_13_31(.VDD(VDD),.VSS(VSS),.phi(phi_int[174]),.phib(phib_int[174]),
+.scan_i0o1(scan_i0o1_int[174]),.load(load_int[174]),.scan_in(scan_int[174]),
+.phi_out(phi_int[175]),.phib_out(phib_int[175]),.scan_i0o1_out(scan_i0o1_int[175]),
+.load_out(load_int[175]),.scan_out(scan_int[175]),.chip_in(sc_dmem_addr[31]));
+
+
+si_bit scan_cell_14_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[175]),.phib(phib_int[175]),
+.scan_i0o1(scan_i0o1_int[175]),.load(load_int[175]),.scan_in(scan_int[175]),
+.phi_out(phi_int[176]),.phib_out(phib_int[176]),.scan_i0o1_out(scan_i0o1_int[176]),
+.load_out(load_int[176]),.scan_out(scan_int[176]),.chip_in(sc_dmem_wen));
+
+
+si_bit scan_cell_15_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[176]),.phib(phib_int[176]),
+.scan_i0o1(scan_i0o1_int[176]),.load(load_int[176]),.scan_in(scan_int[176]),
+.phi_out(phi_int[177]),.phib_out(phib_int[177]),.scan_i0o1_out(scan_i0o1_int[177]),
+.load_out(load_int[177]),.scan_out(scan_int[177]),.chip_in(sc_dmem_ben[0]));
+
+
+si_bit scan_cell_15_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[177]),.phib(phib_int[177]),
+.scan_i0o1(scan_i0o1_int[177]),.load(load_int[177]),.scan_in(scan_int[177]),
+.phi_out(phi_int[178]),.phib_out(phib_int[178]),.scan_i0o1_out(scan_i0o1_int[178]),
+.load_out(load_int[178]),.scan_out(scan_int[178]),.chip_in(sc_dmem_ben[1]));
+
+
+si_bit scan_cell_15_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[178]),.phib(phib_int[178]),
+.scan_i0o1(scan_i0o1_int[178]),.load(load_int[178]),.scan_in(scan_int[178]),
+.phi_out(phi_int[179]),.phib_out(phib_int[179]),.scan_i0o1_out(scan_i0o1_int[179]),
+.load_out(load_int[179]),.scan_out(scan_int[179]),.chip_in(sc_dmem_ben[2]));
+
+
+si_bit scan_cell_15_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[179]),.phib(phib_int[179]),
+.scan_i0o1(scan_i0o1_int[179]),.load(load_int[179]),.scan_in(scan_int[179]),
+.phi_out(phi_int[180]),.phib_out(phib_int[180]),.scan_i0o1_out(scan_i0o1_int[180]),
+.load_out(load_int[180]),.scan_out(scan_int[180]),.chip_in(sc_dmem_ben[3]));
+
+
+si_bit scan_cell_16_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[180]),.phib(phib_int[180]),
+.scan_i0o1(scan_i0o1_int[180]),.load(load_int[180]),.scan_in(scan_int[180]),
+.phi_out(phi_int[181]),.phib_out(phib_int[181]),.scan_i0o1_out(scan_i0o1_int[181]),
+.load_out(load_int[181]),.scan_out(scan_int[181]),.chip_in(sc_dmem_wdata[0]));
+
+
+si_bit scan_cell_16_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[181]),.phib(phib_int[181]),
+.scan_i0o1(scan_i0o1_int[181]),.load(load_int[181]),.scan_in(scan_int[181]),
+.phi_out(phi_int[182]),.phib_out(phib_int[182]),.scan_i0o1_out(scan_i0o1_int[182]),
+.load_out(load_int[182]),.scan_out(scan_int[182]),.chip_in(sc_dmem_wdata[1]));
+
+
+si_bit scan_cell_16_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[182]),.phib(phib_int[182]),
+.scan_i0o1(scan_i0o1_int[182]),.load(load_int[182]),.scan_in(scan_int[182]),
+.phi_out(phi_int[183]),.phib_out(phib_int[183]),.scan_i0o1_out(scan_i0o1_int[183]),
+.load_out(load_int[183]),.scan_out(scan_int[183]),.chip_in(sc_dmem_wdata[2]));
+
+
+si_bit scan_cell_16_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[183]),.phib(phib_int[183]),
+.scan_i0o1(scan_i0o1_int[183]),.load(load_int[183]),.scan_in(scan_int[183]),
+.phi_out(phi_int[184]),.phib_out(phib_int[184]),.scan_i0o1_out(scan_i0o1_int[184]),
+.load_out(load_int[184]),.scan_out(scan_int[184]),.chip_in(sc_dmem_wdata[3]));
+
+
+si_bit scan_cell_16_4(.VDD(VDD),.VSS(VSS),.phi(phi_int[184]),.phib(phib_int[184]),
+.scan_i0o1(scan_i0o1_int[184]),.load(load_int[184]),.scan_in(scan_int[184]),
+.phi_out(phi_int[185]),.phib_out(phib_int[185]),.scan_i0o1_out(scan_i0o1_int[185]),
+.load_out(load_int[185]),.scan_out(scan_int[185]),.chip_in(sc_dmem_wdata[4]));
+
+
+si_bit scan_cell_16_5(.VDD(VDD),.VSS(VSS),.phi(phi_int[185]),.phib(phib_int[185]),
+.scan_i0o1(scan_i0o1_int[185]),.load(load_int[185]),.scan_in(scan_int[185]),
+.phi_out(phi_int[186]),.phib_out(phib_int[186]),.scan_i0o1_out(scan_i0o1_int[186]),
+.load_out(load_int[186]),.scan_out(scan_int[186]),.chip_in(sc_dmem_wdata[5]));
+
+
+si_bit scan_cell_16_6(.VDD(VDD),.VSS(VSS),.phi(phi_int[186]),.phib(phib_int[186]),
+.scan_i0o1(scan_i0o1_int[186]),.load(load_int[186]),.scan_in(scan_int[186]),
+.phi_out(phi_int[187]),.phib_out(phib_int[187]),.scan_i0o1_out(scan_i0o1_int[187]),
+.load_out(load_int[187]),.scan_out(scan_int[187]),.chip_in(sc_dmem_wdata[6]));
+
+
+si_bit scan_cell_16_7(.VDD(VDD),.VSS(VSS),.phi(phi_int[187]),.phib(phib_int[187]),
+.scan_i0o1(scan_i0o1_int[187]),.load(load_int[187]),.scan_in(scan_int[187]),
+.phi_out(phi_int[188]),.phib_out(phib_int[188]),.scan_i0o1_out(scan_i0o1_int[188]),
+.load_out(load_int[188]),.scan_out(scan_int[188]),.chip_in(sc_dmem_wdata[7]));
+
+
+si_bit scan_cell_16_8(.VDD(VDD),.VSS(VSS),.phi(phi_int[188]),.phib(phib_int[188]),
+.scan_i0o1(scan_i0o1_int[188]),.load(load_int[188]),.scan_in(scan_int[188]),
+.phi_out(phi_int[189]),.phib_out(phib_int[189]),.scan_i0o1_out(scan_i0o1_int[189]),
+.load_out(load_int[189]),.scan_out(scan_int[189]),.chip_in(sc_dmem_wdata[8]));
+
+
+si_bit scan_cell_16_9(.VDD(VDD),.VSS(VSS),.phi(phi_int[189]),.phib(phib_int[189]),
+.scan_i0o1(scan_i0o1_int[189]),.load(load_int[189]),.scan_in(scan_int[189]),
+.phi_out(phi_int[190]),.phib_out(phib_int[190]),.scan_i0o1_out(scan_i0o1_int[190]),
+.load_out(load_int[190]),.scan_out(scan_int[190]),.chip_in(sc_dmem_wdata[9]));
+
+
+si_bit scan_cell_16_10(.VDD(VDD),.VSS(VSS),.phi(phi_int[190]),.phib(phib_int[190]),
+.scan_i0o1(scan_i0o1_int[190]),.load(load_int[190]),.scan_in(scan_int[190]),
+.phi_out(phi_int[191]),.phib_out(phib_int[191]),.scan_i0o1_out(scan_i0o1_int[191]),
+.load_out(load_int[191]),.scan_out(scan_int[191]),.chip_in(sc_dmem_wdata[10]));
+
+
+si_bit scan_cell_16_11(.VDD(VDD),.VSS(VSS),.phi(phi_int[191]),.phib(phib_int[191]),
+.scan_i0o1(scan_i0o1_int[191]),.load(load_int[191]),.scan_in(scan_int[191]),
+.phi_out(phi_int[192]),.phib_out(phib_int[192]),.scan_i0o1_out(scan_i0o1_int[192]),
+.load_out(load_int[192]),.scan_out(scan_int[192]),.chip_in(sc_dmem_wdata[11]));
+
+
+si_bit scan_cell_16_12(.VDD(VDD),.VSS(VSS),.phi(phi_int[192]),.phib(phib_int[192]),
+.scan_i0o1(scan_i0o1_int[192]),.load(load_int[192]),.scan_in(scan_int[192]),
+.phi_out(phi_int[193]),.phib_out(phib_int[193]),.scan_i0o1_out(scan_i0o1_int[193]),
+.load_out(load_int[193]),.scan_out(scan_int[193]),.chip_in(sc_dmem_wdata[12]));
+
+
+si_bit scan_cell_16_13(.VDD(VDD),.VSS(VSS),.phi(phi_int[193]),.phib(phib_int[193]),
+.scan_i0o1(scan_i0o1_int[193]),.load(load_int[193]),.scan_in(scan_int[193]),
+.phi_out(phi_int[194]),.phib_out(phib_int[194]),.scan_i0o1_out(scan_i0o1_int[194]),
+.load_out(load_int[194]),.scan_out(scan_int[194]),.chip_in(sc_dmem_wdata[13]));
+
+
+si_bit scan_cell_16_14(.VDD(VDD),.VSS(VSS),.phi(phi_int[194]),.phib(phib_int[194]),
+.scan_i0o1(scan_i0o1_int[194]),.load(load_int[194]),.scan_in(scan_int[194]),
+.phi_out(phi_int[195]),.phib_out(phib_int[195]),.scan_i0o1_out(scan_i0o1_int[195]),
+.load_out(load_int[195]),.scan_out(scan_int[195]),.chip_in(sc_dmem_wdata[14]));
+
+
+si_bit scan_cell_16_15(.VDD(VDD),.VSS(VSS),.phi(phi_int[195]),.phib(phib_int[195]),
+.scan_i0o1(scan_i0o1_int[195]),.load(load_int[195]),.scan_in(scan_int[195]),
+.phi_out(phi_int[196]),.phib_out(phib_int[196]),.scan_i0o1_out(scan_i0o1_int[196]),
+.load_out(load_int[196]),.scan_out(scan_int[196]),.chip_in(sc_dmem_wdata[15]));
+
+
+si_bit scan_cell_16_16(.VDD(VDD),.VSS(VSS),.phi(phi_int[196]),.phib(phib_int[196]),
+.scan_i0o1(scan_i0o1_int[196]),.load(load_int[196]),.scan_in(scan_int[196]),
+.phi_out(phi_int[197]),.phib_out(phib_int[197]),.scan_i0o1_out(scan_i0o1_int[197]),
+.load_out(load_int[197]),.scan_out(scan_int[197]),.chip_in(sc_dmem_wdata[16]));
+
+
+si_bit scan_cell_16_17(.VDD(VDD),.VSS(VSS),.phi(phi_int[197]),.phib(phib_int[197]),
+.scan_i0o1(scan_i0o1_int[197]),.load(load_int[197]),.scan_in(scan_int[197]),
+.phi_out(phi_int[198]),.phib_out(phib_int[198]),.scan_i0o1_out(scan_i0o1_int[198]),
+.load_out(load_int[198]),.scan_out(scan_int[198]),.chip_in(sc_dmem_wdata[17]));
+
+
+si_bit scan_cell_16_18(.VDD(VDD),.VSS(VSS),.phi(phi_int[198]),.phib(phib_int[198]),
+.scan_i0o1(scan_i0o1_int[198]),.load(load_int[198]),.scan_in(scan_int[198]),
+.phi_out(phi_int[199]),.phib_out(phib_int[199]),.scan_i0o1_out(scan_i0o1_int[199]),
+.load_out(load_int[199]),.scan_out(scan_int[199]),.chip_in(sc_dmem_wdata[18]));
+
+
+si_bit scan_cell_16_19(.VDD(VDD),.VSS(VSS),.phi(phi_int[199]),.phib(phib_int[199]),
+.scan_i0o1(scan_i0o1_int[199]),.load(load_int[199]),.scan_in(scan_int[199]),
+.phi_out(phi_int[200]),.phib_out(phib_int[200]),.scan_i0o1_out(scan_i0o1_int[200]),
+.load_out(load_int[200]),.scan_out(scan_int[200]),.chip_in(sc_dmem_wdata[19]));
+
+
+si_bit scan_cell_16_20(.VDD(VDD),.VSS(VSS),.phi(phi_int[200]),.phib(phib_int[200]),
+.scan_i0o1(scan_i0o1_int[200]),.load(load_int[200]),.scan_in(scan_int[200]),
+.phi_out(phi_int[201]),.phib_out(phib_int[201]),.scan_i0o1_out(scan_i0o1_int[201]),
+.load_out(load_int[201]),.scan_out(scan_int[201]),.chip_in(sc_dmem_wdata[20]));
+
+
+si_bit scan_cell_16_21(.VDD(VDD),.VSS(VSS),.phi(phi_int[201]),.phib(phib_int[201]),
+.scan_i0o1(scan_i0o1_int[201]),.load(load_int[201]),.scan_in(scan_int[201]),
+.phi_out(phi_int[202]),.phib_out(phib_int[202]),.scan_i0o1_out(scan_i0o1_int[202]),
+.load_out(load_int[202]),.scan_out(scan_int[202]),.chip_in(sc_dmem_wdata[21]));
+
+
+si_bit scan_cell_16_22(.VDD(VDD),.VSS(VSS),.phi(phi_int[202]),.phib(phib_int[202]),
+.scan_i0o1(scan_i0o1_int[202]),.load(load_int[202]),.scan_in(scan_int[202]),
+.phi_out(phi_int[203]),.phib_out(phib_int[203]),.scan_i0o1_out(scan_i0o1_int[203]),
+.load_out(load_int[203]),.scan_out(scan_int[203]),.chip_in(sc_dmem_wdata[22]));
+
+
+si_bit scan_cell_16_23(.VDD(VDD),.VSS(VSS),.phi(phi_int[203]),.phib(phib_int[203]),
+.scan_i0o1(scan_i0o1_int[203]),.load(load_int[203]),.scan_in(scan_int[203]),
+.phi_out(phi_int[204]),.phib_out(phib_int[204]),.scan_i0o1_out(scan_i0o1_int[204]),
+.load_out(load_int[204]),.scan_out(scan_int[204]),.chip_in(sc_dmem_wdata[23]));
+
+
+si_bit scan_cell_16_24(.VDD(VDD),.VSS(VSS),.phi(phi_int[204]),.phib(phib_int[204]),
+.scan_i0o1(scan_i0o1_int[204]),.load(load_int[204]),.scan_in(scan_int[204]),
+.phi_out(phi_int[205]),.phib_out(phib_int[205]),.scan_i0o1_out(scan_i0o1_int[205]),
+.load_out(load_int[205]),.scan_out(scan_int[205]),.chip_in(sc_dmem_wdata[24]));
+
+
+si_bit scan_cell_16_25(.VDD(VDD),.VSS(VSS),.phi(phi_int[205]),.phib(phib_int[205]),
+.scan_i0o1(scan_i0o1_int[205]),.load(load_int[205]),.scan_in(scan_int[205]),
+.phi_out(phi_int[206]),.phib_out(phib_int[206]),.scan_i0o1_out(scan_i0o1_int[206]),
+.load_out(load_int[206]),.scan_out(scan_int[206]),.chip_in(sc_dmem_wdata[25]));
+
+
+si_bit scan_cell_16_26(.VDD(VDD),.VSS(VSS),.phi(phi_int[206]),.phib(phib_int[206]),
+.scan_i0o1(scan_i0o1_int[206]),.load(load_int[206]),.scan_in(scan_int[206]),
+.phi_out(phi_int[207]),.phib_out(phib_int[207]),.scan_i0o1_out(scan_i0o1_int[207]),
+.load_out(load_int[207]),.scan_out(scan_int[207]),.chip_in(sc_dmem_wdata[26]));
+
+
+si_bit scan_cell_16_27(.VDD(VDD),.VSS(VSS),.phi(phi_int[207]),.phib(phib_int[207]),
+.scan_i0o1(scan_i0o1_int[207]),.load(load_int[207]),.scan_in(scan_int[207]),
+.phi_out(phi_int[208]),.phib_out(phib_int[208]),.scan_i0o1_out(scan_i0o1_int[208]),
+.load_out(load_int[208]),.scan_out(scan_int[208]),.chip_in(sc_dmem_wdata[27]));
+
+
+si_bit scan_cell_16_28(.VDD(VDD),.VSS(VSS),.phi(phi_int[208]),.phib(phib_int[208]),
+.scan_i0o1(scan_i0o1_int[208]),.load(load_int[208]),.scan_in(scan_int[208]),
+.phi_out(phi_int[209]),.phib_out(phib_int[209]),.scan_i0o1_out(scan_i0o1_int[209]),
+.load_out(load_int[209]),.scan_out(scan_int[209]),.chip_in(sc_dmem_wdata[28]));
+
+
+si_bit scan_cell_16_29(.VDD(VDD),.VSS(VSS),.phi(phi_int[209]),.phib(phib_int[209]),
+.scan_i0o1(scan_i0o1_int[209]),.load(load_int[209]),.scan_in(scan_int[209]),
+.phi_out(phi_int[210]),.phib_out(phib_int[210]),.scan_i0o1_out(scan_i0o1_int[210]),
+.load_out(load_int[210]),.scan_out(scan_int[210]),.chip_in(sc_dmem_wdata[29]));
+
+
+si_bit scan_cell_16_30(.VDD(VDD),.VSS(VSS),.phi(phi_int[210]),.phib(phib_int[210]),
+.scan_i0o1(scan_i0o1_int[210]),.load(load_int[210]),.scan_in(scan_int[210]),
+.phi_out(phi_int[211]),.phib_out(phib_int[211]),.scan_i0o1_out(scan_i0o1_int[211]),
+.load_out(load_int[211]),.scan_out(scan_int[211]),.chip_in(sc_dmem_wdata[30]));
+
+
+si_bit scan_cell_16_31(.VDD(VDD),.VSS(VSS),.phi(phi_int[211]),.phib(phib_int[211]),
+.scan_i0o1(scan_i0o1_int[211]),.load(load_int[211]),.scan_in(scan_int[211]),
+.phi_out(phi_int[212]),.phib_out(phib_int[212]),.scan_i0o1_out(scan_i0o1_int[212]),
+.load_out(load_int[212]),.scan_out(scan_int[212]),.chip_in(sc_dmem_wdata[31]));
+
+
+si_bit scan_cell_17_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[212]),.phib(phib_int[212]),
+.scan_i0o1(scan_i0o1_int[212]),.load(load_int[212]),.scan_in(scan_int[212]),
+.phi_out(phi_int[213]),.phib_out(phib_int[213]),.scan_i0o1_out(scan_i0o1_int[213]),
+.load_out(load_int[213]),.scan_out(scan_int[213]),.chip_in(sc_dmem_clk));
+
+
+si_bit scan_cell_18_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[213]),.phib(phib_int[213]),
+.scan_i0o1(scan_i0o1_int[213]),.load(load_int[213]),.scan_in(scan_int[213]),
+.phi_out(phi_int[214]),.phib_out(phib_int[214]),.scan_i0o1_out(scan_i0o1_int[214]),
+.load_out(load_int[214]),.scan_out(scan_int[214]),.chip_in(sc_fsm_mode));
+
+
+si_bit scan_cell_19_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[214]),.phib(phib_int[214]),
+.scan_i0o1(scan_i0o1_int[214]),.load(load_int[214]),.scan_in(scan_int[214]),
+.phi_out(phi_int[215]),.phib_out(phib_int[215]),.scan_i0o1_out(scan_i0o1_int[215]),
+.load_out(load_int[215]),.scan_out(scan_int[215]),.chip_in(sc_fsm_indef));
+
+
+si_bit scan_cell_20_0(.VDD(VDD),.VSS(VSS),.phi(phi_int[215]),.phib(phib_int[215]),
+.scan_i0o1(scan_i0o1_int[215]),.load(load_int[215]),.scan_in(scan_int[215]),
+.phi_out(phi_int[216]),.phib_out(phib_int[216]),.scan_i0o1_out(scan_i0o1_int[216]),
+.load_out(load_int[216]),.scan_out(scan_int[216]),.chip_in(sc_fsm_cycle[0]));
+
+
+si_bit scan_cell_20_1(.VDD(VDD),.VSS(VSS),.phi(phi_int[216]),.phib(phib_int[216]),
+.scan_i0o1(scan_i0o1_int[216]),.load(load_int[216]),.scan_in(scan_int[216]),
+.phi_out(phi_int[217]),.phib_out(phib_int[217]),.scan_i0o1_out(scan_i0o1_int[217]),
+.load_out(load_int[217]),.scan_out(scan_int[217]),.chip_in(sc_fsm_cycle[1]));
+
+
+si_bit scan_cell_20_2(.VDD(VDD),.VSS(VSS),.phi(phi_int[217]),.phib(phib_int[217]),
+.scan_i0o1(scan_i0o1_int[217]),.load(load_int[217]),.scan_in(scan_int[217]),
+.phi_out(phi_int[218]),.phib_out(phib_int[218]),.scan_i0o1_out(scan_i0o1_int[218]),
+.load_out(load_int[218]),.scan_out(scan_int[218]),.chip_in(sc_fsm_cycle[2]));
+
+
+si_bit scan_cell_20_3(.VDD(VDD),.VSS(VSS),.phi(phi_int[218]),.phib(phib_int[218]),
+.scan_i0o1(scan_i0o1_int[218]),.load(load_int[218]),.scan_in(scan_int[218]),
+.phi_out(phi_int[219]),.phib_out(phib_int[219]),.scan_i0o1_out(scan_i0o1_int[219]),
+.load_out(load_int[219]),.scan_out(scan_int[219]),.chip_in(sc_fsm_cycle[3]));
+
+
+si_bit scan_cell_20_4(.VDD(VDD),.VSS(VSS),.phi(phi_int[219]),.phib(phib_int[219]),
+.scan_i0o1(scan_i0o1_int[219]),.load(load_int[219]),.scan_in(scan_int[219]),
+.phi_out(phi_int[220]),.phib_out(phib_int[220]),.scan_i0o1_out(scan_i0o1_int[220]),
+.load_out(load_int[220]),.scan_out(scan_int[220]),.chip_in(sc_fsm_cycle[4]));
+
+
+si_bit scan_cell_20_5(.VDD(VDD),.VSS(VSS),.phi(phi_int[220]),.phib(phib_int[220]),
+.scan_i0o1(scan_i0o1_int[220]),.load(load_int[220]),.scan_in(scan_int[220]),
+.phi_out(phi_int[221]),.phib_out(phib_int[221]),.scan_i0o1_out(scan_i0o1_int[221]),
+.load_out(load_int[221]),.scan_out(scan_int[221]),.chip_in(sc_fsm_cycle[5]));
+
+
+si_bit scan_cell_20_6(.VDD(VDD),.VSS(VSS),.phi(phi_int[221]),.phib(phib_int[221]),
+.scan_i0o1(scan_i0o1_int[221]),.load(load_int[221]),.scan_in(scan_int[221]),
+.phi_out(phi_int[222]),.phib_out(phib_int[222]),.scan_i0o1_out(scan_i0o1_int[222]),
+.load_out(load_int[222]),.scan_out(scan_int[222]),.chip_in(sc_fsm_cycle[6]));
+
+
+si_bit scan_cell_20_7(.VDD(VDD),.VSS(VSS),.phi(phi_int[222]),.phib(phib_int[222]),
+.scan_i0o1(scan_i0o1_int[222]),.load(load_int[222]),.scan_in(scan_int[222]),
+.phi_out(phi_int[223]),.phib_out(phib_int[223]),.scan_i0o1_out(scan_i0o1_int[223]),
+.load_out(load_int[223]),.scan_out(scan_int[223]),.chip_in(sc_fsm_cycle[7]));
+
+
+si_bit scan_cell_20_8(.VDD(VDD),.VSS(VSS),.phi(phi_int[223]),.phib(phib_int[223]),
+.scan_i0o1(scan_i0o1_int[223]),.load(load_int[223]),.scan_in(scan_int[223]),
+.phi_out(phi_int[224]),.phib_out(phib_int[224]),.scan_i0o1_out(scan_i0o1_int[224]),
+.load_out(load_int[224]),.scan_out(scan_int[224]),.chip_in(sc_fsm_cycle[8]));
+
+
+si_bit scan_cell_20_9(.VDD(VDD),.VSS(VSS),.phi(phi_int[224]),.phib(phib_int[224]),
+.scan_i0o1(scan_i0o1_int[224]),.load(load_int[224]),.scan_in(scan_int[224]),
+.phi_out(phi_int[225]),.phib_out(phib_int[225]),.scan_i0o1_out(scan_i0o1_int[225]),
+.load_out(load_int[225]),.scan_out(scan_int[225]),.chip_in(sc_fsm_cycle[9]));
+
+
+si_bit scan_cell_20_10(.VDD(VDD),.VSS(VSS),.phi(phi_int[225]),.phib(phib_int[225]),
+.scan_i0o1(scan_i0o1_int[225]),.load(load_int[225]),.scan_in(scan_int[225]),
+.phi_out(phi_int[226]),.phib_out(phib_int[226]),.scan_i0o1_out(scan_i0o1_int[226]),
+.load_out(load_int[226]),.scan_out(scan_int[226]),.chip_in(sc_fsm_cycle[10]));
+
+
+si_bit scan_cell_20_11(.VDD(VDD),.VSS(VSS),.phi(phi_int[226]),.phib(phib_int[226]),
+.scan_i0o1(scan_i0o1_int[226]),.load(load_int[226]),.scan_in(scan_int[226]),
+.phi_out(phi_int[227]),.phib_out(phib_int[227]),.scan_i0o1_out(scan_i0o1_int[227]),
+.load_out(load_int[227]),.scan_out(scan_int[227]),.chip_in(sc_fsm_cycle[11]));
+
+
+si_bit scan_cell_20_12(.VDD(VDD),.VSS(VSS),.phi(phi_int[227]),.phib(phib_int[227]),
+.scan_i0o1(scan_i0o1_int[227]),.load(load_int[227]),.scan_in(scan_int[227]),
+.phi_out(phi_int[228]),.phib_out(phib_int[228]),.scan_i0o1_out(scan_i0o1_int[228]),
+.load_out(load_int[228]),.scan_out(scan_int[228]),.chip_in(sc_fsm_cycle[12]));
+
+
+si_bit scan_cell_20_13(.VDD(VDD),.VSS(VSS),.phi(phi_int[228]),.phib(phib_int[228]),
+.scan_i0o1(scan_i0o1_int[228]),.load(load_int[228]),.scan_in(scan_int[228]),
+.phi_out(phi_int[229]),.phib_out(phib_int[229]),.scan_i0o1_out(scan_i0o1_int[229]),
+.load_out(load_int[229]),.scan_out(scan_int[229]),.chip_in(sc_fsm_cycle[13]));
+
+
+si_bit scan_cell_20_14(.VDD(VDD),.VSS(VSS),.phi(phi_int[229]),.phib(phib_int[229]),
+.scan_i0o1(scan_i0o1_int[229]),.load(load_int[229]),.scan_in(scan_int[229]),
+.phi_out(phi_int[230]),.phib_out(phib_int[230]),.scan_i0o1_out(scan_i0o1_int[230]),
+.load_out(load_int[230]),.scan_out(scan_int[230]),.chip_in(sc_fsm_cycle[14]));
+
+
+si_bit scan_cell_20_15(.VDD(VDD),.VSS(VSS),.phi(phi_int[230]),.phib(phib_int[230]),
+.scan_i0o1(scan_i0o1_int[230]),.load(load_int[230]),.scan_in(scan_int[230]),
+.phi_out(phi_int[231]),.phib_out(phib_int[231]),.scan_i0o1_out(scan_i0o1_int[231]),
+.load_out(load_int[231]),.scan_out(scan_int[231]),.chip_in(sc_fsm_cycle[15]));
+
+
+si_bit scan_cell_20_16(.VDD(VDD),.VSS(VSS),.phi(phi_int[231]),.phib(phib_int[231]),
+.scan_i0o1(scan_i0o1_int[231]),.load(load_int[231]),.scan_in(scan_int[231]),
+.phi_out(phi_int[232]),.phib_out(phib_int[232]),.scan_i0o1_out(scan_i0o1_int[232]),
+.load_out(load_int[232]),.scan_out(scan_int[232]),.chip_in(sc_fsm_cycle[16]));
+
+
+si_bit scan_cell_20_17(.VDD(VDD),.VSS(VSS),.phi(phi_int[232]),.phib(phib_int[232]),
+.scan_i0o1(scan_i0o1_int[232]),.load(load_int[232]),.scan_in(scan_int[232]),
+.phi_out(phi_int[233]),.phib_out(phib_int[233]),.scan_i0o1_out(scan_i0o1_int[233]),
+.load_out(load_int[233]),.scan_out(scan_int[233]),.chip_in(sc_fsm_cycle[17]));
+
+
+si_bit scan_cell_20_18(.VDD(VDD),.VSS(VSS),.phi(phi_int[233]),.phib(phib_int[233]),
+.scan_i0o1(scan_i0o1_int[233]),.load(load_int[233]),.scan_in(scan_int[233]),
+.phi_out(phi_int[234]),.phib_out(phib_int[234]),.scan_i0o1_out(scan_i0o1_int[234]),
+.load_out(load_int[234]),.scan_out(scan_int[234]),.chip_in(sc_fsm_cycle[18]));
+
+
+si_bit scan_cell_20_19(.VDD(VDD),.VSS(VSS),.phi(phi_int[234]),.phib(phib_int[234]),
+.scan_i0o1(scan_i0o1_int[234]),.load(load_int[234]),.scan_in(scan_int[234]),
+.phi_out(phi_int[235]),.phib_out(phib_int[235]),.scan_i0o1_out(scan_i0o1_int[235]),
+.load_out(load_int[235]),.scan_out(scan_int[235]),.chip_in(sc_fsm_cycle[19]));
+
+
+si_bit scan_cell_20_20(.VDD(VDD),.VSS(VSS),.phi(phi_int[235]),.phib(phib_int[235]),
+.scan_i0o1(scan_i0o1_int[235]),.load(load_int[235]),.scan_in(scan_int[235]),
+.phi_out(phi_int[236]),.phib_out(phib_int[236]),.scan_i0o1_out(scan_i0o1_int[236]),
+.load_out(load_int[236]),.scan_out(scan_int[236]),.chip_in(sc_fsm_cycle[20]));
+
+
+si_bit scan_cell_20_21(.VDD(VDD),.VSS(VSS),.phi(phi_int[236]),.phib(phib_int[236]),
+.scan_i0o1(scan_i0o1_int[236]),.load(load_int[236]),.scan_in(scan_int[236]),
+.phi_out(phi_int[237]),.phib_out(phib_int[237]),.scan_i0o1_out(scan_i0o1_int[237]),
+.load_out(load_int[237]),.scan_out(scan_int[237]),.chip_in(sc_fsm_cycle[21]));
+
+
+si_bit scan_cell_20_22(.VDD(VDD),.VSS(VSS),.phi(phi_int[237]),.phib(phib_int[237]),
+.scan_i0o1(scan_i0o1_int[237]),.load(load_int[237]),.scan_in(scan_int[237]),
+.phi_out(phi_int[238]),.phib_out(phib_int[238]),.scan_i0o1_out(scan_i0o1_int[238]),
+.load_out(load_int[238]),.scan_out(scan_int[238]),.chip_in(sc_fsm_cycle[22]));
+
+
+si_bit scan_cell_20_23(.VDD(VDD),.VSS(VSS),.phi(phi_int[238]),.phib(phib_int[238]),
+.scan_i0o1(scan_i0o1_int[238]),.load(load_int[238]),.scan_in(scan_int[238]),
+.phi_out(phi_int[239]),.phib_out(phib_int[239]),.scan_i0o1_out(scan_i0o1_int[239]),
+.load_out(load_int[239]),.scan_out(scan_int[239]),.chip_in(sc_fsm_cycle[23]));
+
+
+si_bit scan_cell_20_24(.VDD(VDD),.VSS(VSS),.phi(phi_int[239]),.phib(phib_int[239]),
+.scan_i0o1(scan_i0o1_int[239]),.load(load_int[239]),.scan_in(scan_int[239]),
+.phi_out(phi_int[240]),.phib_out(phib_int[240]),.scan_i0o1_out(scan_i0o1_int[240]),
+.load_out(load_int[240]),.scan_out(scan_int[240]),.chip_in(sc_fsm_cycle[24]));
+
+
+si_bit scan_cell_20_25(.VDD(VDD),.VSS(VSS),.phi(phi_int[240]),.phib(phib_int[240]),
+.scan_i0o1(scan_i0o1_int[240]),.load(load_int[240]),.scan_in(scan_int[240]),
+.phi_out(phi_int[241]),.phib_out(phib_int[241]),.scan_i0o1_out(scan_i0o1_int[241]),
+.load_out(load_int[241]),.scan_out(scan_int[241]),.chip_in(sc_fsm_cycle[25]));
+
+
+si_bit scan_cell_20_26(.VDD(VDD),.VSS(VSS),.phi(phi_int[241]),.phib(phib_int[241]),
+.scan_i0o1(scan_i0o1_int[241]),.load(load_int[241]),.scan_in(scan_int[241]),
+.phi_out(phi_int[242]),.phib_out(phib_int[242]),.scan_i0o1_out(scan_i0o1_int[242]),
+.load_out(load_int[242]),.scan_out(scan_int[242]),.chip_in(sc_fsm_cycle[26]));
+
+
+si_bit scan_cell_20_27(.VDD(VDD),.VSS(VSS),.phi(phi_int[242]),.phib(phib_int[242]),
+.scan_i0o1(scan_i0o1_int[242]),.load(load_int[242]),.scan_in(scan_int[242]),
+.phi_out(phi_int[243]),.phib_out(phib_int[243]),.scan_i0o1_out(scan_i0o1_int[243]),
+.load_out(load_int[243]),.scan_out(scan_int[243]),.chip_in(sc_fsm_cycle[27]));
+
+
+si_bit scan_cell_20_28(.VDD(VDD),.VSS(VSS),.phi(phi_int[243]),.phib(phib_int[243]),
+.scan_i0o1(scan_i0o1_int[243]),.load(load_int[243]),.scan_in(scan_int[243]),
+.phi_out(phi_int[244]),.phib_out(phib_int[244]),.scan_i0o1_out(scan_i0o1_int[244]),
+.load_out(load_int[244]),.scan_out(scan_int[244]),.chip_in(sc_fsm_cycle[28]));
+
+
+si_bit scan_cell_20_29(.VDD(VDD),.VSS(VSS),.phi(phi_int[244]),.phib(phib_int[244]),
+.scan_i0o1(scan_i0o1_int[244]),.load(load_int[244]),.scan_in(scan_int[244]),
+.phi_out(phi_int[245]),.phib_out(phib_int[245]),.scan_i0o1_out(scan_i0o1_int[245]),
+.load_out(load_int[245]),.scan_out(scan_int[245]),.chip_in(sc_fsm_cycle[29]));
+
+
+si_bit scan_cell_20_30(.VDD(VDD),.VSS(VSS),.phi(phi_int[245]),.phib(phib_int[245]),
+.scan_i0o1(scan_i0o1_int[245]),.load(load_int[245]),.scan_in(scan_int[245]),
+.phi_out(phi_int[246]),.phib_out(phib_int[246]),.scan_i0o1_out(scan_i0o1_int[246]),
+.load_out(load_int[246]),.scan_out(scan_int[246]),.chip_in(sc_fsm_cycle[30]));
+
+
+si_bit scan_cell_20_31(.VDD(VDD),.VSS(VSS),.phi(phi_int[246]),.phib(phib_int[246]),
+.scan_i0o1(scan_i0o1_int[246]),.load(load_int[246]),.scan_in(scan_int[246]),
+.phi_out(phi_out),.phib_out(phib_out),.scan_i0o1_out(scan_i0o1_out),
+.load_out(load_out),.scan_out(scan_out),.chip_in(sc_fsm_cycle[31]));
+
+endmodule
+</code></pre></div>
+    </details>
+
+
+
+
 <p>
 This structure allows external test equipment or debugging software to shift in arbitrary patterns and read out internal states at any point.<br>
 <br>
@@ -805,6 +3797,176 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
    <img src="../images/nanologic/fsm.png" alt="System block diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
    <p class="caption">Figure 6. Debug FSM</p>
 
+
+    <details class="code-block">
+      <summary>Scan cells (scan_cells.v)</summary>
+      <div class="code-content"><pre><code>//SCAN CELLS FOR ST 65
+
+module so_bit( phi, phib, scan_i0o1, load, scan_in, chip_out, phi_out, phib_out, scan_i0o1_out, load_out, scan_out, VDD, VSS );
+
+   inout   VDD, VSS;
+   input   phi;              // Latch positive phase
+   input   phib;             // latch negative phase
+   input   scan_i0o1;        // Select scan_in/chip_out 0:scan_in, 1:scan_out
+   input   load;             // Load chip_in latch
+   input   scan_in;          // Serial scan in
+   input   chip_out;         // Data from chip to scan out
+   
+   output  phi_out;          // verification signal
+   output  phib_out;         // verification signal
+   output  scan_i0o1_out;    // verification signal
+   output  load_out;         // verification signal
+   output  scan_out;         // Serial scan out  
+   
+   wire    latch_in;
+   wire    latch_out;
+   wire    scan_out_int;
+   
+   BUFFD12  buf_phi  (.Z(phi_out),       .I(phi) );
+   BUFFD12  buf_phib (.Z(phib_out),      .I(phib) );
+   BUFFD12  buf_mode (.Z(scan_i0o1_out), .I(scan_i0o1) );
+   BUFFD12  buf_load (.Z(load_out),      .I(load) );
+   MUX2D1   mx       (.Z(latch_in),      .I0(scan_in),     .I1(chip_out),      .S(scan_i0o1) );
+   LHQD1    flip     (.Q(latch_out),     .D(latch_in),     .E(phi) );
+   LHQD1    flop     (.Q(scan_out_int),  .D(latch_out),    .E(phib) );
+   BUFFD12  buf_sout (.Z(scan_out),      .I(scan_out_int) );
+   
+endmodule // scan_out_bit
+
+// Scan in with output latch
+module si_bit( phi, phib, scan_i0o1, load, scan_in, phi_out, phib_out, scan_i0o1_out, load_out, scan_out, chip_in, VDD, VSS );
+   
+   inout   VDD, VSS;
+   input   phi;              // Latch positive phase
+   input   phib;             // latch negative phase
+   input   scan_i0o1;        // Select scan in/out
+   input   load;             // Load chip_in latch
+   input   scan_in;          // Serial scan in
+
+   output  phi_out;          // verification signal
+   output  phib_out;         // verification signal
+   output  scan_i0o1_out;    // verification signal
+   output  load_out;         // verification signal
+   output  scan_out;         // Serial scan out  
+   output  chip_in;          // Input to the chip
+   
+   wire    latch_in;
+   wire    latch_out;
+   wire    scan_out_int;
+   wire    chip_in_int;
+   
+   BUFFD12  buf_phi     (.Z(phi_out),       .I(phi) );
+   BUFFD12  buf_phib    (.Z(phib_out),      .I(phib) );
+   BUFFD12  buf_mode    (.Z(scan_i0o1_out), .I(scan_i0o1) );
+   BUFFD12  buf_load    (.Z(load_out),      .I(load) );
+   MUX2D1   mx          (.Z(latch_in),      .I0(scan_in),       .I1(chip_in_int), .S(scan_i0o1) );
+   LHQD1    flip        (.Q(latch_out),     .D(latch_in),       .E(phi) );
+   LHQD1    flop        (.Q(scan_out_int),  .D(latch_out),      .E(phib) );
+   BUFFD12  buf_sout    (.Z(scan_out),      .I(scan_out_int) );
+   LHQD1    latch_chip  (.Q(chip_in_int),   .D(scan_out_int),   .E(load) );
+   BUFFD12  buf_chip_in (.Z(chip_in),       .I(chip_in_int) );
+   
+endmodule
+</code></pre></div>
+    </details>
+
+
+    <details class="code-block">
+      <summary>Debug FSM (debug_fsm.v)</summary>
+      <div class="code-content"><pre><code>module debug_fsm(i_clk, i_rstn, i_mode, i_indef,  i_cycle, o_clk);
+	input i_clk;
+	input i_rstn;
+	input i_mode;
+	input i_indef;
+	input[31:0] i_cycle;
+	output o_clk;
+
+	parameter MODE_SC = 1&#x27;b0;
+	parameter MODE_RUN = 1&#x27;b1;
+
+	parameter IDLE = 2&#x27;b00;
+	parameter PAUSE = 2&#x27;b01;
+	parameter LOOP = 2&#x27;b10;
+	parameter CTDN = 2&#x27;b11;
+
+	reg	clk_en;
+	reg[1:0] state, state_next;
+	reg[31:0] cycle, cycle_next;
+
+
+	assign o_clk = (clk_en==1&#x27;b1) ? i_clk : 1&#x27;b0;
+
+	always@(negedge i_clk or negedge i_rstn) begin
+		if(~i_rstn)begin
+			state &lt;= IDLE;
+			cycle &lt;= 32&#x27;b00000000;
+		end
+		else begin
+			state &lt;= state_next;
+			cycle &lt;= cycle_next;
+		end
+	end
+
+	always@(*)begin
+		state_next&lt;=state;
+		cycle_next&lt;=cycle;
+
+		case(state)
+			IDLE:begin
+				cycle_next &lt;= 32&#x27;b0;
+				if(i_mode==MODE_SC) begin
+					state_next &lt;= IDLE;
+					clk_en = 1&#x27;b0;
+				end
+				else if(i_indef) begin
+					state_next &lt;= LOOP;
+					clk_en = 1&#x27;b1;
+				end
+				else if(i_indef==1&#x27;b0 &amp; cycle &lt; i_cycle)begin
+					state_next &lt;= CTDN;
+					clk_en = 1&#x27;b1;
+				end
+				else begin
+					state_next &lt;= IDLE;
+                    clk_en = 1&#x27;b0;
+				end
+			end
+			PAUSE: begin
+				clk_en = 1&#x27;b0;
+				if(i_indef == 1&#x27;b0 &amp; cycle &lt; i_cycle) begin
+					state_next &lt;= CTDN;
+				end
+				else begin
+					state_next &lt;= PAUSE;
+				end
+			end
+			LOOP: begin
+				cycle_next &lt;= cycle + 1;
+				clk_en = 1&#x27;b1;
+				state_next &lt;= LOOP;
+			end
+			CTDN: begin
+				cycle_next &lt;= cycle + 1;
+				if(i_mode == MODE_RUN &amp; cycle &lt; i_cycle) begin
+					state_next &lt;= CTDN;
+					clk_en = 1&#x27;b1;
+				end
+				else begin
+					state_next &lt;= PAUSE;
+					clk_en = 1&#x27;b0;
+				end
+			end
+			default: begin
+				state_next &lt;= IDLE;
+				cycle_next &lt;= 32&#x27;b0;
+			end
+		endcase
+				
+	end
+endmodule
+</code></pre></div>
+    </details>
+
   </section>
   
   <section id="design-flow">
@@ -839,6 +4001,797 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
       <img src="../images/nanologic/rtl.png" alt="System block diagram">
       <p class="caption">Figure 7. RTL Modules Architecture</p>
 
+
+
+    <details class="code-block">
+      <summary>SoC bus (soc_bus.sv)</summary>
+      <div class="code-content"><pre><code>module soc_bus(
+    // Clock and Reset
+    input logic clk_i,
+    input logic rst_ni,
+
+    input logic scan_cg_en_i,
+
+    // Instruction memory interface
+    output logic instr_req_o,
+    output logic [31:0] instr_addr_o,
+    input logic instr_rvalid_i,
+    input logic [31:0] instr_rdata_i,
+
+    // Data memory interface
+    output logic [3:0] data_size_o,
+    output logic [15:0] data_addr_o,
+    output logic [31:0] data_wdata_o,
+    output logic data_CEN_o,
+    output logic data_WEN_o,
+    input logic [31:0] data_rdata_i,
+
+
+    //Interrupt interface
+    input logic irq_software_i,
+    input logic irq_external_i,
+    input logic irq_nm_i,
+    input logic irq_UART,
+    input logic [1:0] irq_SPI,
+    input logic irq_I2C,
+    input logic [3:0] irq_TIMER,
+
+    // GPIO interface
+    output logic [12:0]	GPIO_PADDR_o,  
+    output logic [31:0]	GPIO_PWDATA_o, 
+    output logic GPIO_PWRITE_o,
+    output logic GPIO_PENABLE_o,
+    output logic [2:0] GPIO_PSEL_o,   
+    input logic [31:0] GPIO_PRDATA_i, 
+
+    //UART interface
+    output logic [12:0]	UART_PADDR_o,  
+    output logic [31:0]	UART_PWDATA_o, 
+    output logic UART_PWRITE_o,
+    output logic UART_PENABLE_o,
+    output logic [2:0] UART_PSEL_o,   
+    input logic [31:0] UART_PRDATA_i, 
+
+
+  //SPI interface
+    output logic [12:0] SPI_PADDR_o,
+    output logic [31:0] SPI_PWDATA_o,
+    output logic SPI_PWRITE_o,
+    output logic SPI_PENABLE_o,
+    output logic [2:0] SPI_PSEL_o,
+    input logic [31:0] SPI_PRDATA_i,
+
+  //I2C interface
+    output logic [12:0] I2C_PADDR_o,
+    output logic [31:0] I2C_PWDATA_o,
+    output logic I2C_PWRITE_o,
+    output logic I2C_PENABLE_o,
+    output logic [2:0] I2C_PSEL_o,
+    input logic [31:0] I2C_PRDATA_i,
+
+
+  //TIMER interface
+    output logic [12:0] TIMER_PADDR_o,
+    output logic [31:0] TIMER_PWDATA_o,
+    output logic TIMER_PWRITE_o,
+    output logic TIMER_PENABLE_o,
+    output logic [2:0] TIMER_PSEL_o,
+    input logic [31:0] TIMER_PRDATA_i
+
+);
+
+    // core &lt;-&gt; armbus
+    logic host_req;
+    logic host_gnt;
+    logic host_err;
+    logic host_we;
+    logic host_rvalid;
+    logic [3:0] host_be;
+    logic [31:0] host_addr;
+    logic [31:0] host_wdata;
+    logic [31:0] host_rdata;
+
+
+
+
+  cv32e40p_top u_cv32e40p_top(
+    // Clock and Reset
+    .clk_i(clk_i),
+    .rst_ni(rst_ni),
+
+    .pulp_clock_en_i(1&#x27;b0),  // PULP clock enable (only used if COREV_CLUSTER = 1)
+    .scan_cg_en_i(scan_cg_en_i),  // Enable all clock gates for testing
+
+    // Core ID, Cluster ID, debug mode halt address and boot address are considered more or less static
+    .boot_addr_i(32&#x27;b0),
+    .mtvec_addr_i(32&#x27;b0),
+    .dm_halt_addr_i(32&#x27;b0),
+    .hart_id_i(32&#x27;b0),
+    .dm_exception_addr_i(32&#x27;b0),
+
+    // Instruction memory interface
+    .instr_req_o(instr_req_o),
+    .instr_gnt_i(instr_req_o),
+    .instr_rvalid_i(instr_rvalid_i),
+    .instr_addr_o(instr_addr_o),
+    .instr_rdata_i(instr_rdata_i),
+
+    // Data memory interface
+    .data_req_o(host_req),
+    .data_gnt_i(host_gnt),
+    .data_rvalid_i(host_rvalid),
+    .data_we_o(host_we),
+    .data_be_o(host_be),
+    .data_addr_o(host_addr),
+    .data_wdata_o(host_wdata),
+    .data_rdata_i(host_rdata),
+
+    // Interrupt inputs
+
+    /*
+    irq_i[15:12], irq_i[10:8], irq_i[6:4] and irq_i[2:0] are tied to 0 and reserved for future use in the RISC-V Privileged specification. 
+    irq_i[11], irq_i[7], and irq_i[3] correspond to the Machine External Interrupt (MEI), Machine Timer Interrupt (MTI), and Machine Software Interrupt (MSI) respectively. 
+    irq_i[31:16] interrupts are CV32E40P specific
+    */
+
+    .irq_i({9&#x27;b0, irq_TIMER[3:1], irq_I2C, irq_SPI, irq_UART, 4&#x27;b0, irq_external_i, 3&#x27;b0, irq_TIMER[0], 3&#x27;b0, irq_software_i, 3&#x27;b0}),
+//           11         1           1         2         1      3         1           3         1          3         1          3      = 31+1
+//           [31:21]    [20]        [19]   [18:17]     [16]   [15:13]    [11]      [10:8]       [7]       [6:4]    [3]        [2:0]
+    .irq_ack_o(),
+    .irq_id_o(),
+
+    // Debug Interface
+    .debug_req_i(1&#x27;b0),
+    .debug_havereset_o(),
+    .debug_running_o(),
+    .debug_halted_o(),
+
+    // CPU Control Signals
+    .fetch_enable_i(1&#x27;b1),
+    .core_sleep_o()
+);
+
+    arm_bus_top  u_arm_bus_top (
+        .HRESETn(rst_ni),
+        .HCLK(clk_i),
+        .ADDR(host_addr),
+        .WE(host_we),
+        .REQUST(host_req),
+        .WDATA(host_wdata),
+        .SIZE(host_be),
+        .RDATA(host_rdata),
+        .GRANT(host_gnt),
+        .RVALID(host_rvalid),
+        .ERROR(host_err),
+        .data_size(data_size_o),
+        .data_A(data_addr_o),
+        .data_D(data_wdata_o),
+        .data_CEN(data_CEN_o),
+        .data_WEN(data_WEN_o),
+        .data_Q(data_rdata_i),
+
+        .GPIO_PADDR(GPIO_PADDR_o),
+        .GPIO_PWDATA(GPIO_PWDATA_o),
+        .GPIO_PWRITE(GPIO_PWRITE_o),
+        .GPIO_PENABLE(GPIO_PENABLE_o),
+        .GPIO_PSEL(GPIO_PSEL_o),
+        .GPIO_PRDATA(GPIO_PRDATA_i),   
+	      .UART_PADDR(UART_PADDR_o),
+	      .UART_PWDATA(UART_PWDATA_o),
+	      .UART_PWRITE(UART_PWRITE_o),
+	      .UART_PENABLE( UART_PENABLE_o),
+	      .UART_PSEL(UART_PSEL_o),
+	      .UART_PRDATA(UART_PRDATA_i),
+        .SPI_PADDR(SPI_PADDR_o),
+        .SPI_PWDATA(SPI_PWDATA_o),
+        .SPI_PWRITE(SPI_PWRITE_o),
+        .SPI_PENABLE(SPI_PENABLE_o),
+        .SPI_PSEL(SPI_PSEL_o),
+        .SPI_PRDATA(SPI_PRDATA_i),
+        .I2C_PADDR(I2C_PADDR_o),
+        .I2C_PWDATA(I2C_PWDATA_o),
+        .I2C_PWRITE(I2C_PWRITE_o),
+        .I2C_PENABLE(I2C_PENABLE_o),
+        .I2C_PSEL(I2C_PSEL_o),
+        .I2C_PRDATA(I2C_PRDATA_i),
+        .TIMER_PADDR(TIMER_PADDR_o),
+        .TIMER_PWDATA(TIMER_PWDATA_o),
+        .TIMER_PWRITE(TIMER_PWRITE_o),
+        .TIMER_PENABLE(TIMER_PENABLE_o),
+        .TIMER_PSEL(TIMER_PSEL_o),
+        .TIMER_PRDATA( TIMER_PRDATA_i)
+    );
+
+endmodule
+</code></pre></div>
+    </details>
+
+
+    <details class="code-block">
+      <summary>SoC peripherals (soc_peripherals.sv)</summary>
+      <div class="code-content"><pre><code>module soc_peripherals(
+    input logic clk_sys,
+    input logic rstn_sys,
+
+    input logic scan_cg_en_i,
+    
+    input logic imem_rvalid_o,
+    input logic [31:0] imem_rdata_o,
+    output logic core2imem_req,
+    output logic [31:0] core2imem_addr,
+
+    input logic [31:0] dmem_rdata_o,
+    output logic core2dmem_cen,
+    output logic core2dmem_wen,
+    output logic [3:0] core2dmem_size,
+    output logic [15:0] core2dmem_addr,
+    output logic [31:0] core2dmem_wdata,
+
+    //GPIO
+    input logic [7:0] gpio_pins_i,
+    output logic [7:0] gpio_pins_o,
+    output logic [7:0] gpio_dir,
+
+
+    //UART
+    input logic rx_i,
+    output logic tx_o,
+
+    //SPI
+    input logic MISO,
+    output logic CSN,
+    output logic SCLK,
+    output logic MOSI,
+
+    //I2C
+    input logic SCL_i,
+    input logic SDA_i,
+    output logic SDA_o,
+    output logic SCL_o,
+    output logic sda_dir,
+    output logic scl_dir
+    );
+
+
+    // GPIO
+    logic [12:0] core2GPIO_PADDR;
+    logic [31:0] core2GPIO_PWDATA;
+    logic [31:0] core2GPIO_PRDATA;
+    logic core2GPIO_PWRITE;
+    logic [2:0] core2GPIO_PSEL;
+    logic core2GPIO_PENABLE;
+
+    // UART
+    logic [12:0] core2UART_PADDR;
+    logic [31:0] core2UART_PWDATA;
+    logic core2UART_PWRITE;
+    logic core2UART_PENABLE;
+    logic [2:0] core2UART_PSEL;
+    logic [31:0] core2UART_PRDATA;
+    logic INT_UART;
+
+    // SPI
+    logic [12:0] core2SPI_PADDR;
+    logic [31:0] core2SPI_PWDATA;
+    logic [31:0] core2SPI_PRDATA;
+    logic core2SPI_PWRITE;
+    logic [2:0] core2SPI_PSEL;
+    logic core2SPI_PENABLE;
+    logic [1:0] INT_SPI;
+
+
+    //I2C Signals
+    logic [12:0] core2I2C_PADDR;
+    logic [31:0] core2I2C_PWDATA;
+    logic [31:0] core2I2C_PRDATA;
+    logic core2I2C_PWRITE;
+    logic [2:0] core2I2C_PSEL;
+    logic core2I2C_PENABLE;
+    logic INT_I2C;
+
+
+    //Timer Signals
+    logic [12:0] core2TIMER_PADDR;
+    logic [31:0] core2TIMER_PWDATA;
+    logic [31:0] core2TIMER_PRDATA;
+    logic core2TIMER_PWRITE;
+    logic [2:0] core2TIMER_PSEL;
+    logic core2TIMER_PENABLE;
+    logic [3:0] INT_TIMER;
+    logic scl_dir_n, sda_dir_n;
+
+
+    assign scl_dir = ~scl_dir_n;
+    assign sda_dir = ~sda_dir_n;
+
+    soc_bus soc_bus(
+        .clk_i(clk_sys),
+        .rst_ni(rstn_sys),
+        .instr_req_o(core2imem_req),
+        .instr_addr_o(core2imem_addr),
+        .instr_rvalid_i(imem_rvalid_o),
+        .instr_rdata_i(imem_rdata_o),
+        .data_size_o(core2dmem_size),
+        .data_addr_o(core2dmem_addr),
+        .data_wdata_o(core2dmem_wdata),
+        .data_CEN_o(core2dmem_cen),
+        .data_WEN_o(core2dmem_wen),
+        .data_rdata_i(dmem_rdata_o),
+        .irq_software_i(1&#x27;b0),
+        .irq_external_i(1&#x27;b0),
+        .irq_nm_i(1&#x27;b0),
+        .GPIO_PADDR_o(core2GPIO_PADDR),
+        .GPIO_PWDATA_o(core2GPIO_PWDATA),
+        .GPIO_PWRITE_o(core2GPIO_PWRITE),
+        .GPIO_PENABLE_o(core2GPIO_PENABLE),
+        .GPIO_PSEL_o(core2GPIO_PSEL),
+        .GPIO_PRDATA_i(core2GPIO_PRDATA),
+        .UART_PADDR_o(core2UART_PADDR),
+        .UART_PWDATA_o(core2UART_PWDATA),
+        .UART_PWRITE_o(core2UART_PWRITE),
+        .UART_PENABLE_o(core2UART_PENABLE),
+        .UART_PSEL_o(core2UART_PSEL),
+        .UART_PRDATA_i(core2UART_PRDATA),
+        .SPI_PADDR_o(core2SPI_PADDR),
+        .SPI_PWDATA_o(core2SPI_PWDATA),
+        .SPI_PWRITE_o(core2SPI_PWRITE),
+        .SPI_PENABLE_o(core2SPI_PENABLE),
+        .SPI_PSEL_o(core2SPI_PSEL),
+        .SPI_PRDATA_i(core2SPI_PRDATA),
+        .I2C_PADDR_o(core2I2C_PADDR),
+        .I2C_PWDATA_o(core2I2C_PWDATA),
+        .I2C_PWRITE_o(core2I2C_PWRITE),
+        .I2C_PENABLE_o(core2I2C_PENABLE),
+        .I2C_PSEL_o(core2I2C_PSEL),
+        .I2C_PRDATA_i(core2I2C_PRDATA),
+        .TIMER_PADDR_o(core2TIMER_PADDR),
+        .TIMER_PWDATA_o(core2TIMER_PWDATA),
+        .TIMER_PWRITE_o(core2TIMER_PWRITE),
+        .TIMER_PENABLE_o(core2TIMER_PENABLE),
+        .TIMER_PSEL_o(core2TIMER_PSEL),
+        .TIMER_PRDATA_i(core2TIMER_PRDATA),
+        .irq_UART(INT_UART),
+        .irq_SPI(INT_SPI),
+        .irq_I2C(INT_I2C),
+        .irq_TIMER(INT_TIMER),
+        .scan_cg_en_i(scan_cg_en_i)
+    );
+
+
+    apb_spi_master spi(
+     .HCLK(clk_sys),
+     .HRESETn(rstn_sys),
+     .PADDR(core2SPI_PADDR[11:0]),
+     .PWDATA(core2SPI_PWDATA),
+     .PWRITE(core2SPI_PWRITE),
+     .PSEL(core2SPI_PSEL[0]),
+     .PENABLE(core2SPI_PENABLE),
+     .PRDATA(core2SPI_PRDATA),
+     .spi_sdi0(MISO), 
+     .spi_sdi1(1&#x27;b0),
+     .spi_sdi2(1&#x27;b0),
+     .spi_sdi3(1&#x27;b0),		
+     .events_o(INT_SPI),
+     .spi_clk(SCLK),
+     .spi_mode(),
+     .spi_csn0(CSN),
+     .spi_csn1(),
+     .spi_csn2(),
+     .spi_csn3(),
+     .spi_sdo0(MOSI),
+     .spi_sdo1(),
+     .spi_sdo2(),
+     .spi_sdo3()
+    );
+
+    apb_uart_sv uart(
+        .CLK(clk_sys),
+        .RSTN(rstn_sys),
+        .PADDR({2&#x27;b0, core2UART_PADDR[11:2]}),
+        .PWDATA(core2UART_PWDATA),
+        .PWRITE(core2UART_PWRITE),
+        .PSEL(core2UART_PSEL[0]),
+        .PENABLE(core2UART_PENABLE),
+	    .PRDATA(core2UART_PRDATA),
+        .rx_i(rx_i), 
+        .tx_o(tx_o), 
+        .event_o(INT_UART)   
+    );
+
+    gpio_top gpio(
+        .HCLK(clk_sys),
+        .HRESETn(rstn_sys),
+        .dft_cg_enable_i(1&#x27;b0),
+        .PADDR(core2GPIO_PADDR[11:0]),
+        .PWDATA(core2GPIO_PWDATA),
+        .PWRITE(core2GPIO_PWRITE),
+        .PSEL(core2GPIO_PSEL[0]),
+        .PENABLE(core2GPIO_PENABLE),
+        .PRDATA(core2GPIO_PRDATA),
+        .PREADY(),
+        .PSLVERR(),
+        .gpio_in(gpio_pins_i),
+        .gpio_in_sync(),
+        .gpio_out(gpio_pins_o),
+        .gpio_dir(gpio_dir),
+        .gpio_padcfg(),
+        .interrupt()
+    );
+
+    apb_i2c i2c(
+        .HCLK(clk_sys),
+        .HRESETn(rstn_sys),
+        .PADDR(core2I2C_PADDR[11:0]),
+        .PWDATA(core2I2C_PWDATA),
+        .PWRITE(core2I2C_PWRITE),
+        .PSEL(core2I2C_PSEL[0]),
+        .PENABLE(core2I2C_PENABLE),
+        .PRDATA(core2I2C_PRDATA),
+        .PREADY(),
+        .PSLVERR(),
+        .interrupt_o(INT_I2C),
+        .scl_pad_i(SCL_i),
+        .scl_pad_o(SCL_o),
+        .scl_padoen_o(scl_dir_n),
+        .sda_pad_i(SDA_i),
+        .sda_pad_o(SDA_o),
+        .sda_padoen_o(sda_dir_n)
+    );
+
+    apb_timer timer(
+        .HCLK(clk_sys),
+        .HRESETn(rstn_sys),
+        .PADDR(core2TIMER_PADDR[11:0]),
+        .PWDATA(core2TIMER_PWDATA),
+        .PWRITE(core2TIMER_PWRITE),
+        .PSEL(core2TIMER_PSEL[0]),
+        .PENABLE(core2TIMER_PENABLE),
+        .PRDATA(core2TIMER_PRDATA),
+        .PREADY(),
+        .PSLVERR(),
+        .irq_o(INT_TIMER)
+    );
+
+
+
+endmodule
+</code></pre></div>
+    </details>
+
+
+    <details class="code-block">
+      <summary>Memory + peripheral subsystem (soc_mem.sv)</summary>
+      <div class="code-content"><pre><code>module soc_mem(
+    //Clock and Reset
+    input logic clk_sys,
+    input logic rstn_sys,
+
+    input logic scan_cg_en_i,
+    
+    //IMEM Scan Chain
+    input sc2imem_ctrl,
+    input sc2imem_clk,
+    input sc2imem_req,
+    input sc2imem_wen,
+    input [31:0] sc2imem_addr,
+    input [31:0] sc2imem_wdata,
+    output [31:0] imem_rdata_o,
+
+    //DMEM Scan Chain
+    input sc2dmem_ctrl,
+    input sc2dmem_clk,
+    input sc2dmem_req,
+    input sc2dmem_wen,
+    input [3:0] sc2dmem_ben,
+    input [31:0] sc2dmem_addr,
+    input [31:0] sc2dmem_wdata,
+    output [31:0] dmem_rdata_o,
+
+   //GPIO
+    input logic [7:0] gpio_pins_i,
+    output logic [7:0] gpio_pins_o,
+    output logic [7:0] gpio_dir,
+
+
+    //UART
+    input logic rx_i,
+    output logic tx_o,
+
+    //SPI
+    input logic MISO,
+    output logic CSN,
+    output logic SCLK,
+    output logic MOSI,
+
+    //I2C
+    input logic SCL_i,
+    input logic SDA_i,
+    output logic SDA_o,
+    output logic SCL_o,
+    output logic sda_dir,
+    output logic scl_dir
+);
+
+logic core2imem_req;
+logic [31:0] core2imem_addr;
+logic imem_rvalid_o;
+logic [3:0] core2dmem_size;
+logic core2dmem_cen;
+logic core2dmem_wen;
+logic [15:0] core2dmem_addr;
+logic [31:0] core2dmem_wdata;
+logic dmem_rvalid_o;
+
+imem_wrapper imem (
+    .clk_i(clk_sys),
+    .sc2imem_clk(sc2imem_clk),
+    .rst_ni(rstn_sys),
+    .RETN(1&#x27;b1),
+    .EMA(3&#x27;b1),
+    .core2imem_req(core2imem_req),
+    .core2imem_addr(core2imem_addr),
+    .sc2imem_ctrl(sc2imem_ctrl),
+    .sc2imem_req(sc2imem_req),
+    .sc2imem_addr(sc2imem_addr),
+    .sc2imem_wen(sc2imem_wen),
+    .sc2imem_wdata(sc2imem_wdata),
+    .imem_rvalid_o(imem_rvalid_o),
+    .imem_rdata_o(imem_rdata_o)
+);
+
+dmem_wrapper dmem (
+    .clk_i(clk_sys),
+    .sc2dmem_clk(sc2dmem_clk),
+    .rst_ni(rstn_sys),
+    .RETN(1&#x27;b1),
+    .EMA(3&#x27;b1),
+    .core2dmem_req(core2dmem_cen),
+    .core2dmem_addr({16&#x27;b0, core2dmem_addr}),
+    .core2dmem_wen(core2dmem_wen),
+    .core2dmem_ben(core2dmem_size),
+    .core2dmem_wdata(core2dmem_wdata),
+    .sc2dmem_ctrl(sc2dmem_ctrl),
+    .sc2dmem_req(sc2dmem_req),
+    .sc2dmem_ben(sc2dmem_ben),
+    .sc2dmem_addr(sc2dmem_addr),
+    .sc2dmem_wen(sc2dmem_wen),
+    .sc2dmem_wdata(sc2dmem_wdata),
+    .dmem_rvalid_o(dmem_rvalid_o),
+    .dmem_rdata_o(dmem_rdata_o)
+);
+
+soc_peripherals soc_p (
+    .clk_sys(clk_sys),
+    .rstn_sys(rstn_sys),
+    .scan_cg_en_i(scan_cg_en_i),
+    .imem_rvalid_o(imem_rvalid_o),
+    .imem_rdata_o(imem_rdata_o),
+    .core2imem_req(core2imem_req),
+    .core2imem_addr(core2imem_addr),
+    .dmem_rdata_o(dmem_rdata_o),
+    .core2dmem_cen(core2dmem_cen),
+    .core2dmem_wen(core2dmem_wen),
+    .core2dmem_size(core2dmem_size),
+    .core2dmem_addr(core2dmem_addr),
+    .core2dmem_wdata(core2dmem_wdata),
+    .gpio_pins_i(gpio_pins_i),
+    .gpio_pins_o(gpio_pins_o),
+    .gpio_dir(gpio_dir),
+    .rx_i(rx_i),
+    .tx_o(tx_o),
+    .MISO(MISO),
+    .CSN(CSN),
+    .SCLK(SCLK),
+    .MOSI(MOSI),
+    .SCL_o(SCL_o),
+    .SDA_o(SDA_o),
+    .SDA_i(SDA_i),
+    .SCL_i(SCL_i),
+    .scl_dir(scl_dir),
+    .sda_dir(sda_dir)
+);
+
+endmodule
+</code></pre></div>
+    </details>
+
+
+    <details class="code-block">
+      <summary>SoC top level (soc_top.sv)</summary>
+      <div class="code-content"><pre><code>module soc_top(
+    
+    //Voltage Supply
+    inout VDD_CORE,
+    inout VDD_TEST,
+    inout VSS,
+
+    //Clock
+    input logic clk_i,
+    input clk_ext,
+    output logic cnt_o,
+
+    input logic scan_cg_en_i,
+
+    //Reset
+    input logic rstn_io,
+
+    //Scan Chain Signals
+    input logic phi_sc,
+    input logic phi_bar_sc,
+    input logic scan_i0o1_sc,
+    input logic load_sc,
+    input logic scan_in_sc,
+    output logic scan_out_sc,
+
+    //GPIO
+    output logic [7:0] gpio_pins_o,
+    input logic [7:0] gpio_pins_i,
+    output logic [7:0] gpio_dir,
+
+    //UART
+    input logic rx_i,
+    output logic tx_o,
+
+    //SPI
+    input logic MISO,
+    output logic CSN,
+    output logic SCLK,
+    output logic MOSI
+
+    //I2C
+//  output logic SCL_o,
+//  output logic SDA_o,
+//  input logic SCL_i,
+ // input logic SDA_i,
+ // output logic sda_dir,
+//  output logic scl_dir
+    );
+
+    //IMEM Signals
+    logic sc2imem_clk;
+    logic sc2imem_ctrl;
+    logic sc2imem_reqn; //Active Low
+    logic sc2imem_wen; //Active Low
+    logic [31:0] sc2imem_addr;
+    logic [31:0] sc2imem_wdata;
+    logic [31:0] imem_rdata_o;
+
+    //DMEM Signals
+    logic sc2dmem_clk;
+    logic sc2dmem_ctrl;
+    logic sc2dmem_reqn; //Active Low
+    logic sc2dmem_wen; //Active Low
+    logic [3:0] sc2dmem_ben; //Active Low
+    logic [31:0] sc2dmem_addr;
+    logic [31:0] sc2dmem_wdata;
+    logic [31:0] dmem_rdata_o;
+
+    //General Scan Chain Signals
+    logic phi_out_sc;
+    logic phi_bar_out_sc;
+    logic scan_i0o1_out_sc;
+    logic load_out_sc;
+
+    //FSM Signals
+    logic clk2fsm;
+    logic sc2fsm_mode;
+    logic sc2fsm_indef;
+    logic [31:0] sc2fsm_cycle;
+
+    //Clock Gen Signals
+    logic clk;
+    wire en_cnt_from_sc;
+    wire [3:0] div_from_sc;
+    wire [4:0] fc_from_sc;
+
+//edit 2025.5.12
+wire vss_i2c;
+assign vss_i2c=VSS;
+
+    soc_mem soc_m(
+        .clk_sys(clk),
+        .rstn_sys(rstn_io),
+        .sc2imem_ctrl(sc2imem_ctrl),
+        .sc2imem_clk(sc2imem_clk),
+        .sc2imem_req(sc2imem_req),
+        .sc2imem_wen(sc2imem_wen),
+        .sc2imem_addr(sc2imem_addr),
+        .sc2imem_wdata(sc2imem_wdata),
+        .imem_rdata_o(imem_rdata_o),
+        .sc2dmem_ctrl(sc2dmem_ctrl),
+        .sc2dmem_clk(sc2dmem_clk),
+        .sc2dmem_req(sc2dmem_req),
+        .sc2dmem_wen(sc2dmem_wen),
+        .sc2dmem_ben(sc2dmem_ben),
+        .sc2dmem_addr(sc2dmem_addr),
+        .sc2dmem_wdata(sc2dmem_wdata),
+        .dmem_rdata_o(dmem_rdata_o),
+        .gpio_pins_i(gpio_pins_i),
+        .gpio_pins_o(gpio_pins_o),
+        .gpio_dir(gpio_dir),
+        .rx_i(rx_i),
+        .tx_o(tx_o),
+        .MISO(MISO),
+        .CSN(CSN),
+        .SCLK(SCLK),
+        .MOSI(MOSI),
+        .SCL_o(),
+        .SDA_o(),
+        .SDA_i(vss_i2c),
+        .SCL_i(vss_i2c),
+        .scl_dir(),
+        .sda_dir(),
+        .scan_cg_en_i(scan_cg_en_i)
+    );
+    
+    scan_chain sc(
+        .i_imem_rdata(imem_rdata_o),
+        .i_dmem_rdata(dmem_rdata_o),
+        .sc_en_cnt(en_cnt_from_sc),
+        .sc_clkgen_fc(fc_from_sc),
+        .sc_clkgen_div(div_from_sc),
+	    .sc_fsm_mode(sc2fsm_mode),
+	    .sc_fsm_indef(sc2fsm_indef),
+	    .sc_fsm_cycle(sc2fsm_cycle),
+        .sc_imem_ctrl(sc2imem_ctrl),
+        .sc_imem_req(sc2imem_req),
+        .sc_imem_wen(sc2imem_wen),
+        .sc_imem_addr(sc2imem_addr),
+        .sc_imem_wdata (sc2imem_wdata),
+	    .sc_imem_clk(sc2imem_clk),
+        .sc_dmem_ctrl(sc2dmem_ctrl),
+        .sc_dmem_req(sc2dmem_req),
+        .sc_dmem_wen(sc2dmem_wen),
+        .sc_dmem_addr(sc2dmem_addr),
+	    .sc_dmem_ben(sc2dmem_ben),
+        .sc_dmem_wdata (sc2dmem_wdata),
+	    .sc_dmem_clk(sc2dmem_clk),
+        .phi(phi_sc),
+        .phib(phi_bar_sc),
+        .scan_i0o1(scan_i0o1_sc),
+        .load(load_sc),
+        .scan_in(scan_in_sc),
+        .scan_out(scan_out_sc),
+	    .phi_out(phi_out_sc),
+	    .phib_out(phi_bar_out_sc),
+	    .load_out(load_out_sc),
+	    .scan_i0o1_out(scan_i0o1_out_sc),
+        .VDD(VDD_TEST),
+        .VSS(VSS)
+    );
+
+    test_clkgen clk_gen (
+        .VDD(VDD_TEST),
+        .VSS(VSS),
+        .clk_ext(clk_ext),
+        .clk_out(clk2fsm),
+        .en_cnt(en_cnt_from_sc),
+        .cnt_out(cnt_o),
+        .en_int(clk_i),
+        .div0(div_from_sc[0]),
+        .div1(div_from_sc[1]),
+        .div2(div_from_sc[2]),
+        .div3(div_from_sc[3]),
+        .fc0(fc_from_sc[0]),
+        .fc1(fc_from_sc[1]),
+        .fc2(fc_from_sc[2]),
+        .fc3(fc_from_sc[3]),
+        .fc4(fc_from_sc[4])
+    );
+
+    debug_fsm dfsm (
+        .i_clk(clk2fsm),
+	    .i_rstn(rstn_io),
+	    .i_mode(sc2fsm_mode),
+	    .i_indef(sc2fsm_indef),
+	    .i_cycle(sc2fsm_cycle),
+	    .o_clk(clk)
+    );
+
+
+endmodule
+</code></pre></div>
+    </details>
 
     <h3>Design Verification</h3>
     <p>The verification of the SoC followed a directed-test methodology using a custom SystemVerilog testbench together with C-based test programs compiled for the RISC-V architecture. Instead of building a full UVM environment, we adopted a focused, system-driven verification approach that closely matches the behavior of the real chip during board-level bring-up. This allowed us to validate both the functional design and the DFT infrastructure under realistic operating conditions.</p>
