@@ -733,20 +733,6 @@ module imem_wrapper (
     assign imem_wdata = sc2imem_ctrl ? sc2imem_wdata          : 32&#x27;b0; // Default to 0 when CPU accesses
 
     // Introduce Delays to Synchronize Signals
-	// DEL1 del01( .I(imem_req), .Z(imem_req_delay));
-	// DEL1 del02( .I(imem_addr[0]), .Z(imem_addr_delay[0]));
-	// DEL1 del03( .I(imem_addr[1]), .Z(imem_addr_delay[1]));
-	// DEL1 del04( .I(imem_addr[2]), .Z(imem_addr_delay[2]));
-	// DEL1 del05( .I(imem_addr[3]), .Z(imem_addr_delay[3]));
-	// DEL1 del06( .I(imem_addr[4]), .Z(imem_addr_delay[4]));
-	// DEL1 del07( .I(imem_addr[5]), .Z(imem_addr_delay[5]));
-	// DEL1 del08( .I(imem_addr[6]), .Z(imem_addr_delay[6]));
-	// DEL1 del09( .I(imem_addr[7]), .Z(imem_addr_delay[7]));
-	// DEL1 del10( .I(imem_addr[8]), .Z(imem_addr_delay[8]));
-	// DEL1 del11( .I(imem_addr[9]), .Z(imem_addr_delay[9]));
-	// DEL1 del12( .I(imem_addr[10]), .Z(imem_addr_delay[10]));
-	// DEL1 del13( .I(imem_addr[11]), .Z(imem_addr_delay[11]));
-	// DEL1 del14( .I(imem_addr[12]), .Z(imem_addr_delay[12]));
     always @(imem_req) #5 imem_req_delay = imem_req;
 
     always @(imem_addr[0]) #5 imem_addr_delay[0] = imem_addr[0];
@@ -762,13 +748,6 @@ module imem_wrapper (
     always @(imem_addr[10]) #5 imem_addr_delay[10] = imem_addr[10];
     always @(imem_addr[11]) #5 imem_addr_delay[11] = imem_addr[11];
 
-
-    // genvar i;
-    // generate
-    //     for (i = 0; i &lt; 13; i = i + 1) begin : addr_delay_gen
-    //         DEL1 del_addr(.clk(clk_imem), .I(imem_addr[i]), .Z(imem_addr_delay[i]));
-    //     end
-    // endgenerate
 
     always @(imem_wdata) #50 imem_wdata_delay = imem_wdata;
     always @(imem_wen)   #50 imem_wen_delay   = imem_wen;
@@ -857,23 +836,7 @@ module dmem_wrapper (
     assign dmem_ben   = sc2dmem_ctrl ? sc2dmem_ben             : ~core2dmem_ben;  // Convert active-high to active-low
     assign dmem_wdata = sc2dmem_ctrl ? sc2dmem_wdata           : core2dmem_wdata;
 
-    // Introduce Delays to Synchronize Signals
- // DEL4 del01( .I(dmem_req), .Z(dmem_req_delay));
     always @(dmem_req) #5 dmem_req_delay = dmem_req;
-
-/*	DEL4 del02( .I(dmem_addr[0]), .Z(dmem_addr_delay[0]));
-	DEL4 del03( .I(dmem_addr[1]), .Z(dmem_addr_delay[1]));
-	DEL4 del04( .I(dmem_addr[2]), .Z(dmem_addr_delay[2]));
-	DEL4 del05( .I(dmem_addr[3]), .Z(dmem_addr_delay[3]));
-	DEL4 del06( .I(dmem_addr[4]), .Z(dmem_addr_delay[4]));
-	DEL4 del07( .I(dmem_addr[5]), .Z(dmem_addr_delay[5]));
-	DEL4 del08( .I(dmem_addr[6]), .Z(dmem_addr_delay[6]));
-	DEL4 del09( .I(dmem_addr[7]), .Z(dmem_addr_delay[7]));
-	DEL4 del10( .I(dmem_addr[8]), .Z(dmem_addr_delay[8]));
-	DEL4 del11( .I(dmem_addr[9]), .Z(dmem_addr_delay[9]));
-	DEL4 del11a( .I(dmem_addr[10]), .Z(dmem_addr_delay[10]));
-	DEL4 del11b( .I(dmem_addr[11]), .Z(dmem_addr_delay[11]));
-	DEL4 del11c( .I(dmem_addr[12]), .Z(dmem_addr_delay[12]));*/
     always @(dmem_addr[0]) #5 dmem_addr_delay[0] = dmem_addr[0];
     always @(dmem_addr[1]) #5 dmem_addr_delay[1] = dmem_addr[1];
     always @(dmem_addr[2]) #5 dmem_addr_delay[2] = dmem_addr[2];
@@ -887,53 +850,13 @@ module dmem_wrapper (
     always @(dmem_addr[10]) #5 dmem_addr_delay[10] = dmem_addr[10];
     always @(dmem_addr[11]) #5 dmem_addr_delay[11] = dmem_addr[11];
 
-
-//	DEL4 del12( .I(dmem_wen), .Z(dmem_wen_delay));
     always @(dmem_wen)   #5 dmem_wen_delay   = dmem_wen;
 
     always @(dmem_ben[0]) #5 dmem_ben_delay[0] = dmem_ben[0];
     always @(dmem_ben[1]) #5 dmem_ben_delay[1] = dmem_ben[1];
     always @(dmem_ben[2]) #5 dmem_ben_delay[2] = dmem_ben[2];
     always @(dmem_ben[3]) #5 dmem_ben_delay[3] = dmem_ben[3];
-/*
-	DEL4 del13( .I(dmem_ben[0]), .Z(dmem_ben_delay[0]));
-	DEL4 del14( .I(dmem_ben[1]), .Z(dmem_ben_delay[1]));
-	DEL4 del15( .I(dmem_ben[2]), .Z(dmem_ben_delay[2]));
-	DEL4 del16( .I(dmem_ben[3]), .Z(dmem_ben_delay[3]));
 
-
-	DEL4 del17( .I(dmem_wdata[0]), .Z(dmem_wdata_delay[0]));
-	DEL4 del18( .I(dmem_wdata[1]), .Z(dmem_wdata_delay[1]));
-	DEL4 del19( .I(dmem_wdata[2]), .Z(dmem_wdata_delay[2]));
-	DEL4 del20( .I(dmem_wdata[3]), .Z(dmem_wdata_delay[3]));
-	DEL4 del21( .I(dmem_wdata[4]), .Z(dmem_wdata_delay[4]));
-	DEL4 del22( .I(dmem_wdata[5]), .Z(dmem_wdata_delay[5]));
-	DEL4 del23( .I(dmem_wdata[6]), .Z(dmem_wdata_delay[6]));
-	DEL4 del24( .I(dmem_wdata[7]), .Z(dmem_wdata_delay[7]));
-	DEL4 del25( .I(dmem_wdata[8]), .Z(dmem_wdata_delay[8]));
-	DEL4 del26( .I(dmem_wdata[9]), .Z(dmem_wdata_delay[9]));
-	DEL4 del27( .I(dmem_wdata[10]), .Z(dmem_wdata_delay[10]));
-	DEL4 del28( .I(dmem_wdata[11]), .Z(dmem_wdata_delay[11]));
-	DEL4 del29( .I(dmem_wdata[12]), .Z(dmem_wdata_delay[12]));
-	DEL4 del30( .I(dmem_wdata[13]), .Z(dmem_wdata_delay[13]));
-	DEL4 del31( .I(dmem_wdata[14]), .Z(dmem_wdata_delay[14]));
-	DEL4 del32( .I(dmem_wdata[15]), .Z(dmem_wdata_delay[15]));
-	DEL4 del33( .I(dmem_wdata[16]), .Z(dmem_wdata_delay[16]));
-	DEL4 del34( .I(dmem_wdata[17]), .Z(dmem_wdata_delay[17]));
-	DEL4 del35( .I(dmem_wdata[18]), .Z(dmem_wdata_delay[18]));
-	DEL4 del36( .I(dmem_wdata[19]), .Z(dmem_wdata_delay[19]));
-	DEL4 del37( .I(dmem_wdata[20]), .Z(dmem_wdata_delay[20]));
-	DEL4 del38( .I(dmem_wdata[21]), .Z(dmem_wdata_delay[21]));
-	DEL4 del39( .I(dmem_wdata[22]), .Z(dmem_wdata_delay[22]));
-	DEL4 del40( .I(dmem_wdata[23]), .Z(dmem_wdata_delay[23]));
-	DEL4 del41( .I(dmem_wdata[24]), .Z(dmem_wdata_delay[24]));
-	DEL4 del42( .I(dmem_wdata[25]), .Z(dmem_wdata_delay[25]));
-	DEL4 del43( .I(dmem_wdata[26]), .Z(dmem_wdata_delay[26]));
-	DEL4 del44( .I(dmem_wdata[27]), .Z(dmem_wdata_delay[27]));
-	DEL4 del45( .I(dmem_wdata[28]), .Z(dmem_wdata_delay[28]));
-	DEL4 del46( .I(dmem_wdata[29]), .Z(dmem_wdata_delay[29]));
-	DEL4 del47( .I(dmem_wdata[30]), .Z(dmem_wdata_delay[30]));
-	DEL4 del48( .I(dmem_wdata[31]), .Z(dmem_wdata_delay[31]));*/
     always @(dmem_wdata[0])  #5 dmem_wdata_delay[0]  = dmem_wdata[0];
     always @(dmem_wdata[1])  #5 dmem_wdata_delay[1]  = dmem_wdata[1];
     always @(dmem_wdata[2])  #5 dmem_wdata_delay[2]  = dmem_wdata[2];
@@ -980,19 +903,6 @@ module dmem_wrapper (
         .EMA(3&#x27;b001), // EMA fixed to 001 clears setup errors
         .RETN(RETN)
     );
-
-    // Post-Synthesis Simulation (Uncomment if needed)
-    // sram00 dmem(
-    //     .CLK(clk_dmem),
-    //     .CEN(dmem_req),
-    //     .WEN(dmem_ben),
-    //     .GWEN(dmem_wen),
-    //     .A(dmem_addr),
-    //     .D(dmem_wdata),
-    //     .Q(dmem_rdata_o),
-    //     .EMA(EMA),
-    //     .RETN(RETN)
-    // );
 
     // Read Valid Signal (Output delayed by 1 cycle)
     always_ff @(posedge clk_i or negedge rst_ni) begin
