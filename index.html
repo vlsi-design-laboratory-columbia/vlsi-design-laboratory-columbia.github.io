@@ -18,30 +18,76 @@
     /* Three Color Palette */
     :root {
       --columbia-blue: #9BDDFF;
-      --black: #000000;
+      --black: #1a1a1a;
       --white: #ffffff;
     }
     
-    /* Compact Header */
+    /* Header with gradient and modern design */
     header {
-      background: var(--columbia-blue);
-      color: var(--black);
-      padding: 50px 30px 40px;
+      background: linear-gradient(135deg, #5d9cec 0%, #7db3f5 50%, #9ec9f8 100%);
+      color: #ffffff;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Decorative background pattern */
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .header-content {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 40px 30px;
       text-align: center;
-      border-bottom: 3px solid var(--black);
+      z-index: 1;
     }
     
     h1 {
-      font-size: 2.5em;
+      font-size: 3.2em;
       font-weight: 600;
       letter-spacing: -0.5px;
       margin-bottom: 8px;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-meta {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+    
+    .header-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .header-meta-item::before {
+      content: '●';
+      color: rgba(255, 255, 255, 0.6);
     }
     
     header p {
       font-size: 1.1em;
       font-weight: 400;
-      opacity: 0.8;
+      opacity: 0.9;
     }
     
     /* Compact Introduction */
@@ -175,8 +221,8 @@
     .video-container {
       position: relative;
       width: 100%;
-      max-width: 400px;
-      padding-bottom: 22.5%;
+      max-width: 100%;
+      padding-bottom: 56.25%;
       overflow: hidden;
       background: var(--black);
       border: 2px solid var(--columbia-blue);
@@ -301,8 +347,13 @@
 </head>
 <body>
   <header>
-    <h1>VLSI Design Lab</h1>
-    <p>EE6350 · Columbia University</p>
+    <div class="header-content">
+      <h1>VLSI Design Lab</h1>
+      <div class="header-meta">
+        <span class="header-meta-item">EE6350</span>
+        <span class="header-meta-item">Columbia University</span>
+      </div>
+    </div>
   </header>
   
   <div class="intro">
