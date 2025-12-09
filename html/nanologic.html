@@ -609,7 +609,7 @@ The CPU shown in the diagram is based on the CV32E40P core, a 4-stage, in-order 
 In our CPU design, we adopt a hierarchical clock-gating strategy at the top level to reduce dynamic power consumption. Instead of implementing custom gating logic, we directly use the Integrated Clock Gating (ICG) cells, which provide reliable and PVT-safe clock gating.
    </p>
    <p>
-    At the top level, the clock network is divided into several functional domains, such as the core pipeline, memory subsystem, and peripheral modules. Each domain receives a gated clock through an ICG cell, and the enable signal is generated based on the activity of the corresponding module. When a module is idle, its clock is disabled, effectively reducing unnecessary switching activity.
+    At the top level, the clock network is divided into several functional domains. Each domain receives a gated clock through an ICG cell, and the enable signal is generated based on the activity of the corresponding module. When a module is idle, its clock is disabled, effectively reducing unnecessary switching activity.
    </p>
    <p>
     ICG cell integrates a latch and gating logic to ensure glitch-free clock gating, and also includes a test-enable input for scan and DFT support. Using this standard, fully characterized cell guarantees safe operation and seamless integration with synthesis, CTS, and STA.
