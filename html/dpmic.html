@@ -555,6 +555,7 @@
     <p>
       A counter-based Digital Pulse Width Modulation (DPWM) module is used to generate the switching signal for the power stage. In this design, the DPWM used a 6-bit up-counter clocked at 64MHz. The duty cycle is determined by comparing the counter value with a 6-bit digital control word provided by the PID controller. When the counter value is lower than the control word, the output remains high; otherwise, it switches low. Because a 6-bit counter provides 64 time slots, the resulting PWM switching frequency is 64MHz/64=1MHz. This architecture offers simple implementation, linear duty-cycle resolution, and robust operation suitable for digitally controlled DC-DC converters.
     </p>
+    <img src="../images/dpmic/digital.png">
     <h4>Scan Chain & Clock Generation</h4>
     <p>
       The scan chain is used to load the three PID coefficients (ki, kp, and kd​) as well as other control bits into the digital controller. This serial-access mechanism enables flexible tuning, testability, and debugging during both pre-silicon verification and post-silicon evaluation without requiring additional dedicated I/O pins.
