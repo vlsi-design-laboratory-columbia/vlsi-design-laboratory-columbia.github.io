@@ -4,57 +4,89 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NanoLogic - EE6350 Spring 2025</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * {margin: 0; padding: 0; box-sizing: border-box;}
     
     :root {
-      --primary: #1e3a5f;
-      --primary-light: #2c5282;
-      --accent: #5d9cec;
-      --accent-light: #8ebaf5;
+      --primary: #0f2b46;
+      --primary-light: #1f4d7a;
+      --accent: #3cc7c1;
+      --accent-light: #89e0d6;
       --columbia-blue: #b3d9ff;
-      --bg-light: #f8fafc;
-      --text-dark: #1a202c;
-      --text-gray: #4a5568;
+      --bg-light: #eef3fb;
+      --card: #ffffff;
+      --text-dark: #0b1324;
+      --text-gray: #34405a;
       --border: #e2e8f0;
+      --muted: #6b7280;
+      --text-light: #94a3b8;
     }
-    
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      counter-reset: figure;
+      font-family: 'IBM Plex Sans', 'Space Grotesk', sans-serif;
       margin: 0;
-      background: #f7f9fc;
+      background: radial-gradient(circle at 20% 20%, rgba(60, 199, 193, 0.08), transparent 30%),
+                  radial-gradient(circle at 80% 10%, rgba(103, 172, 255, 0.1), transparent 28%),
+                  #f7f9fc;
       color: var(--text-dark);
       line-height: 1.7;
+      position: relative;
+    }
+    
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 40% 60%, rgba(15, 43, 70, 0.04), transparent 30%),
+                  radial-gradient(circle at 70% 80%, rgba(60, 199, 193, 0.05), transparent 26%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    h1, h2, h3, h4 {
+      font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+      letter-spacing: -0.25px;
     }
     
     /* Header with gradient and modern design */
     header {
-      background: linear-gradient(135deg, #5d9cec 0%, #7db3f5 50%, #9ec9f8 100%);
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 26%),
+                  radial-gradient(circle at 80% 20%, rgba(255,255,255,0.12), transparent 22%),
+                  linear-gradient(135deg, #0f2b46 0%, #1f4d7a 45%, #3cc7c1 100%);
       color: #ffffff;
       padding: 0;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 14px 40px rgba(12, 20, 38, 0.26);
     }
     
     /* Decorative background pattern */
     header::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      top: -20%;
+      right: -10%;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(255,255,255,0.12), transparent 55%);
+      filter: blur(2px);
+      transform: rotate(8deg);
       pointer-events: none;
     }
     
     .header-content {
       position: relative;
-      max-width: 1200px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 40px 40px 30px;
+      padding: 54px 40px 36px;
       text-align: center;
       z-index: 1;
     }
@@ -62,37 +94,43 @@
     /* Project type badge */
     .project-badge {
       display: inline-block;
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.15);
       color: #ffffff;
-      padding: 6px 18px;
-      border-radius: 20px;
-      font-size: 0.8em;
-      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 28px;
+      font-size: 0.82em;
+      font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.12);
     }
     
     header h1 {
-      font-size: 3.2em;
-      font-weight: 600;
+      font-size: 3.25em;
+      font-weight: 700;
       letter-spacing: -0.5px;
       margin-bottom: 8px;
       color: #ffffff;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
     }
     
-
+    .header-subtitle {
+      max-width: 760px;
+      margin: 0 auto 18px;
+      font-size: 1.08em;
+      color: rgba(255,255,255,0.92);
+    }
     
     .header-meta {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 18px;
       flex-wrap: wrap;
       margin-top: 10px;
-      font-size: 0.9em;
-      opacity: 0.9;
+      font-size: 0.95em;
+      opacity: 0.92;
     }
     
     .header-meta-item {
@@ -139,53 +177,65 @@
       transform: translateY(-1px);
     }
     
+    .header-cta-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    
     /* Navigation - sleek and modern */
     .nav-buttons {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
       padding: 0;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      border-bottom: 1px solid var(--border);
+      box-shadow: 0 10px 28px rgba(12,20,38,0.08);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.7);
     }
     
     .nav-container {
-      max-width: 1200px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 10px 40px;
+      padding: 12px 32px;
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 8px;
     }
     
     .nav-buttons a {
       display: inline-block;
       color: var(--text-dark);
-      padding: 8px 18px;
-      border-radius: 6px;
+      padding: 9px 16px;
+      border-radius: 999px;
       text-decoration: none;
-      font-size: 0.9em;
-      font-weight: 500;
+      font-size: 0.92em;
+      font-weight: 600;
       transition: all 0.2s ease;
       position: relative;
+      border: 1px solid transparent;
     }
     
     .nav-buttons a:hover {
-      color: var(--accent);
-      background: var(--bg-light);
+      color: var(--primary);
+      background: linear-gradient(135deg, rgba(60, 199, 193, 0.18), rgba(255,255,255,0.9));
+      border-color: rgba(60, 199, 193, 0.25);
+      box-shadow: 0 6px 16px rgba(12,20,38,0.12);
     }
     
     /* Container */
     .container {
-      max-width: 1000px;
-      margin: 50px auto;
-      padding: 60px 50px;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      max-width: 1150px;
+      margin: 40px auto 60px;
+      padding: 46px 34px 50px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.9) 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      box-shadow: 0 22px 60px rgba(12,20,38,0.1);
     }
     
     /* Back Link */
@@ -198,15 +248,17 @@
       font-weight: 600;
       font-size: 0.95em;
       padding: 10px 18px;
-      border-radius: 8px;
+      border-radius: 12px;
       transition: all 0.3s ease;
-      border: 1px solid transparent;
+      border: 1px solid rgba(60,199,193,0.25);
+      background: linear-gradient(135deg, rgba(60,199,193,0.08), rgba(255,255,255,0.85));
+      box-shadow: 0 8px 22px rgba(12,20,38,0.08);
     }
     
     .back:hover {
-      background: var(--bg-light);
-      border-color: var(--accent);
-      transform: translateX(-4px);
+      background: linear-gradient(135deg, rgba(60,199,193,0.16), #ffffff);
+      border-color: rgba(60,199,193,0.45);
+      transform: translateX(-3px);
     }
     
     .back::before {
@@ -222,10 +274,13 @@
     
     /* Sections */
     section {
-      scroll-margin-top: 100px;
-      margin-bottom: 70px;
-      padding-bottom: 50px;
-      border-bottom: 2px solid var(--bg-light);
+      scroll-margin-top: 120px;
+      margin-bottom: 36px;
+      padding: 36px 32px 42px;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(247,250,252,0.95));
+      box-shadow: 0 16px 38px rgba(12,20,38,0.06);
     }
     
     section:last-of-type {
@@ -234,11 +289,14 @@
     
     h2 {
       color: var(--primary);
-      font-size: 2.2em;
-      font-weight: 600;
-      margin-bottom: 24px;
+      font-size: 2.3em;
+      font-weight: 700;
+      margin-bottom: 18px;
       position: relative;
-      padding-bottom: 16px;
+      padding-bottom: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
     }
     
     h2::after {
@@ -246,36 +304,131 @@
       position: absolute;
       bottom: 0;
       left: 0;
-      width: 50px;
+      width: 64px;
       height: 3px;
-      background: var(--accent);
-      border-radius: 2px;
+      background: linear-gradient(135deg, var(--accent), var(--primary-light));
+      border-radius: 999px;
     }
     
     h3 {
       color: var(--primary-light);
-      font-size: 1.5em;
-      font-weight: 600;
-      margin-top: 36px;
-      margin-bottom: 16px;
+      font-size: 1.35em;
+      font-weight: 700;
+      margin-top: 32px;
+      margin-bottom: 10px;
     }
     
     .instruction-text {
-      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-      border-left: 4px solid #5d9cec;
-      padding: 16px 20px;
-      margin: 20px 0;
-      border-radius: 8px;
-      color: #1e3a5f;
-      font-size: 0.95em;
-      font-style: italic;
+      background: linear-gradient(135deg, rgba(60,199,193,0.08), rgba(103,172,255,0.12));
+      border-left: 4px solid var(--accent);
+      padding: 18px 20px;
+      margin: 18px 0 22px;
+      border-radius: 10px;
+      color: var(--primary);
+      font-size: 0.96em;
+      font-weight: 600;
     }
     
     p {
-      color: #4a5568;
-      font-size: 1.05em;
-      line-height: 1.8;
-      margin-bottom: 16px;
+      color: var(--text-gray);
+      font-size: 1.02em;
+      line-height: 1.78;
+      margin-bottom: 14px;
+    }
+    
+    .muted {
+      color: var(--muted);
+      font-size: 0.96em;
+    }
+    
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    
+    .hero-card {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 14px;
+      padding: 16px 18px;
+      color: #e9f3ff;
+      text-align: left;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+      backdrop-filter: blur(6px);
+    }
+    
+    .hero-card .label {
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.82em;
+      opacity: 0.86;
+      display: block;
+    }
+    
+    .hero-card .value {
+      font-size: 1.26em;
+      font-weight: 700;
+      margin: 6px 0 4px;
+    }
+    
+    .hero-card .muted {
+      color: rgba(233, 243, 255, 0.9);
+      font-size: 0.95em;
+    }
+    
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 8px 0 12px;
+    }
+    
+    .pill {
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 43, 70, 0.08);
+      background: linear-gradient(135deg, rgba(60,199,193,0.16), rgba(255,255,255,0.72));
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.93em;
+      letter-spacing: 0.2px;
+    }
+    
+    .highlight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+      margin: 20px 0 8px;
+    }
+    
+    .highlight-card {
+      background: #ffffff;
+      border: 1px solid rgba(226, 232, 240, 0.92);
+      border-radius: 14px;
+      padding: 18px 16px;
+      box-shadow: 0 14px 32px rgba(12,20,38,0.08);
+    }
+    
+    .highlight-card .label {
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.82em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    
+    .highlight-card .value {
+      font-size: 1.18em;
+      color: var(--primary);
+      font-weight: 700;
+      margin: 6px 0;
+    }
+    
+    .highlight-card p {
+      margin-bottom: 4px;
+      font-size: 0.97em;
     }
     
     /* Images */
@@ -283,8 +436,8 @@
       width: 100%;
       height: 400px;
       background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
-      border-radius: 12px;
-      margin: 24px 0;
+      border-radius: 16px;
+      margin: 24px 0 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -298,31 +451,52 @@
       max-width: 100%;
       max-height: 100%;
       height: auto;
-      border-radius: 12px;
-      margin: 24px 0;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin: 22px 0 10px;
+      box-shadow: 0 18px 44px rgba(12,20,38,0.14);
+      border: 1px solid rgba(226, 232, 240, 0.9);
     }
 
     .caption {
       text-align: center;
       font-size: 0.9em;
       color: var(--text-gray);
-      margin-top: -10px;
+      margin-top: 4px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    
+    .caption::before {
+      counter-increment: figure;
+      content: "Figure " counter(figure) ". ";
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .references {
+      margin-left: 22px;
+      color: var(--text-gray);
+      line-height: 1.7;
+    }
+
+    .references a {
+      color: var(--primary-light);
+      text-decoration: none;
+      font-weight: 600;
     }
 
 
 
 h4 {
-  font-size: 1.3em;
-  font-weight: 600;
-  color: var(--primary-light);
-  margin-top: 32px;
-  margin-bottom: 20px;
+  font-size: 1.24em;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 30px;
+  margin-bottom: 14px;
   padding-left: 12px;
-  border-left: 4px solid var(--primary-light);
+  border-left: 4px solid var(--accent);
   position: relative;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
 }
 
 
@@ -336,10 +510,10 @@ h4 {
       padding-bottom: 56.25%;
       height: 0;
       overflow: hidden;
-      border-radius: 12px;
-      margin: 24px 0;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin: 24px 0 14px;
+      box-shadow: 0 18px 44px rgba(12,20,38,0.14);
+      border: 1px solid rgba(226, 232, 240, 0.9);
     }
     
     .video-container iframe {
@@ -433,11 +607,11 @@ h4 {
 
     /*bullet points*/
     ul {
-    margin: 2px 0 2px 0;
-    padding-left: 24px;
-    color: #4a5568;
-    line-height: 1.8;
-    font-size: 1.05em;
+    margin: 6px 0 12px 0;
+    padding-left: 26px;
+    color: var(--text-gray);
+    line-height: 1.75;
+    font-size: 1.02em;
     }
 
 
@@ -451,12 +625,13 @@ h4 {
     }
     
     .team-member {
-      background: linear-gradient(135deg, var(--bg-light) 0%, #edf2f7 100%);
-      padding: 28px 24px;
-      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(60,199,193,0.08), rgba(255,255,255,0.96));
+      padding: 26px 22px;
+      border-radius: 14px;
       text-align: center;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(226, 232, 240, 0.9);
       transition: all 0.3s ease;
+      box-shadow: 0 12px 28px rgba(12,20,38,0.08);
     }
     
     .team-member:hover {
@@ -507,15 +682,90 @@ h4 {
       margin-bottom: 8px;
     }
     
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: #c4dbff;
+        --primary-light: #8fc7ff;
+        --accent: #5de5d7;
+        --accent-light: #8ef5ea;
+        --bg-light: #0f172a;
+        --card: #111827;
+        --text-dark: #e2e8f0;
+        --text-gray: #cbd5e1;
+        --border: #1f2937;
+        --muted: #94a3b8;
+        --text-light: #94a3b8;
+      }
+      
+      body {
+        background: radial-gradient(circle at 30% 20%, rgba(93, 229, 215, 0.12), transparent 32%),
+                    radial-gradient(circle at 70% 10%, rgba(143, 199, 255, 0.12), transparent 30%),
+                    #0b1220;
+        color: var(--text-dark);
+      }
+      
+      body::after {
+        background: radial-gradient(circle at 40% 60%, rgba(93, 229, 215, 0.08), transparent 32%),
+                    radial-gradient(circle at 70% 80%, rgba(12, 20, 38, 0.25), transparent 30%);
+      }
+      
+      header {
+        background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 22%),
+                    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06), transparent 18%),
+                    linear-gradient(135deg, #0a1323 0%, #0f2740 45%, #18b3a6 100%);
+        box-shadow: 0 18px 46px rgba(0,0,0,0.35);
+      }
+      
+      .nav-buttons {
+        background: rgba(15, 23, 42, 0.9);
+        border-color: rgba(31, 41, 55, 0.9);
+        box-shadow: 0 16px 36px rgba(0,0,0,0.35);
+      }
+      
+      .container {
+        background: linear-gradient(180deg, rgba(17,24,39,0.92) 0%, rgba(17,24,39,0.86) 100%);
+        border: 1px solid rgba(31, 41, 55, 0.9);
+        box-shadow: 0 28px 70px rgba(0,0,0,0.4);
+      }
+      
+      section {
+        background: linear-gradient(135deg, rgba(26,34,54,0.96), rgba(18,27,46,0.94));
+        border: 1px solid rgba(31, 41, 55, 0.85);
+        box-shadow: 0 22px 48px rgba(0,0,0,0.35);
+      }
+      
+      .caption {
+        color: var(--muted);
+      }
+      
+      img, .video-container {
+        border: 1px solid rgba(31, 41, 55, 0.9);
+        box-shadow: 0 20px 48px rgba(0,0,0,0.45);
+      }
+      
+      .team-member {
+        border: 1px solid rgba(31, 41, 55, 0.9);
+        background: linear-gradient(135deg, rgba(24, 144, 140, 0.12), rgba(26,34,54,0.95));
+        box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      }
+      
+      footer {
+        background: linear-gradient(135deg, #0f172a 0%, #1c3a5c 100%);
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.4);
+      }
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
       .header-content {padding: 70px 30px 50px;}
       header h1 {font-size: 2.2em;}
       .header-subtitle {font-size: 1.1em;}
       .container {padding: 40px 30px; margin: 30px 20px;}
+      section {padding: 26px 20px 30px;}
       h2 {font-size: 1.8em;}
       .nav-container {padding: 12px 20px;}
       .nav-buttons a {font-size: 0.85em; padding: 8px 16px;}
+      .hero-grid {grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));}
       .image-placeholder {height: 250px; font-size: 0.95em;}
     }
   </style>
@@ -523,18 +773,47 @@ h4 {
 <body>
 <header>
   <div class="header-content">
+    <span class="project-badge">RISC-V SoC Tapeout</span>
     <h1>NanoLogic: A RISC-V-based System-on-Chip</h1>
+    <p class="header-subtitle">Custom CV32E40P SoC with full-scan access, on-chip clock generation, and a demo-ready PCB for the EE6350 fabrication run.</p>
     <div class="header-meta">
       <span class="header-meta-item">EE6350 Spring 2025</span>
       <span class="header-meta-item">Columbia University</span>
       <span class="header-meta-item">TSMC 65nm</span>
     </div>
+
+    <div class="hero-grid">
+      <div class="hero-card">
+        <span class="label">Process</span>
+        <span class="value">TSMC 65 nm CMOS</span>
+        <span class="muted">≈2 mm² die with scan-friendly floorplan.</span>
+      </div>
+      <div class="hero-card">
+        <span class="label">Core</span>
+        <span class="value">CV32E40P · RV32IMC</span>
+        <span class="muted">4-stage pipeline with PULP extensions and gated domains.</span>
+      </div>
+      <div class="hero-card">
+        <span class="label">Memory & Bus</span>
+        <span class="value">16 KB IMEM + 16 KB DMEM</span>
+        <span class="muted">Harvard architecture on AHB with an APB bridge.</span>
+      </div>
+      <div class="hero-card">
+        <span class="label">Peripherals</span>
+        <span class="value">SPI · UART · I2C · GPIO · Timers</span>
+        <span class="muted">Memory-mapped APB peripherals for LCD, IO, and timing.</span>
+      </div>
+    </div>
     
     <div class="author-info">
       <div class="authors-list">
-        <a href="https://www.linkedin.com/in/qianxufu/" class="author-name">Qianxu Fu (Tiffany Fu)</a>
-        <a href="https://linkedin.com/in/username" target="_blank" class="author-name">[Author Name 2]</a>
-        <a href="mailto:email@columbia.edu" class="author-name">[Author Name 3]</a>
+        <span class="author-name">Michael Lippe</span>
+        <span class="author-name">Qianxu Fu</span>
+        <span class="author-name">Bhargav Sriram</span>
+        <span class="author-name">Hongrui Huang</span>
+        <span class="author-name">Hiroki Endo</span>
+        <span class="author-name">Yuan Jiang</span>
+        <span class="author-name">Jingyi Lai</span>
       </div>
     </div>
   </div>
@@ -564,8 +843,32 @@ h4 {
 </p>
     <p>The SoC integrates Instruction Memory, Data Memory, SPI, UART, 8 GPIOs, and two programmable timers, along with an on-chip clock generator, a debug finite-state machine, and a scan chain for DFT. The complete flow, from project proposal, architecture design, RTL implementation, verification, synthesis, physical design, signoff, and STA, all the way to PCB design, bring-up, and system-level validation, was carried out by our team. The final chip successfully runs on hardware and passes our functional demo.
 </p>
+
+    <div class="highlight-grid">
+      <div class="highlight-card">
+        <span class="label">Tape-out Scope</span>
+        <div class="value">Proposal to packaged silicon</div>
+        <p>RTL, verification, PnR, STA, signoff, and PCB bring-up were executed end-to-end by the team.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="label">Scan-first Bring-up</span>
+        <div class="value">248 scan cells</div>
+        <p>Scan loads IMEM/DMEM, steps the clock, and reads back results for silicon debug.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="label">On-chip Clocking</span>
+        <div class="value">Ring oscillator + divider</div>
+        <p>Configurable fc/div controls feed the debug FSM for scan, run, and single-step modes.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="label">Demo Ready</span>
+        <div class="value">LCD + UART showcase</div>
+        <p>SPI-driven display, UART prints, GPIO, and timers all validated on the custom PCB.</p>
+      </div>
+    </div>
+
       <img src="../images/nanologic/overview.HEIC" alt="System block diagram">
-      <p class="caption">Figure 1. Whole System on PCB</p>
+      <p class="caption">Whole System on PCB</p>
 
   </section>
   
@@ -574,9 +877,16 @@ h4 {
     <p class="instruction-text">The SoC adopts a modular architecture organized around a RISC-V CPU core, an AMBA-based interconnect, and a set of memory-mapped peripherals, memory and infrastructure blocks. All components are integrated within a compact 2 mm² die implemented in TSMC 65 nm CMOS technology.
 </p>
 
+    <div class="pill-row">
+      <span class="pill">CV32E40P RV32IMC core</span>
+      <span class="pill">AHB backbone + APB bridge</span>
+      <span class="pill">16 KB IMEM / 16 KB DMEM</span>
+      <span class="pill">Clock-gated domains</span>
+      <span class="pill">Scan-ready memories</span>
+    </div>
 
 <img src="../images/nanologic/block_diagram.png" alt="System block diagram">
-      <p class="caption">Figure 2. SoC Chip Block Diagram</p>
+      <p class="caption">SoC Chip Block Diagram</p>
 
     
     <h3>Main Components</h3>
@@ -600,7 +910,7 @@ During the early front-end architecture planning, we initially enabled floating-
 The CPU shown in the diagram is based on the CV32E40P core, a 4-stage, in-order RISC-V processor optimized for embedded and low-power applications. Its microarchitecture consists of the classic IF, ID, EX, and WB pipeline stages, with tightly integrated control logic to manage instruction flow, hazard resolution, and power-saving modes. The front end includes a prefetch buffer, instruction aligner, and compressed instruction decoder to improve instruction delivery efficiency. The register file and decoder feed multiple execution units, including an ALU, multiplier/divider, CSR unit, and an optional floating-point unit, enabling a wide range of integer and arithmetic operations. A dedicated Load-Store Unit (LSU) handles memory accesses and interacts with the external data interface. The core also integrates specialized units such as hardware loop registers, debug interface, interrupt controller, and a sleep unit for fine-grained power management. Overall, the design delivers a compact, configurable, and energy-efficient RISC-V processing solution suitable for microcontroller-class systems.
    
   <img src="../images/nanologic/CV32E40P_Block_Diagram.png" alt="System block diagram">
-        <p class="caption">Figure 3. CV32E40P CPU Core [1]</p>
+        <p class="caption">CV32E40P CPU Core</p>
 </p>
 
    <p>
@@ -614,13 +924,13 @@ CV32E40P uses a clock-gating strategy at the top level to reduce dynamic power c
     ICG cell integrates a latch and gating logic to ensure glitch-free clock gating, and also includes a test-enable input for scan and DFT support. Using this standard, fully characterized cell guarantees safe operation and seamless integration with synthesis, CTS, and STA.
    </p>
    <img src="../images/nanologic/icg.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
-          <p class="caption">Figure 4. Clock Gating Cell</p>
+          <p class="caption">Clock Gating Cell</p>
    <br><br>
       <p>
       <em>FPU</em><br>
 We originally planned to integrate an FPU into the SoC and successfully completed the compiler and linker configuration required to support floating-point operations. The FPU passed our initial functional simulations and worked correctly at the RTL level. However, after synthesis, physical design, and timing analysis, the FPU ran into timing issues which were not easily solved. To maintain overall system stability and achieve a much higher operating frequency, we ultimately decided to remove the FPU. Without the FPU's long combinational paths, the SoC's maximum clock period improved from 15 ns to 5 ns, resulting in substantially better performance and a more reliable design.
   <img src="../images/nanologic/FPU.png" alt="FPU">
-            <p class="caption">Figure 5. Floating Point Operations</p>
+            <p class="caption">Floating Point Operations</p>
    </p>
    <h4>Memory</h4>
 <p>
@@ -675,7 +985,7 @@ To enable complete chip-level scan coverage, the wrappers include logic that rec
 </ul>
 </p>
    <img src="../images/nanologic/sram_wrapper.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
-          <p class="caption">Figure 4. DMEM wrapper</p>
+          <p class="caption">DMEM Wrapper</p>
 
 
 
@@ -685,7 +995,7 @@ A central AMBA AHB system bus forms the primary communication backbone of the So
 <br>
 <br>
    <img src="../images/nanologic/ahb_picture.png" alt="System block diagram">
-   <p class="caption">Figure 5. AHB Interconnection [3]</p>
+   <p class="caption">AHB Interconnection</p>
 Among the AHB slaves, the data memory (DMEM) is connected directly to the AHB bus as an AHB slave. All load/store instructions issued by the CPU are translated into AHB transactions through the LSU module, providing a straightforward path for data accesses.
 <br>
 <br>
@@ -707,7 +1017,7 @@ The AHB-to-APB bridge decouples the higher-speed AHB domain from the simpler APB
 </ul>
 </p>
 <img src="../images/nanologic/apb.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br><br>
-            <p class="caption">Figure 6. APB FSM Diagram [2]</p>
+            <p class="caption">APB FSM Diagram</p>
     
 
 
@@ -754,7 +1064,7 @@ The last peripheral is a set of timers. The timer is a versatile module designed
 <p>
 These signals are flattened into a single contiguous scan path:<br>
    <img src="../images/nanologic/scanchain.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
-   <p class="caption">Figure 5. Scan Chain</p>
+   <p class="caption">Scan Chain</p>
 </p>
 
 
@@ -786,10 +1096,10 @@ When scan mode is deactivated, the memory wrappers and control signals reconnect
 </p>
 <p>The transition between scan mode and run mode is cleanly controlled to ensure no metastability or unintended corruption of memory or control registers.</p>
   <img src="../images/nanologic/scan_in.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
-   <p class="caption">Figure 5. Scan In Cell</p>
+   <p class="caption">Scan In Cell</p>
    <br>
     <img src="../images/nanologic/scan_out.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
-   <p class="caption">Figure 5. Scan Out Cell</p>
+   <p class="caption">Scan Out Cell</p>
    <br>
 
 
@@ -814,7 +1124,7 @@ The final clock output of the generator is routed to the CPU core, AHB bus, memo
 Mode selection, as well as auxiliary control signals (such as step length in debug mode), are themselves loaded through the scan chain. This allows complete control of clock behavior from external test equipment without relying on software.
 </p>
    <img src="../images/nanologic/fsm.png" alt="System block diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-   <p class="caption">Figure 6. Debug FSM</p>
+   <p class="caption">Debug FSM</p>
 
 
   </section>
@@ -833,7 +1143,7 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
   </p>
 
           <img src="../images/nanologic/designflow.png" alt="System block diagram">
-          <p class="caption">Figure 7. Chip Design Flow</p>
+          <p class="caption">Chip Design Flow</p>
 
     <h3>RTL Design</h3>
     <p>The RTL design of the SoC was developed and compiled using the ModelSim simulation environment. The codebase follows a clear hierarchical structure that separates chip-level integration, functional logic, and DFT infrastructure. At the highest level, the design begins with soc-pins, which connect the internal SoC signals to the padframe. Directly beneath it is soc-top, the actual top-level RTL of the chip. This module contains both the functional SoC and the DFT subsystem, which are designed as two independent power domains: the DFT logic operates under VDD_Test, while all functional logic is powered by VDD_Core. This separation ensures safe testing in scan mode without interfering with normal system behavior.
@@ -849,7 +1159,7 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     Overall, the RTL is organized to cleanly separate functionality and test logic while maintaining a modular structure that mirrors the physical hierarchy of the final chip. This structure supported efficient simulation, synthesis, and later physical design, and provided a clear boundary between the functional SoC and its DFT infrastructure.  
     </p>
       <img src="../images/nanologic/rtl.png" alt="System block diagram">
-      <p class="caption">Figure 7. RTL Modules Architecture</p>
+      <p class="caption">RTL Modules Architecture</p>
 
   
     <h3>Design Verification</h3>
@@ -859,13 +1169,13 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>After program execution finishes, the FSM is switched back into scan mode to shift out DMEM data. By comparing the scanned-out results against the expected outputs generated by the C testcase, we verify the correctness of program execution, the integrity of the scan chain, and the functionality of the memory wrappers. This verification flow—reset → scan-in → run → scan-out—exactly mirrors the operational steps used during post-silicon bring-up, ensuring a high degree of consistency between pre-silicon simulation and hardware validation.
 </p>
       <img src="../images/nanologic/dv1.png" alt="hierarchy">
-      <p class="caption">Figure 7. GPIO Write Test Case</p>
+      <p class="caption">GPIO Write Test Case</p>
 
       <img src="../images/nanologic/dv2.png" alt="DC - Total Cell Area">
-      <p class="caption">Figure 7. GPIO READ and Memory Test Case</p>
+      <p class="caption">GPIO Read and Memory Test Case</p>
 
       <img src="../images/nanologic/dv3.png" alt="DC - Total Cell Area" >
-      <p class="caption">Figure 7. Chip Design Flow</p>
+      <p class="caption">Post-Synthesis Reports</p>
 
     <h3>Synthesis</h3>
     <p>The synthesis stage translated the RTL design into a gate-level netlist using the TSMC 65 nm standard-cell library. Before synthesis, the RTL underwent linting and cleanup to ensure complete synthesizability and consistent signal definitions across modules. We constructed a comprehensive set of timing and design constraints, including the system clock specification, input and output delays, false-path and multicycle-path declarations, and mode-specific constraints for both functional and scan operation. These constraints ensured that the synthesis tool accurately captured the intended timing behavior of the SoC across all subsystems.
@@ -875,10 +1185,10 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>For each test case, we perform post-synthesis gate-level simulation to validate functional correctness. Due to several modules exhibiting hold-time violations, not all test cases pass at this stage. These hold issues are expected and will be resolved during the physical design (PD) stage through proper buffering and timing refinement. Importantly, we ensure that there are no setup-time violations after synthesis, providing a solid timing foundation for the subsequent place-and-route process.</p>
     <p>Following synthesis, we generated reports for area utilization, hierarchical timing, constraint coverage, and scan connectivity. The final synthesized netlist, along with the macro placement constraints and clock definitions, was handed off to the physical design stage for floorplanning and place-and-route. This marked the transition from RTL-level development to backend implementation.</p>
       <img src="../images/nanologic/dc1.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
-      <p class="caption">Figure 7. Chip Design Flow</p>
+      <p class="caption">Timing and Area Summary</p>
       <br><br>
       <img src="../images/nanologic/dc2.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
-      <p class="caption">Figure 7. Chip Design Flow</p>
+      <p class="caption">Gate-Level Results Overview</p>
 
     <h3>Physical Design</h3>
     <p>The physical design of the chip is implemented using Cadence Innovus for place-and-route and Cadence Virtuoso for final layout verification. We adopt a relatively simple but structured floorplan. The core complex, including the CPU core, system bus, and peripheral modules, is laid out as a single main block located at the center of the die. The instruction memory (IMEM) and data memory (DMEM) are implemented as two dedicated rectangular SRAM macros placed on the left and right sides of the core, respectively, to minimize critical-path interconnect length between the processor and the memories. The FSM, clock generation logic, and scan chain controller are grouped together and placed along one side of the chip. Since these blocks share the same power domain, this placement simplifies power distribution and also provides a clean topology for scan chain routing toward the rest of the design. IO pads are inserted along all four edges of the chip to interface the internal logic with the external environment and to close the power ring.
@@ -889,13 +1199,13 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>After the place-and-route flow is completed, the final layout is imported into Cadence Virtuoso for signoff-level physical verification. We perform full-layout DRC (Design Rule Check) and LVS (Layout Versus Schematic) to ensure that the layout is free of rule violations and is electrically consistent with the synthesized netlist. In addition, we back-annotate the extracted delay information into our simulation environment and re-run the full set of test cases at the gate-level with timing. All test cases are verified to pass with correct waveforms and converged timing behavior, providing strong confidence in both functionality and implementation quality.</p>
     <p>For timing signoff, we use Synopsys PrimeTime to perform static timing analysis across the relevant process, voltage, and temperature corners. Based on the extracted parasitics from the routed layout, we verify that no setup or hold violations remain on any timing path and that there are no additional issues such as excessive clock skew or unconstrained paths. Through this combination of Innovus PnR, Virtuoso physical verification, gate-level simulations with back-annotated delays, and PrimeTime static timing analysis, we ensure that the design is ready for fabrication with clean physical, functional, and timing signoff.</p>
     <img src="../images/nanologic/pd1.png" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Core & Bus & Pheripherals Layout</p>
+    <p class="caption">Core, Bus, and Peripherals Layout</p>
     <img src="../images/nanologic/pd_sc.png" alt="layout diagram">
-    <p class="caption">Figure ?. Scan Chain Layout</p>
+    <p class="caption">Scan Chain Layout</p>
     <p>In our physical design, the standard vertical power rails for each small module are implemented at metal layer M6, while the horizontal local power routing within the modules uses M1. Because the soc_mem block—which contains the CPU core, peripherals, and the two memory macros—also relies on vertically oriented power rails, its power grid must be precisely aligned with the internal module rails. Even a small offset would cause DRC violations due to misaligned straps or insufficient metal overlap. At the chip’s top level (soc_pin), the global power distribution network transitions to a higher metal layer, where wide horizontal power rails are used to provide low-resistance current delivery across the full SoC. This hierarchical alignment of vertical and horizontal power structures ensures correct connectivity, prevents DRC errors, and supports stable power distribution throughout the design.</p>
     <img src="../images/nanologic/layout.png" alt="layout diagram">
     <img src="../images/nanologic/layout2.png" alt="layout diagram">
-    <p class="caption">Figure ?. Layout Pictures</p>
+    <p class="caption">Final Layout Views</p>
     
     <h3>Packaging Overview</h3>
     <p>The fabricated die has dimensions of 1000 µm × 2000 µm, and contains a total of 66 bond pads distributed symmetrically around the four sides of the chip. The pad arrangement consists of 25 pads on the north side, 25 pads on the south side, 8 pads on the west side, and 8 pads on the east side, providing full access to power rails, I/O interfaces, clocks, scan signals, and debug ports.
@@ -911,9 +1221,9 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
         The bonding diagram shows the complete mapping between die pads and LQFP64L pins. Power, ground, GPIO, SPI, UART, scan chains, and test signals are organized to minimize crossing wires and to maintain short bond lengths. This arrangement improves manufacturability, reduces parasitic inductance, and enhances reliability.
     </p>
     <img src="../images/nanologic/bond_table.png" alt="layout diagram">
-        <p class="caption">Figure ?. Bond Table</p>
+        <p class="caption">Bond Table</p>
         <img src="../images/nanologic/bond_diagram.png" alt="layout diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
-            <p class="caption">Figure ?. Bond Diagram</p>
+            <p class="caption">Bond Diagram</p>
   </section>
   
   <section id="software">
@@ -923,8 +1233,26 @@ The software development and testing workflow begins with writing programs in C,
       Once the C programs are compiled, the resulting machine code is loaded into the chip through the scan chain. During scan mode, the scan chain shifts the instructions directly into the IMEM and DMEM. After switching to run mode, the CPU begins fetching instructions from IMEM and executing them, allowing us to verify full-system behavior.
      </p>
 
+    <div class="highlight-grid">
+      <div class="highlight-card">
+        <span class="label">Toolchain</span>
+        <div class="value">RISC-V GCC (RV32IMC / Zfinx)</div>
+        <p>Custom linker script respects the Harvard split and AHB/APB address map.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="label">Startup & Drivers</span>
+        <div class="value">crt0.S + nano_logic_utils.c</div>
+        <p>Boot code, register aliases, and peripheral helpers reused across demos.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="label">Hex Build</span>
+        <div class="value">run.rv32.bash → VHX</div>
+        <p>Generates IMEM/DMEM hex images for scan loading, simulation, and bring-up.</p>
+      </div>
+    </div>
+
       <img src="../images/nanologic/sw_flow.png" alt="layout diagram"><br>
-    <p class="caption">Figure ?. Chip Software Flow </p><br>
+    <p class="caption">Chip Software Flow</p><br>
     <h3>Software Development</h3>
    <h4>Compiler:</h4>
     <p>Our implementation of the CV32E40P core supports the RV32IMC instruction sets, and we built the corresponding RISC-V toolchain in order to compile C programs to run on our chip. We built the compiler before abandoning the FPU, so it also supports RV32Zfinx, which we simply don’t specify support for in our final bash script that calls the compiler.</p>
@@ -1749,7 +2077,68 @@ void setBacklight (uint8_t value) {
 	digitalWrite((uint8_t) 0x07, value, 1);
 }</code></pre></div>
     </details>
+    <p>Full demo program sources now live in the Demonstration section below.</p>
 
+    <h3>Testing Methodology</h3>
+    <h4>Post-Silicon Validation</h4>
+    <p>To conduct post-silicon validation on our chip, we started with a structured bring-up sequence to validate that the silicon was healthy. The very first step was to construct a testing setup on a breadboard that would allow us to test the various features of our chip. To make the setup easier, we used a QFP64 socket, which allowed us to connect our chip to the breadboard without soldering. Since the chip has 64 pins, and a single breadboard has 63 rows, each row of the breadboard was connected to pins 1 through 63 on the chip. Pin 64, which is GPIO 7, was left disconnected since there was no room, and it wasn't crucial for initial testing anyway. From there, the breadboard was set up in such a way as to mimic our testbench used in simulation. Specifically, we were most concerned with replicating the scan-chain process.</p>
+    <p>To do this, we first documented the expected values and behavior of each pin based on the simulation testbench. This included identifying which pins needed to be set to what voltage, which served as scan-chain controls, which were dedicated I/O pins, and which supplied power or clocking. Having this reference made it possible to map physical pin behavior to the functional waveforms we expected to observe on the oscilloscope.</p>
+    <p>Our initial plan was to use a 3.3 V Arduino Pro Mini as the external controller for scan-chain operations and general chip bring-up. However, we quickly discovered that the Pro Mini's microcontroller was not compatible with the routines in our scan-chain driver code. As a result, we switched to a 5 V Arduino Uno, using a voltage divider network to ensure that any 5 V outputs feeding into our chip were stepped down to safe levels. This let us continue development while maintaining signal integrity and protecting the silicon.</p>
+    <p>Once the control hardware was selected, we programmed the Arduino with a scan-chain interface based on code from a previous project in the course. This gave us an immediate framework for clocking in scan data, latching instructions, and reading chain outputs. With this basic infrastructure ready, we attached an oscilloscope to measure the internal clock generator. Our goal was to verify that the on-chip oscillator was functional and running at the intended frequency. After several measurement attempts, including adjusting trigger levels and confirming that our power rails were stable, we were able to confirm oscillation.</p>
+    <p>With the core clock verified, we moved on to testing individual subsystems. UART was the first to come online. After configuring baud rate parameters and validating the UART TX waveforms on the oscilloscope, we successfully received UART messages from the chip. This allowed us to use UART as a lightweight diagnostic channel for subsequent tests.</p>
+    <p>Next, we tested GPIO inputs. By manually toggling input pins and reading the chip's internal state over UART, we confirmed that the GPIO block was latching external values correctly. This validated both the input pads and the internal routing to the processor core. </p>
+    <p>For SPI testing, we created a test program to control the SPI pins and verified via oscilloscope that the chip generated the correct clock and data responses. Although initially noisy, after adjusting grounding on the breadboard and shortening several long wires, the SPI signals became reliable.</p>
+    <p>One of the more complex peripherals to bring up was the LCD SPI backpack interface. With SPI known working, and using the previous project's LCD SPI backpack driver as a foundation, we adapted the initialization and command routines to work with our chip's instruction format and GPIO mapping. This took several rounds of debugging, but ultimately the LCD displayed correct characters, confirming functional integration between GPIO, instruction memory, and the CPU datapath.</p>
+    <p>As we became more confident in the system's stability, we returned to improving our scan-chain infrastructure. The initial version loaded all scan data into a unified chain, but for full testing flexibility, we modified the code to load instruction memory and data memory independently. This allowed us to preload programs while separately initializing memory contents used for testing. It also fixed the remaining bug we had with the LCD, where it would often display garbage data, since the string data was not being properly loaded into data memory.</p>
+    <p>With the breadboard prototype functioning well, we began transitioning toward a standalone PCB. First, we replaced the variable-voltage bench supply with a dedicated 5 V-to-1 V regulator circuit, ensuring a stable and repeatable power configuration. Then, using lessons learned from the breadboard setup, we created the first revision of the PCB. This initial design focused on routing clarity and ensuring all chip pins were accessible for test points. Once fabricated, we tested this board thoroughly, checking power distribution, confirming all traces, and verifying that the chip behaved identically to the breadboard setup.</p>
+    <p>Based on these results, we developed the final revision of the PCB, incorporating layout improvements, fixes to various oversights and mistakes from the first PCB, cleaner routing, and quality-of-life enhancements such as labeled headers and in built GPIO buttons. Testing this final revision confirmed that the board performed reliably and eliminated many of the wiring issues inherent to the breadboard prototype.</p>
+    <p>Finally, with the hardware stable, we created and validated the demo code used to showcase the chip's functionality. The demo serves both as a validation suite and as a demonstration of the chip's operational capabilities.</p>
+  </section>
+
+  
+
+  <section id="pcb">
+    <h2>PCB Design</h2>
+   <p>Before designing the PCB, we first validated the basic functionality of our system on a breadboard. This allowed us to quickly prototype the core components, verify signal correctness, and ensure that the chip interfaces behaved as expected. However, breadboard wiring is inherently limited in terms of signal integrity, power stability, reliability, and repeatability.</p>
+   <p>The purpose of creating a dedicated PCB is to provide a stable, well-structured, and electrically robust platform for testing our chip. The PCB ensures controlled routing, proper grounding, low-noise power distribution, and mechanically secure connections—all of which are essential for accurate measurement and characterization. It also integrates voltage regulators, test points, connectors, and peripheral interfaces in a clean and reproducible layout, enabling more complex experiments that would not be practical on a breadboard.
+</p>
+   <p>Overall, the PCB transforms the project from an early prototype into a reliable test and evaluation system, supporting systematic bring-up, debugging, and performance testing of the chip.</p>
+  <img src="../images/nanologic/board.HEIC" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
+    <p class="caption">Assembled PCB Overview</p>
+
+    <h3>Board Architecture</h3>
+    <p>The PCB is organized around the custom test chip placed at the center of the board, with all critical signals and supplies fanning out symmetrically. On the left side, an Arduino-UNO-compatible header provides a convenient digital interface for configuration, scan control, and simple firmware development. Around the chip, dedicated connectors expose scan, load, clock, and GPIO pins for lab instrumentation and external measurement.</p>
+    <p>The lower portion of the board is reserved for the power-management section, where the LDO regulators and associated jumpers, test points, and decoupling networks are grouped together. Along the bottom edge, an array of Cherry MX push buttons is connected to the chip GPIOs through pull-down resistors, forming a simple and robust user input interface. Mechanical features such as mounting holes and the reserved LCD area are aligned with the board outline so that the complete system can be mounted in a chassis or demo fixture. This layout keeps high-current power paths short, separates digital I/O from sensitive supply routing, and makes probing and debugging straightforward during bring-up.</p>
+    <img src="../images/nanologic/pcb1.png" alt="layout diagram"><br>
+        <p class="caption">PCB Top Layout</p>
+    <img src="../images/nanologic/pcb2.png" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
+        <p class="caption">PCB Bottom Layout</p>
+
+    <h3>Power Distribution</h3>
+    <p>The board is powered from a 5 V input, which is locally regulated down to several on-board supply rails. Three TPS7A7100 LDO regulators generate the main voltages used by the chip: VDD_CORE, VDD_CLEAN, and VDD_TEST. Each regulator has its own input filter, adjustable feedback network, and output decoupling, allowing the core, clean, and test domains to be powered independently and tuned to the required voltage levels.</p>
+    <p>For measurement and bring-up, every rail is routed through “pre” and “post” jumpers and dedicated test points. This allows an ammeter or shunt resistor to be inserted in series with the supply to monitor per-domain current consumption without modifying the PCB. Banks of bulk (10 µF) and high-frequency (100 nF) capacitors are placed close to the test chip pins on each rail to reduce supply noise and stabilize the regulators. The 3.3 V logic domain used by the GPIO switches and external connectors is kept separate from the core supplies, ensuring that digital I/O activity does not disturb the more sensitive core and clean power domains. Together, this power-distribution scheme provides flexible, low-noise, and well-observable supplies for detailed silicon characterization.
+</p>
+    <img src="../images/nanologic/pcb3.png" alt="layout diagram">
+            <p class="caption">PCB Rendering</p>
+
+  </section>
+  
+  <section id="demo">
+    <h2>Demonstration</h2>
+    <p>We have three parts of our demo, all of which run on our custom SoC and share a common hardware and software backbone. At reset, the top-level program in demo.c initializes the UART, GPIO block, SPI controller, and the SPI-attached character LCD, then hands control over to a simple menu system. Every interaction with the board, from pressing buttons to reading status on the LCD or streaming numbers over UART, flows through this one main loop. The purpose of the design is to exercise distinct parts of the system in realistic ways: the UART and arithmetic datapath through the prime and π demos, and the GPIO, timers, and LCD through an interactive reaction game. Together they give a quick but thorough sanity check that the CPU, its peripherals, and the board integration are behaving correctly.</p>
+    <p>The code is organized into five source files. The entry point is demo.c, which pulls in the other four modules and contains the main polling loop and mode-selection logic. The menu and welcome-screen routines live in demo_menu.c, which is responsible for drawing the static text that introduces the board and lists the available demos. Numeric computation is split into two self-contained modules: demo_prime.c implements a prime-number generator and UART output routine, and demo_pi.c implements an integer-only spigot algorithm for π, again driving the UART. Finally, demo_game.c contains the reaction game, including its difficulty selection, scoring, timing, and game-over behavior. By compiling these together and letting demo.c call into each one, we keep each demo’s logic relatively self-contained while still sharing a common hardware abstraction layer.</p>
+    <p>User interaction starts with the menu code. demo_menu.c configures a short LCD delay and defines the strings used for the welcome message and menu lines. On boot, print_welcome_message() clears the display and prints “Hello Apple” on the first line and “This is NanoLogic!” on the second line, using two string fragments to fit the LCD’s width. After a brief pause, print_menu_options() redraws the screen to show the text “Choose from below:” at the top, followed by three labeled options on subsequent rows: “A:Print Prime (UART)”, “B:Play Game”, and “C:Print π (UART)”. The π symbol is rendered using a single custom character with value 0xF7. These routines don’t handle any input themselves; they simply establish the visual framing for the demos and then return to the main loop in demo.c.</p>
+    <p>The main program in demo.c wires this menu to the physical buttons. It defines small helper functions button_A(), button_B(), and button_C() that read GPIO pins 0–2 for the three primary options, and button_Select() on GPIO 7 for a “menu” or “select” action. The reaction game itself uses two additional GPIOs: GPIO 6 as a Start button and GPIO 7 as a Stop/Menu button, with corresponding helpers game_started() and game_stopped() in demo_game.c. After initialization and the welcome screen, main() prints the menu once and then enters an infinite polling loop. Within that loop, pressing the B button drops into the reaction-game mode; pressing A launches the prime-printing demo up to a fixed bound; pressing C launches the π demo; and pressing the Select/Menu button at any time just redraws the menu. Each demo runs to completion and then returns to main(), which clears or refreshes the LCD and continues waiting for the next button press.</p>
+    <p>The prime-number demonstration in demo_prime.c is a straightforward arithmetic stress test for the CPU and the UART. The core of the module is is_prime(unsigned int n), which checks primality using simple trial division: it rejects values below 2 and even numbers greater than 2, then tests odd divisors from 3 up to i * i <= n. The helper uart_print_number() converts an unsigned integer into ASCII without using any dynamic memory or library formatting routines. It repeatedly extracts base-10 digits into a small local buffer (in reverse order) and then emits them back out from most-significant to least-significant digit using uart_putc(), inserting a short delay between characters so the output is human-readable over a slow terminal. The top-level function print_primes_uart(unsigned int max_n) simply loops from 2 up to max_n, calls is_prime() on each candidate, and for every prime prints its decimal representation followed by a space and a longer delay to separate primes. From the user’s perspective, choosing the prime demo (button A) causes demo.c to clear the LCD, print “Printing” on the first line and “Primes…” on the second, and then call print_primes_uart(1000), which generates all primes up to 1000 on the UART. When that loop finishes, the code sends a newline, calls print_menu_options() again, and returns to the idle polling loop.</p>
+    <p>The π demo in demo_pi.c plays a similar role but exercises more complicated integer math. It is built around a spigot algorithm that generates digits of π without any floating-point operations. A global integer array pi_state[] of length PI_SPIGOT_LEN (computed as (PI_DIGITS_MAX * 10 / 3) + 1) holds the internal remainder state. The helper uart_emit_digit() takes a single digit, outputs its ASCII representation over UART with a small delay, and keeps track of how many digits have been written so far. After the very first digit it automatically inserts a decimal point, so the stream appears as “3.14159…”. The main routine print_pi_uart(int digits) initializes pi_state[] (each entry set to 2), then runs the standard spigot inner loop: for each output digit it walks the remainder array from the end toward the beginning, multiplies by 10, adds a carry term, divides by (2*i - 1), and stores the new remainder and carry. It keeps track of predigit and a run of trailing 9s so that when a carry turns the next digit into 10, it can increment the previous digit and flush the buffered 9s correctly, producing an accurate decimal expansion. Each finalized digit is passed through uart_emit_digit(), and after all requested digits it prints a newline and a long delay. When the user selects the π demo via button C, demo.c clears the LCD, prints “Calculating” followed by the π glyph and a few dots, calls print_pi_uart(PI_DIGITS_MAX) (up to 500 digits), and finally restores the menu once the UART output is complete. This mode is particularly useful for stressing repeated multiplication, division, and tight looping in the CPU’s datapath.</p>
+    <p>The reaction game in demo_game.c is the most interactive of the three and exists primarily to exercise GPIO input, timer peripherals, and SPI-driven LCD output under a more dynamic workload. The game assumes six “letter” buttons corresponding to GPIO bits 0–5, labeled on the screen using the single-character strings “A”, “B”, “C”, “X”, “Y”, and “Z”. Two additional GPIO lines serve as Start (bit 6) and Stop/Menu (bit 7). On the LCD, the game maintains two status lines: a score line initialized to “Score: 0000” and a lives line initialized to “Lives: 3”. Helper routines such as write_number_to_buffer(), update_score_line(), and update_lives_line() update these strings in place and reprint them at fixed rows on the LCD without any heap allocation. The difficulty display uses three static strings—“Mode: Easy”, “Mode: Normal”, and “Mode: Hard”—and show_mode_line() draws the currently selected difficulty on the LCD’s second row.</p>
+    <p>When the user presses the B button from the main menu, demo.c enters a difficulty-selection screen. It clears the LCD, writes “React!” on the top line, shows the current mode (“Mode: Easy” by default), and prints a prompt line: “A=Easy B=Norm C=Hard” followed by “Press Game Start” on the last row. While the Start button is not yet pressed, the program polls the A, B, and C buttons: pressing A switches to Easy, B to Normal, and C to Hard. Each time the difficulty changes, show_mode_line() redraws only the mode line so the rest of the screen remains stable. Once the user presses Start (GPIO 6), the code briefly displays “Game Starting!”, calls reaction_game(hard_mode), and hands control over to the game loop.</p>
+    <p>Inside reaction_game(), both hardware timers are reset and started, the score is set to zero, and the lives counter is set to three. The game then enters an infinite series of rounds until the player either runs out of lives or explicitly exits to the menu. At the start of each round it reads the current values of the two timers, using them as simple entropy sources. For Easy mode, it chooses a single target letter by taking timer_read(0) % num_letters. For Normal mode, it chooses a first letter in the same way and a second, distinct letter using pick_second_letter(), which offsets the first index by a non-zero amount derived from the second timer and wraps around the six letters. For Hard mode, it calls build_hard_mask(), which mixes the two timer values into a bitmask representing a random subset of the six buttons (between one and six distinct letters). It then reconstructs an ordered list of those letters from the mask. In all cases, the chosen letters are displayed on the top row by show_round_header(), which uses build_display_string() to render them as a compact expression like “A+B+C” while simultaneously updating the score and lives lines below.</p>
+    <p>The input phase of each round is driven by polling and precise timing. A helper read_letter_mask() snapshots the low bits of the GPIO input register into a bitmask of currently pressed letter buttons. The round logic maintains a “wait budget” counter (ROUND_TIMEOUT_STEPS) and a reaction window (SIMUL_WINDOW_TICKS) measured by timer 0. Initially, the game waits for the player to press something: if no buttons are pressed, it decrements the wait budget, sleeps briefly, and repeats; if the budget reaches zero before any press is observed, the round is marked as “timed out.” Once at least one expected button is pressed, the game records the current timer value as the start of the reaction window and enters a second phase where it continuously checks that (1) no extra buttons outside the expected mask are pressed, and (2) the player eventually holds exactly the full expected combination within the allowed time. If the elapsed time exceeds SIMUL_WINDOW_TICKS or an extra button is detected at any point, the round is treated as a miss. At any time, pressing the Stop/Menu button (GPIO 7) invokes show_game_over_screen(), which displays “Game Over :(” together with the final score and a prompt “Start=Retry Sel=Menu”; the subsequent button press determines whether the game restarts from scratch or returns to the main menu.</p>
+    <p>At the end of the polling loop for a round, the game decides whether the input was correct. If the pressed mask matches the expected mask within the reaction window, it increments the score by one, updates the score line on the LCD, clears the top row, prints “Correct!”, and waits briefly so the player can see the feedback. If the player timed out or pressed the wrong combination, the code decrements the lives counter (down to a minimum of zero), updates the lives line, and prints either “Too Slow” or “Wrong:(” on the top row depending on the cause. After another short pause, if lives have dropped to zero, the game shows the game-over screen and either restarts or exits based on the user’s choice; otherwise it simply moves on to the next round with a new random letter pattern. When reaction_game() finally returns, demo.c prints “Returning to Menu” on the LCD, waits briefly, and then calls print_menu_options() to put the system back into its initial menu state.</p>
+    <p>Taken together, these modules form a small but complete demonstration suite for the SoC. The menu and main loop in demo.c coordinate the other four components, the prime and π demos in demo_prime.c and demo_pi.c stress computation and UART output with purely integer algorithms, and the reaction game in demo_game.c keeps the GPIO, timers, and LCD busy with fast user interaction. Because each demo uses different combinations of peripherals and arithmetic primitives, having all three available behind the same simple front panel makes it easy to validate the hardware and to showcase the capabilities of the system to anyone sitting down in front of the board.</p>
+
+    <h3>Demo Program Code</h3>
     <h4>Demo Program:</h4>
     <details class="code-block">
       <summary>demo.c (menu and mode control)</summary>
@@ -2366,107 +2755,48 @@ static void print_pi_uart(int digits) {
 
 </code></pre></div>
     </details>
-
-    <h3>Testing Methodology</h3>
-    <h4>Post-Silicon Validation</h4>
-    <p>To conduct post-silicon validation on our chip, we started with a structured bring-up sequence to validate that the silicon was healthy. The very first step was to construct a testing setup on a breadboard that would allow us to test the various features of our chip. To make the setup easier, we used a QFP64 socket, which allowed us to connect our chip to the breadboard without soldering. Since the chip has 64 pins, and a single breadboard has 63 rows, each row of the breadboard was connected to pins 1 through 63 on the chip. Pin 64, which is GPIO 7, was left disconnected since there was no room, and it wasn't crucial for initial testing anyway. From there, the breadboard was set up in such a way as to mimic our testbench used in simulation. Specifically, we were most concerned with replicating the scan-chain process.</p>
-    <p>To do this, we first documented the expected values and behavior of each pin based on the simulation testbench. This included identifying which pins needed to be set to what voltage, which served as scan-chain controls, which were dedicated I/O pins, and which supplied power or clocking. Having this reference made it possible to map physical pin behavior to the functional waveforms we expected to observe on the oscilloscope.</p>
-    <p>Our initial plan was to use a 3.3 V Arduino Pro Mini as the external controller for scan-chain operations and general chip bring-up. However, we quickly discovered that the Pro Mini's microcontroller was not compatible with the routines in our scan-chain driver code. As a result, we switched to a 5 V Arduino Uno, using a voltage divider network to ensure that any 5 V outputs feeding into our chip were stepped down to safe levels. This let us continue development while maintaining signal integrity and protecting the silicon.</p>
-    <p>Once the control hardware was selected, we programmed the Arduino with a scan-chain interface based on code from a previous project in the course. This gave us an immediate framework for clocking in scan data, latching instructions, and reading chain outputs. With this basic infrastructure ready, we attached an oscilloscope to measure the internal clock generator. Our goal was to verify that the on-chip oscillator was functional and running at the intended frequency. After several measurement attempts, including adjusting trigger levels and confirming that our power rails were stable, we were able to confirm oscillation.</p>
-    <p>With the core clock verified, we moved on to testing individual subsystems. UART was the first to come online. After configuring baud rate parameters and validating the UART TX waveforms on the oscilloscope, we successfully received UART messages from the chip. This allowed us to use UART as a lightweight diagnostic channel for subsequent tests.</p>
-    <p>Next, we tested GPIO inputs. By manually toggling input pins and reading the chip's internal state over UART, we confirmed that the GPIO block was latching external values correctly. This validated both the input pads and the internal routing to the processor core. </p>
-    <p>For SPI testing, we created a test program to control the SPI pins and verified via oscilloscope that the chip generated the correct clock and data responses. Although initially noisy, after adjusting grounding on the breadboard and shortening several long wires, the SPI signals became reliable.</p>
-    <p>One of the more complex peripherals to bring up was the LCD SPI backpack interface. With SPI known working, and using the previous project's LCD SPI backpack driver as a foundation, we adapted the initialization and command routines to work with our chip's instruction format and GPIO mapping. This took several rounds of debugging, but ultimately the LCD displayed correct characters, confirming functional integration between GPIO, instruction memory, and the CPU datapath.</p>
-    <p>As we became more confident in the system's stability, we returned to improving our scan-chain infrastructure. The initial version loaded all scan data into a unified chain, but for full testing flexibility, we modified the code to load instruction memory and data memory independently. This allowed us to preload programs while separately initializing memory contents used for testing. It also fixed the remaining bug we had with the LCD, where it would often display garbage data, since the string data was not being properly loaded into data memory.</p>
-    <p>With the breadboard prototype functioning well, we began transitioning toward a standalone PCB. First, we replaced the variable-voltage bench supply with a dedicated 5 V-to-1 V regulator circuit, ensuring a stable and repeatable power configuration. Then, using lessons learned from the breadboard setup, we created the first revision of the PCB. This initial design focused on routing clarity and ensuring all chip pins were accessible for test points. Once fabricated, we tested this board thoroughly, checking power distribution, confirming all traces, and verifying that the chip behaved identically to the breadboard setup.</p>
-    <p>Based on these results, we developed the final revision of the PCB, incorporating layout improvements, fixes to various oversights and mistakes from the first PCB, cleaner routing, and quality-of-life enhancements such as labeled headers and in built GPIO buttons. Testing this final revision confirmed that the board performed reliably and eliminated many of the wiring issues inherent to the breadboard prototype.</p>
-    <p>Finally, with the hardware stable, we created and validated the demo code used to showcase the chip's functionality. The demo serves both as a validation suite and as a demonstration of the chip's operational capabilities.</p>
-  </section>
-
-  
-
-  <section id="pcb">
-    <h2>PCB Design</h2>
-   <p>Before designing the PCB, we first validated the basic functionality of our system on a breadboard. This allowed us to quickly prototype the core components, verify signal correctness, and ensure that the chip interfaces behaved as expected. However, breadboard wiring is inherently limited in terms of signal integrity, power stability, reliability, and repeatability.</p>
-   <p>The purpose of creating a dedicated PCB is to provide a stable, well-structured, and electrically robust platform for testing our chip. The PCB ensures controlled routing, proper grounding, low-noise power distribution, and mechanically secure connections—all of which are essential for accurate measurement and characterization. It also integrates voltage regulators, test points, connectors, and peripheral interfaces in a clean and reproducible layout, enabling more complex experiments that would not be practical on a breadboard.
-</p>
-   <p>Overall, the PCB transforms the project from an early prototype into a reliable test and evaluation system, supporting systematic bring-up, debugging, and performance testing of the chip.</p>
-  <img src="../images/nanologic/board.HEIC" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
-    <p class="caption">Figure ?. PCB </p>
-
-    <h3>Board Architecture</h3>
-    <p>The PCB is organized around the custom test chip placed at the center of the board, with all critical signals and supplies fanning out symmetrically. On the left side, an Arduino-UNO-compatible header provides a convenient digital interface for configuration, scan control, and simple firmware development. Around the chip, dedicated connectors expose scan, load, clock, and GPIO pins for lab instrumentation and external measurement.</p>
-    <p>The lower portion of the board is reserved for the power-management section, where the LDO regulators and associated jumpers, test points, and decoupling networks are grouped together. Along the bottom edge, an array of Cherry MX push buttons is connected to the chip GPIOs through pull-down resistors, forming a simple and robust user input interface. Mechanical features such as mounting holes and the reserved LCD area are aligned with the board outline so that the complete system can be mounted in a chassis or demo fixture. This layout keeps high-current power paths short, separates digital I/O from sensitive supply routing, and makes probing and debugging straightforward during bring-up.</p>
-    <img src="../images/nanologic/pcb1.png" alt="layout diagram"><br>
-        <p class="caption">Figure ?. PCB </p>
-    <img src="../images/nanologic/pcb2.png" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
-        <p class="caption">Figure ?. PCB </p>
-
-    <h3>Power Distribution</h3>
-    <p>The board is powered from a 5 V input, which is locally regulated down to several on-board supply rails. Three TPS7A7100 LDO regulators generate the main voltages used by the chip: VDD_CORE, VDD_CLEAN, and VDD_TEST. Each regulator has its own input filter, adjustable feedback network, and output decoupling, allowing the core, clean, and test domains to be powered independently and tuned to the required voltage levels.</p>
-    <p>For measurement and bring-up, every rail is routed through “pre” and “post” jumpers and dedicated test points. This allows an ammeter or shunt resistor to be inserted in series with the supply to monitor per-domain current consumption without modifying the PCB. Banks of bulk (10 µF) and high-frequency (100 nF) capacitors are placed close to the test chip pins on each rail to reduce supply noise and stabilize the regulators. The 3.3 V logic domain used by the GPIO switches and external connectors is kept separate from the core supplies, ensuring that digital I/O activity does not disturb the more sensitive core and clean power domains. Together, this power-distribution scheme provides flexible, low-noise, and well-observable supplies for detailed silicon characterization.
-</p>
-    <img src="../images/nanologic/pcb3.png" alt="layout diagram">
-            <p class="caption">Figure ?. PCB </p>
-
-  </section>
-  
-  <section id="demo">
-    <h2>Demonstration</h2>
-    <p>We have three parts of our demo, all of which run on our custom SoC and share a common hardware and software backbone. At reset, the top-level program in demo.c initializes the UART, GPIO block, SPI controller, and the SPI-attached character LCD, then hands control over to a simple menu system. Every interaction with the board, from pressing buttons to reading status on the LCD or streaming numbers over UART, flows through this one main loop. The purpose of the design is to exercise distinct parts of the system in realistic ways: the UART and arithmetic datapath through the prime and π demos, and the GPIO, timers, and LCD through an interactive reaction game. Together they give a quick but thorough sanity check that the CPU, its peripherals, and the board integration are behaving correctly.</p>
-    <p>The code is organized into five source files. The entry point is demo.c, which pulls in the other four modules and contains the main polling loop and mode-selection logic. The menu and welcome-screen routines live in demo_menu.c, which is responsible for drawing the static text that introduces the board and lists the available demos. Numeric computation is split into two self-contained modules: demo_prime.c implements a prime-number generator and UART output routine, and demo_pi.c implements an integer-only spigot algorithm for π, again driving the UART. Finally, demo_game.c contains the reaction game, including its difficulty selection, scoring, timing, and game-over behavior. By compiling these together and letting demo.c call into each one, we keep each demo’s logic relatively self-contained while still sharing a common hardware abstraction layer.</p>
-    <p>User interaction starts with the menu code. demo_menu.c configures a short LCD delay and defines the strings used for the welcome message and menu lines. On boot, print_welcome_message() clears the display and prints “Hello Apple” on the first line and “This is NanoLogic!” on the second line, using two string fragments to fit the LCD’s width. After a brief pause, print_menu_options() redraws the screen to show the text “Choose from below:” at the top, followed by three labeled options on subsequent rows: “A:Print Prime (UART)”, “B:Play Game”, and “C:Print π (UART)”. The π symbol is rendered using a single custom character with value 0xF7. These routines don’t handle any input themselves; they simply establish the visual framing for the demos and then return to the main loop in demo.c.</p>
-    <p>The main program in demo.c wires this menu to the physical buttons. It defines small helper functions button_A(), button_B(), and button_C() that read GPIO pins 0–2 for the three primary options, and button_Select() on GPIO 7 for a “menu” or “select” action. The reaction game itself uses two additional GPIOs: GPIO 6 as a Start button and GPIO 7 as a Stop/Menu button, with corresponding helpers game_started() and game_stopped() in demo_game.c. After initialization and the welcome screen, main() prints the menu once and then enters an infinite polling loop. Within that loop, pressing the B button drops into the reaction-game mode; pressing A launches the prime-printing demo up to a fixed bound; pressing C launches the π demo; and pressing the Select/Menu button at any time just redraws the menu. Each demo runs to completion and then returns to main(), which clears or refreshes the LCD and continues waiting for the next button press.</p>
-    <p>The prime-number demonstration in demo_prime.c is a straightforward arithmetic stress test for the CPU and the UART. The core of the module is is_prime(unsigned int n), which checks primality using simple trial division: it rejects values below 2 and even numbers greater than 2, then tests odd divisors from 3 up to i * i <= n. The helper uart_print_number() converts an unsigned integer into ASCII without using any dynamic memory or library formatting routines. It repeatedly extracts base-10 digits into a small local buffer (in reverse order) and then emits them back out from most-significant to least-significant digit using uart_putc(), inserting a short delay between characters so the output is human-readable over a slow terminal. The top-level function print_primes_uart(unsigned int max_n) simply loops from 2 up to max_n, calls is_prime() on each candidate, and for every prime prints its decimal representation followed by a space and a longer delay to separate primes. From the user’s perspective, choosing the prime demo (button A) causes demo.c to clear the LCD, print “Printing” on the first line and “Primes…” on the second, and then call print_primes_uart(1000), which generates all primes up to 1000 on the UART. When that loop finishes, the code sends a newline, calls print_menu_options() again, and returns to the idle polling loop.</p>
-    <p>The π demo in demo_pi.c plays a similar role but exercises more complicated integer math. It is built around a spigot algorithm that generates digits of π without any floating-point operations. A global integer array pi_state[] of length PI_SPIGOT_LEN (computed as (PI_DIGITS_MAX * 10 / 3) + 1) holds the internal remainder state. The helper uart_emit_digit() takes a single digit, outputs its ASCII representation over UART with a small delay, and keeps track of how many digits have been written so far. After the very first digit it automatically inserts a decimal point, so the stream appears as “3.14159…”. The main routine print_pi_uart(int digits) initializes pi_state[] (each entry set to 2), then runs the standard spigot inner loop: for each output digit it walks the remainder array from the end toward the beginning, multiplies by 10, adds a carry term, divides by (2*i - 1), and stores the new remainder and carry. It keeps track of predigit and a run of trailing 9s so that when a carry turns the next digit into 10, it can increment the previous digit and flush the buffered 9s correctly, producing an accurate decimal expansion. Each finalized digit is passed through uart_emit_digit(), and after all requested digits it prints a newline and a long delay. When the user selects the π demo via button C, demo.c clears the LCD, prints “Calculating” followed by the π glyph and a few dots, calls print_pi_uart(PI_DIGITS_MAX) (up to 500 digits), and finally restores the menu once the UART output is complete. This mode is particularly useful for stressing repeated multiplication, division, and tight looping in the CPU’s datapath.</p>
-    <p>The reaction game in demo_game.c is the most interactive of the three and exists primarily to exercise GPIO input, timer peripherals, and SPI-driven LCD output under a more dynamic workload. The game assumes six “letter” buttons corresponding to GPIO bits 0–5, labeled on the screen using the single-character strings “A”, “B”, “C”, “X”, “Y”, and “Z”. Two additional GPIO lines serve as Start (bit 6) and Stop/Menu (bit 7). On the LCD, the game maintains two status lines: a score line initialized to “Score: 0000” and a lives line initialized to “Lives: 3”. Helper routines such as write_number_to_buffer(), update_score_line(), and update_lives_line() update these strings in place and reprint them at fixed rows on the LCD without any heap allocation. The difficulty display uses three static strings—“Mode: Easy”, “Mode: Normal”, and “Mode: Hard”—and show_mode_line() draws the currently selected difficulty on the LCD’s second row.</p>
-    <p>When the user presses the B button from the main menu, demo.c enters a difficulty-selection screen. It clears the LCD, writes “React!” on the top line, shows the current mode (“Mode: Easy” by default), and prints a prompt line: “A=Easy B=Norm C=Hard” followed by “Press Game Start” on the last row. While the Start button is not yet pressed, the program polls the A, B, and C buttons: pressing A switches to Easy, B to Normal, and C to Hard. Each time the difficulty changes, show_mode_line() redraws only the mode line so the rest of the screen remains stable. Once the user presses Start (GPIO 6), the code briefly displays “Game Starting!”, calls reaction_game(hard_mode), and hands control over to the game loop.</p>
-    <p>Inside reaction_game(), both hardware timers are reset and started, the score is set to zero, and the lives counter is set to three. The game then enters an infinite series of rounds until the player either runs out of lives or explicitly exits to the menu. At the start of each round it reads the current values of the two timers, using them as simple entropy sources. For Easy mode, it chooses a single target letter by taking timer_read(0) % num_letters. For Normal mode, it chooses a first letter in the same way and a second, distinct letter using pick_second_letter(), which offsets the first index by a non-zero amount derived from the second timer and wraps around the six letters. For Hard mode, it calls build_hard_mask(), which mixes the two timer values into a bitmask representing a random subset of the six buttons (between one and six distinct letters). It then reconstructs an ordered list of those letters from the mask. In all cases, the chosen letters are displayed on the top row by show_round_header(), which uses build_display_string() to render them as a compact expression like “A+B+C” while simultaneously updating the score and lives lines below.</p>
-    <p>The input phase of each round is driven by polling and precise timing. A helper read_letter_mask() snapshots the low bits of the GPIO input register into a bitmask of currently pressed letter buttons. The round logic maintains a “wait budget” counter (ROUND_TIMEOUT_STEPS) and a reaction window (SIMUL_WINDOW_TICKS) measured by timer 0. Initially, the game waits for the player to press something: if no buttons are pressed, it decrements the wait budget, sleeps briefly, and repeats; if the budget reaches zero before any press is observed, the round is marked as “timed out.” Once at least one expected button is pressed, the game records the current timer value as the start of the reaction window and enters a second phase where it continuously checks that (1) no extra buttons outside the expected mask are pressed, and (2) the player eventually holds exactly the full expected combination within the allowed time. If the elapsed time exceeds SIMUL_WINDOW_TICKS or an extra button is detected at any point, the round is treated as a miss. At any time, pressing the Stop/Menu button (GPIO 7) invokes show_game_over_screen(), which displays “Game Over :(” together with the final score and a prompt “Start=Retry Sel=Menu”; the subsequent button press determines whether the game restarts from scratch or returns to the main menu.</p>
-    <p>At the end of the polling loop for a round, the game decides whether the input was correct. If the pressed mask matches the expected mask within the reaction window, it increments the score by one, updates the score line on the LCD, clears the top row, prints “Correct!”, and waits briefly so the player can see the feedback. If the player timed out or pressed the wrong combination, the code decrements the lives counter (down to a minimum of zero), updates the lives line, and prints either “Too Slow” or “Wrong:(” on the top row depending on the cause. After another short pause, if lives have dropped to zero, the game shows the game-over screen and either restarts or exits based on the user’s choice; otherwise it simply moves on to the next round with a new random letter pattern. When reaction_game() finally returns, demo.c prints “Returning to Menu” on the LCD, waits briefly, and then calls print_menu_options() to put the system back into its initial menu state.</p>
-    <p>Taken together, these modules form a small but complete demonstration suite for the SoC. The menu and main loop in demo.c coordinate the other four components, the prime and π demos in demo_prime.c and demo_pi.c stress computation and UART output with purely integer algorithms, and the reaction game in demo_game.c keeps the GPIO, timers, and LCD busy with fast user interaction. Because each demo uses different combinations of peripherals and arithmetic primitives, having all three available behind the same simple front panel makes it easy to validate the hardware and to showcase the capabilities of the system to anyone sitting down in front of the board.</p>
     
     <img src="../images/nanologic/demo/default.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Starting Our Demo </p>
+    <p class="caption">Demo Menu on LCD</p>
 
     <img src="../images/nanologic/demo/prime.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Print Prime Numbers on LCD Screen</p>
+    <p class="caption">Prime Demo on LCD</p>
 
     <img src="../images/nanologic/demo/primes_term.png" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Print Prime Numbers shown on PC</p>
+    <p class="caption">Prime Demo Output over UART</p>
 
     <img src="../images/nanologic/demo/pai.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Print Pai </p>
+    <p class="caption">Pi Demo on LCD</p>
 
     <img src="../images/nanologic/demo/pi_term.png" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Print Pai shown on PC</p>
+    <p class="caption">Pi Demo Output over UART</p>
 
     <img src="../images/nanologic/demo/game_menu.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Print Game Menu </p>
+    <p class="caption">Game Mode Selection</p>
 
     <img src="../images/nanologic/demo/easy.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Game Easy Mode </p>
+    <p class="caption">Game Easy Mode</p>
    
     <img src="../images/nanologic/demo/gameover.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Game Over </p>
+    <p class="caption">Game Over Screen</p>
 
     <img src="../images/nanologic/demo/normal.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Game Normal Mode  </p>
+    <p class="caption">Game Normal Mode</p>
 
     <img src="../images/nanologic/demo/normal2.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Game Normal Mode Ongoing </p>
+    <p class="caption">Game Normal Mode In Progress</p>
     
     <img src="../images/nanologic/demo/normal_wrong.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Game Normal Mode Wrong </p>
+    <p class="caption">Game Normal Mode Incorrect Input</p>
 
     <img src="../images/nanologic/demo/normal_over.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Game Normal Mode Over </p>
+    <p class="caption">Game Normal Mode Over</p>
 
     <img src="../images/nanologic/demo/hard.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Game Hard Mode </p>
+    <p class="caption">Game Hard Mode</p>
 
     <img src="../images/nanologic/demo/hard2.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-    <p class="caption">Figure ?. Game Hard Mode Ongoing </p>
+    <p class="caption">Game Hard Mode In Progress</p>
 
     <h3>Video Demonstration</h3>
     <div class="video-container">
@@ -2682,13 +3012,12 @@ static void print_pi_uart(int digits) {
   
   <section id="references">
     <h2>References</h2>
-    <ol style="margin-left: 25px; color: var(--text-gray);">
-      <li style="margin-bottom: 12px;"> CV32E40P Documentation: OpenHW Group, Introduction, https://docs.openhwgroup.org/projects/cv32e40p-user-manual/en/latest/intro.html</li>
-      <li style="margin-bottom: 12px;"> APB Protocol Documentation: ARM Ltd, AMBA® APB Protocol Specification, https://documentation-service.arm.com/static/63fe2c1356ea36189d4e79f3%3Ftoken%3D&ved=2ahUKEwiL-or6lKeRAxVPFVkFHbZNCjIQFnoECCMQAQ&usg=AOvVaw2XkJhpaIeA4ry31JCjoQdq</li>
-      <li style="margin-bottom: 12px;"> AHB Protocol Documentation: ARM Ltd, AMBA® AHB Protocol Specification, https://documentation-service.arm.com/static/6141bf0d674a052ae36ca811%3Ftoken%3D&ved=2ahUKEwj<br>IooLn9K6RAxVF1fACHW1kCQkQFnoECAwQAQ&usg=AOvVaw0qphHfwpTSe1SQ0d2QgAIm</li>   
-      <li style="margin-bottom: 12px;"> 2024 iRisc Code: iRisc, iRisc - Fully Custom Risc-V SOC, https://gitfront.io/r/lafis002/nsQYcfC2svzE/iRisc/</li>
-      <li style="margin-bottom: 12px;"> RISC-V GNU Toolchain Github Repository: riscv-collab, riscv-gnu-toolchain, https://github.com/riscv-collab/riscv-gnu-toolchain</li>
-      <li style="margin-bottom: 12px;">[Reference _: Author, Title, Publication, Year]</li>
+    <ol class="references">
+      <li><strong>OpenHW Group.</strong> CV32E40P User Manual. <a href="https://docs.openhwgroup.org/projects/cv32e40p-user-manual/en/latest/intro.html">docs.openhwgroup.org</a></li>
+      <li><strong>ARM Ltd.</strong> AMBA APB Protocol Specification (IHI0033). <a href="https://developer.arm.com/documentation/ihi0033/latest">developer.arm.com</a></li>
+      <li><strong>ARM Ltd.</strong> AMBA AHB Protocol Specification (IHI0011). <a href="https://developer.arm.com/documentation/ihi0011/latest">developer.arm.com</a></li>
+      <li><strong>iRisc Team.</strong> iRisc: Fully Custom RISC-V SoC (2024). <a href="https://gitfront.io/r/lafis002/nsQYcfC2svzE/iRisc/">gitfront.io</a></li>
+      <li><strong>RISC-V Collaboration.</strong> RISC-V GNU Toolchain. <a href="https://github.com/riscv-collab/riscv-gnu-toolchain">github.com/riscv-collab/riscv-gnu-toolchain</a></li>
     </ol>
   </section>
   
@@ -2756,6 +3085,7 @@ static void print_pi_uart(int digits) {
       <span>RTL Design, Physical Design</span>
       <span>jl6932@columbia.edu</span>
       </div>
+    </div>
   </section>
   
   <a class="back" href="../index.html">Back to all projects</a>
