@@ -3696,10 +3696,11 @@ static void print_pi_uart(int digits) {
 
     function highlight(codeText) {
       let html = escapeHtml(codeText);
-      html = html.replace(commentPattern, '<span class="code-comment">$1</span>');
+      // Run replacements in an order that keeps newly added tags from being re-processed
       html = html.replace(stringPattern, '<span class="code-string">$1</span>');
       html = html.replace(keywordPattern, '<span class="code-keyword">$1</span>');
       html = html.replace(numberPattern, '<span class="code-number">$1</span>');
+      html = html.replace(commentPattern, '<span class="code-comment">$1</span>');
       return html;
     }
 
