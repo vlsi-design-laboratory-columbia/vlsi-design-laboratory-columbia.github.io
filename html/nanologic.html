@@ -43,6 +43,7 @@
       counter-reset: figure;
       font-family: 'IBM Plex Sans', 'Space Grotesk', sans-serif;
       margin: 0;
+      padding-top: 110px;
       background: radial-gradient(circle at 20% 20%, rgba(60, 199, 193, 0.08), transparent 30%),
                   radial-gradient(circle at 80% 10%, rgba(103, 172, 255, 0.1), transparent 28%),
                   #f7f9fc;
@@ -210,6 +211,11 @@
       -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) / 3.2));
     }
 
+    .nav-wrapper.nav-pinned .nav-handle {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     .nav-handle {
       position: absolute;
       top: 4px;
@@ -270,11 +276,11 @@
       border: 1px solid var(--glass-border);
       border-top: none;
       border-radius: 0 0 16px 16px;
-      overflow: hidden;
+      overflow: visible;
       opacity: 0;
       pointer-events: none;
       transform: translateY(-12px);
-      max-height: 0;
+      max-height: none;
       padding-top: 12px;
       transition: opacity 0.22s ease, transform 0.22s ease, max-height 0.3s ease, box-shadow 0.22s ease, border-color 0.22s ease;
     }
@@ -285,7 +291,6 @@
       opacity: 1;
       pointer-events: auto;
       transform: translateY(0);
-      max-height: 260px;
       border-bottom-color: var(--glass-border);
     }
 
@@ -312,23 +317,31 @@
     }
     
     .nav-container {
-      max-width: 1350px;
+      max-width: 1250px;
       margin: 0 auto;
-      padding: 12px clamp(16px, 2vw, 28px);
+      padding: 10px clamp(10px, 2vw, 20px) 14px;
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 8px;
-      overflow-x: auto;
+      gap: 6px 8px;
+      overflow: visible;
+    }
+
+    #nav-sentinel {
+      height: 1px;
+      width: 1px;
+      pointer-events: none;
+      opacity: 0;
     }
     
     .nav-buttons a {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       color: var(--text-dark);
-      padding: 9px 16px;
+      padding: 8px 14px;
       border-radius: 999px;
       text-decoration: none;
-      font-size: 0.92em;
+      font-size: 0.86em;
       font-weight: 600;
       transition: all 0.2s ease;
       position: relative;
@@ -340,15 +353,32 @@
       overflow: hidden;
       white-space: nowrap;
       flex: 0 0 auto;
+      --mx: 50%;
+      --my: 50%;
+    }
+
+    .nav-buttons a.nav-back {
+      order: -1;
+      margin-right: auto;
+      padding: 9px 18px;
+      background: linear-gradient(135deg, rgba(60,199,193,0.32), rgba(15,43,70,0.06));
+      color: var(--primary);
+      border-color: rgba(60,199,193,0.5);
+      box-shadow: 0 12px 26px rgba(12,20,38,0.14);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      font-weight: 700;
+      align-self: flex-start;
     }
 
     .nav-buttons a::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, var(--glass-sheen), transparent 55%);
-      opacity: 0.8;
+      background: radial-gradient(140px circle at var(--mx) var(--my), rgba(255,255,255,0.65), transparent 60%);
+      opacity: 0;
       pointer-events: none;
+      transition: opacity 0.2s ease;
     }
 
     .nav-buttons a::after {
@@ -368,10 +398,11 @@
       background: linear-gradient(135deg, rgba(255,255,255,0.38), rgba(60,199,193,0.18));
       border-color: rgba(60, 199, 193, 0.3);
       box-shadow: 0 12px 24px rgba(12,20,38,0.12);
+      transform: translateY(-1px);
     }
 
-    @media (min-width: 1100px) {
-      .nav-container {flex-wrap: nowrap;}
+    .nav-buttons a:hover::before {
+      opacity: 0.9;
     }
 
     /* Theme toggle */
@@ -1163,6 +1194,7 @@ h4 {
     
     /* Responsive */
     @media (max-width: 768px) {
+      body {padding-top: 150px;}
       .header-content {padding: 70px 30px 50px;}
       header h1 {font-size: 2.2em;}
       .header-subtitle {font-size: 1.1em;}
@@ -1172,8 +1204,9 @@ h4 {
       .nav-wrapper {padding: 8px 0 0;}
       .nav-buttons {left: 8px; right: 8px;}
       .nav-handle {width: 32px;}
-      .nav-container {padding: 12px 16px; flex-wrap: wrap;}
-      .nav-buttons a {font-size: 0.85em; padding: 8px 16px;}
+      .nav-container {padding: 10px 12px 14px; flex-wrap: wrap; gap: 6px;}
+      .nav-buttons a {font-size: 0.8em; padding: 7px 12px;}
+      .nav-buttons a.nav-back {flex: 1 1 100%;}
       .hero-grid {grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));}
       .image-placeholder {height: 250px; font-size: 0.95em;}
       .theme-row {justify-content: center;}
@@ -1183,6 +1216,7 @@ h4 {
   </style>
 </head>
 <body>
+<div id="nav-sentinel" aria-hidden="true"></div>
 <header>
   <div class="header-content">
     <div class="theme-row">
@@ -1238,12 +1272,13 @@ h4 {
   </div>
 </header>
 
-<div class="nav-wrapper">
+<div class="nav-wrapper nav-open nav-pinned">
   <button class="nav-handle" type="button" aria-expanded="false" aria-controls="page-nav" aria-label="Toggle page navigation">
     <span class="nav-toggle-cue">&#9662;</span>
   </button>
   <nav id="page-nav" class="nav-buttons" aria-label="Page navigation">
     <div class="nav-container">
+      <a class="nav-back" href="../index.html">Back to all projects</a>
       <a href="#introduction">Introduction</a>
       <a href="#architecture">Architecture</a>
       <a href="#design-flow">Design Flow</a>
@@ -1259,8 +1294,6 @@ h4 {
 </div>
 
 <div class="container">
-  <a class="back" href="../index.html">Back to all projects</a>
-  
   <section id="introduction">
     <h2>Introduction</h2>
     <p class="instruction-text">Our project is a fully integrated RISC-V based SoC chip fabricated in TSMC 65 nm CMOS technology. The system is built around the OpenHW Group’s CORE-V CV32E40P RISC-V CPU core, connected through an AHB-based system bus with AHB-to-APB bridges to access a rich set of on-chip peripherals.
@@ -3562,6 +3595,7 @@ static void print_pi_uart(int digits) {
     const navWrapper = document.querySelector('.nav-wrapper');
     const navHandle = document.querySelector('.nav-handle');
     const navLinks = Array.from(document.querySelectorAll('.nav-buttons a'));
+    const navSentinel = document.querySelector('#nav-sentinel');
 
     function setNavOpen(open) {
       if (!navWrapper || !navHandle) return;
@@ -3570,6 +3604,10 @@ static void print_pi_uart(int digits) {
     }
 
     if (navWrapper && navHandle) {
+      if (navWrapper.classList.contains('nav-open')) {
+        setNavOpen(true);
+      }
+
       navHandle.addEventListener('click', (event) => {
         event.stopPropagation();
         const nextState = !navWrapper.classList.contains('nav-open');
@@ -3577,19 +3615,35 @@ static void print_pi_uart(int digits) {
       });
 
       navWrapper.addEventListener('mouseleave', () => {
+        if (navWrapper.classList.contains('nav-pinned')) return;
         if (!navWrapper.matches(':hover')) {
           setNavOpen(false);
         }
       });
 
       document.addEventListener('click', (event) => {
+        if (navWrapper.classList.contains('nav-pinned')) return;
         if (!navWrapper.contains(event.target)) {
           setNavOpen(false);
         }
       });
 
       navLinks.forEach(link => {
-        link.addEventListener('click', () => setNavOpen(false));
+        link.addEventListener('click', () => {
+          if (navWrapper.classList.contains('nav-pinned')) return;
+          setNavOpen(false);
+        });
+        link.addEventListener('pointermove', (event) => {
+          const rect = link.getBoundingClientRect();
+          const x = ((event.clientX - rect.left) / rect.width) * 100;
+          const y = ((event.clientY - rect.top) / rect.height) * 100;
+          link.style.setProperty('--mx', `${x}%`);
+          link.style.setProperty('--my', `${y}%`);
+        });
+        link.addEventListener('pointerleave', () => {
+          link.style.removeProperty('--mx');
+          link.style.removeProperty('--my');
+        });
       });
 
       navWrapper.addEventListener('mouseenter', () => {
@@ -3609,10 +3663,25 @@ static void print_pi_uart(int digits) {
       });
 
       navWrapper.addEventListener('focusout', (event) => {
+        if (navWrapper.classList.contains('nav-pinned')) return;
         if (!navWrapper.contains(event.relatedTarget) && !navWrapper.classList.contains('nav-open')) {
           navHandle.setAttribute('aria-expanded', 'false');
         }
       });
+
+      if (navSentinel) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries[0].isIntersecting;
+          if (visible) {
+            navWrapper.classList.add('nav-pinned');
+            setNavOpen(true);
+          } else {
+            navWrapper.classList.remove('nav-pinned');
+            setNavOpen(false);
+          }
+        }, { threshold: 0.05 });
+        observer.observe(navSentinel);
+      }
     }
 
     // Lightweight code highlighting
