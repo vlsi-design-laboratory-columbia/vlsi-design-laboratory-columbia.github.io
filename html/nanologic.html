@@ -272,6 +272,7 @@
       justify-content: center;
       flex: 1;
       flex-wrap: wrap;
+      order: 2;
     }
 
     .nav-links a {
@@ -304,10 +305,11 @@
       align-items: center;
       gap: 8px;
       flex: 0 0 auto;
+      order: 3;
     }
 
     .nav-toggle {
-      display: none;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 34px;
@@ -319,6 +321,8 @@
       cursor: pointer;
       box-shadow: 0 10px 22px rgba(12,20,38,0.1);
       transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      order: 4;
+      margin-left: 8px;
     }
 
     .nav-toggle:hover {
@@ -357,6 +361,15 @@
       transform: rotate(90deg);
     }
 
+    .nav-wrapper.nav-collapsed .nav-links,
+    .nav-wrapper.nav-collapsed .nav-actions {
+      display: none !important;
+    }
+
+    .nav-wrapper.nav-collapsed .nav-bar {
+      padding-right: 14px;
+    }
+
     @media (max-width: 960px) {
       .nav-bar {
         flex-wrap: wrap;
@@ -379,11 +392,6 @@
         order: 3;
         width: 100%;
         justify-content: flex-start;
-      }
-
-      .nav-toggle {
-        display: inline-flex;
-        margin-left: auto;
       }
 
       .nav-title {
@@ -3574,24 +3582,53 @@ static void print_pi_uart(int digits) {
       }
     });
 
-    // Navigation interactions (inline on desktop, toggle on mobile)
+    // Navigation interactions (inline on desktop, toggle or collapse)
     const navWrapper = document.querySelector('.nav-wrapper');
     const navToggle = document.querySelector('.nav-toggle');
     const navLinks = Array.from(document.querySelectorAll('.nav-links a'));
     const desktopQuery = window.matchMedia('(min-width: 961px)');
 
+    function setDesktopCollapsed(collapsed) {
+      navWrapper.classList.toggle('nav-collapsed', collapsed);
+      navToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      navToggle.setAttribute('aria-label', collapsed ? 'Expand navigation' : 'Collapse navigation');
+    }
+
+    function setMobileOpen(open) {
+      navWrapper.classList.toggle('nav-open', open);
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      navToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    }
+
     function closeMobileNav() {
       if (!navWrapper || !navToggle) return;
-      navWrapper.classList.remove('nav-open');
-      navToggle.setAttribute('aria-expanded', 'false');
+      setMobileOpen(false);
+    }
+
+    function syncToggleState() {
+      if (!navWrapper || !navToggle) return;
+      if (desktopQuery.matches) {
+        const collapsed = navWrapper.classList.contains('nav-collapsed');
+        navToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        navToggle.setAttribute('aria-label', collapsed ? 'Expand navigation' : 'Collapse navigation');
+      } else {
+        const open = navWrapper.classList.contains('nav-open');
+        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        navToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+      }
     }
 
     if (navWrapper && navToggle) {
       navToggle.addEventListener('click', () => {
-        const open = !navWrapper.classList.contains('nav-open');
-        navWrapper.classList.toggle('nav-open', open);
-        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (desktopQuery.matches) {
+          const collapsed = navWrapper.classList.contains('nav-collapsed');
+          setDesktopCollapsed(!collapsed);
+        } else {
+          const open = navWrapper.classList.contains('nav-open');
+          setMobileOpen(!open);
+        }
       });
+      syncToggleState();
     }
 
     navLinks.forEach(link => {
@@ -3606,6 +3643,10 @@ static void print_pi_uart(int digits) {
     function handleDesktopChange(event) {
       if (event.matches) {
         closeMobileNav();
+        syncToggleState();
+      } else {
+        navWrapper.classList.remove('nav-collapsed');
+        syncToggleState();
       }
     }
 
