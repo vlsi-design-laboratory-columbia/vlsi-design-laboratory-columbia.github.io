@@ -196,17 +196,97 @@
     }
     
     /* Navigation - sleek and modern */
+    .nav-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 120;
+      display: flex;
+      justify-content: center;
+      padding: 6px 0 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0));
+      backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) / 3.2));
+      -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) / 3.2));
+    }
+
+    .nav-handle {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 130;
+      pointer-events: auto;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
+      color: var(--text-dark);
+      font-size: 0.78em;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--glass-shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .nav-handle:hover {
+      transform: translateX(-50%) translateY(-1px);
+      box-shadow: 0 12px 24px rgba(12,20,38,0.12);
+      border-color: rgba(60, 199, 193, 0.35);
+    }
+
+    .nav-handle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .nav-handle .nav-toggle-cue {
+      font-size: 0.86em;
+      transition: transform 0.2s ease;
+      line-height: 1;
+    }
+
+    .nav-wrapper.nav-open .nav-handle .nav-toggle-cue,
+    .nav-wrapper:hover .nav-handle .nav-toggle-cue,
+    .nav-wrapper:focus-within .nav-handle .nav-toggle-cue {
+      transform: rotate(180deg);
+    }
+
     .nav-buttons {
       background: linear-gradient(135deg, rgba(255,255,255,0.42), rgba(255,255,255,0.24));
       backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) * 1.05));
       -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) * 1.05));
       padding: 0;
-      position: sticky;
+      position: absolute;
       top: 0;
-      z-index: 100;
+      left: 0;
+      right: 0;
+      z-index: 110;
       box-shadow: var(--glass-shadow);
-      border-bottom: 1px solid var(--glass-border);
+      border: 1px solid var(--glass-border);
+      border-top: none;
+      border-radius: 0 0 16px 16px;
       overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-12px);
+      max-height: 0;
+      padding-top: 12px;
+      transition: opacity 0.22s ease, transform 0.22s ease, max-height 0.3s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .nav-wrapper.nav-open .nav-buttons,
+    .nav-wrapper:hover .nav-buttons,
+    .nav-wrapper:focus-within .nav-buttons {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      max-height: 260px;
+      border-bottom-color: var(--glass-border);
     }
 
     .nav-buttons::before {
@@ -232,13 +312,14 @@
     }
     
     .nav-container {
-      max-width: 1180px;
+      max-width: 1350px;
       margin: 0 auto;
-      padding: 12px 32px;
+      padding: 12px clamp(16px, 2vw, 28px);
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
       gap: 8px;
+      overflow-x: auto;
     }
     
     .nav-buttons a {
@@ -257,6 +338,8 @@
       backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) / 2));
       -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) / 2));
       overflow: hidden;
+      white-space: nowrap;
+      flex: 0 0 auto;
     }
 
     .nav-buttons a::before {
@@ -285,6 +368,10 @@
       background: linear-gradient(135deg, rgba(255,255,255,0.38), rgba(60,199,193,0.18));
       border-color: rgba(60, 199, 193, 0.3);
       box-shadow: 0 12px 24px rgba(12,20,38,0.12);
+    }
+
+    @media (min-width: 1100px) {
+      .nav-container {flex-wrap: nowrap;}
     }
 
     /* Theme toggle */
@@ -941,6 +1028,16 @@ h4 {
       box-shadow: 0 18px 46px rgba(0,0,0,0.35);
     }
     
+    html[data-theme-active="dark"] .nav-wrapper {
+      background: linear-gradient(180deg, rgba(17,24,39,0.78), rgba(17,24,39,0));
+    }
+    
+    html[data-theme-active="dark"] .nav-handle {
+      background: linear-gradient(135deg, rgba(17,24,39,0.7), rgba(17,24,39,0.5));
+      color: var(--text-gray);
+      border-color: var(--glass-border);
+    }
+    
     html[data-theme-active="dark"] .nav-buttons {
       background: linear-gradient(135deg, rgba(17,24,39,0.64), rgba(17,24,39,0.52));
       border-color: var(--glass-border);
@@ -955,7 +1052,7 @@ h4 {
       backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) / 2));
       -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(calc(var(--glass-blur) / 2));
     }
-
+    
     html[data-theme-active="dark"] .nav-buttons a:hover {
       color: var(--primary-light);
       background: linear-gradient(135deg, rgba(17,24,39,0.54), rgba(93,229,215,0.14));
@@ -1072,7 +1169,10 @@ h4 {
       .container {padding: 40px 30px; margin: 30px 20px;}
       section {padding: 26px 20px 30px;}
       h2 {font-size: 1.8em;}
-      .nav-container {padding: 12px 20px;}
+      .nav-wrapper {padding: 8px 0 0;}
+      .nav-buttons {left: 8px; right: 8px;}
+      .nav-handle {width: 32px;}
+      .nav-container {padding: 12px 16px; flex-wrap: wrap;}
       .nav-buttons a {font-size: 0.85em; padding: 8px 16px;}
       .hero-grid {grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));}
       .image-placeholder {height: 250px; font-size: 0.95em;}
@@ -1138,20 +1238,25 @@ h4 {
   </div>
 </header>
 
-<nav class="nav-buttons">
-  <div class="nav-container">
-    <a href="#introduction">Introduction</a>
-    <a href="#architecture">Architecture</a>
-    <a href="#design-flow">Design Flow</a>
-    <a href="#software">Software & Testing</a>
-    <a href="#pcb">PCB Design</a>
-    <a href="#demo">Demonstration</a>
-    <a href="#specs">Specifications</a>
-    <a href="#conclusions">Conclusions</a>
-    <a href="#references">References</a>
-    <a href="#acknowledgments">Acknowledgments</a>
-  </div>
-</nav>
+<div class="nav-wrapper">
+  <button class="nav-handle" type="button" aria-expanded="false" aria-controls="page-nav" aria-label="Toggle page navigation">
+    <span class="nav-toggle-cue">&#9662;</span>
+  </button>
+  <nav id="page-nav" class="nav-buttons" aria-label="Page navigation">
+    <div class="nav-container">
+      <a href="#introduction">Introduction</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#design-flow">Design Flow</a>
+      <a href="#software">Software &amp; Testing</a>
+      <a href="#pcb">PCB Design</a>
+      <a href="#demo">Demonstration</a>
+      <a href="#specs">Specifications</a>
+      <a href="#conclusions">Conclusions</a>
+      <a href="#references">References</a>
+      <a href="#acknowledgments">Acknowledgments</a>
+    </div>
+  </nav>
+</div>
 
 <div class="container">
   <a class="back" href="../index.html">Back to all projects</a>
@@ -3452,6 +3557,63 @@ static void print_pi_uart(int digits) {
         applyTheme('auto');
       }
     });
+
+    // Navigation reveal (hover on desktop, tap on mobile)
+    const navWrapper = document.querySelector('.nav-wrapper');
+    const navHandle = document.querySelector('.nav-handle');
+    const navLinks = Array.from(document.querySelectorAll('.nav-buttons a'));
+
+    function setNavOpen(open) {
+      if (!navWrapper || !navHandle) return;
+      navWrapper.classList.toggle('nav-open', open);
+      navHandle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    if (navWrapper && navHandle) {
+      navHandle.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const nextState = !navWrapper.classList.contains('nav-open');
+        setNavOpen(nextState);
+      });
+
+      navWrapper.addEventListener('mouseleave', () => {
+        if (!navWrapper.matches(':hover')) {
+          setNavOpen(false);
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!navWrapper.contains(event.target)) {
+          setNavOpen(false);
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', () => setNavOpen(false));
+      });
+
+      navWrapper.addEventListener('mouseenter', () => {
+        if (!navWrapper.classList.contains('nav-open')) {
+          navHandle.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      navWrapper.addEventListener('mouseleave', () => {
+        if (!navWrapper.classList.contains('nav-open')) {
+          navHandle.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      navWrapper.addEventListener('focusin', () => {
+        navHandle.setAttribute('aria-expanded', 'true');
+      });
+
+      navWrapper.addEventListener('focusout', (event) => {
+        if (!navWrapper.contains(event.relatedTarget) && !navWrapper.classList.contains('nav-open')) {
+          navHandle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
 
     // Lightweight code highlighting
     const keywordPattern = /\b(const|static|inline|void|int|char|uint8_t|uint32_t|unsigned|volatile|return|if|else|for|while|break|continue|goto|switch|case|default|struct|typedef|include|define)\b/g;
