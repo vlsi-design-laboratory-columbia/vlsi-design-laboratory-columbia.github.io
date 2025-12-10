@@ -595,13 +595,27 @@
   </section>
   
   <section id="software">
-    <h2>Software & Testing Flow</h2>
+    <h2>Testing & Verification</h2>
     <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
-    
-    <h3>Software Development</h3>
+    <p> 
+        This section presents the overall verification and validation flow used to ensure the correct functionality of the buck converter chip. 
+        The testing process is divided into pre-silicon verification, which confirms circuit functionality before tape-out, and post-silicon validation, which evaluates the fabricated chip under real measurement conditions.
+    </p>
+
+    <h3>Pre-silicon</h3>
     <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
-    
-    <h3>Testing Methodology</h3>
+
+    <h4>Digital Blocks</h4>
+    <p> To verify the correctness of the digital control logic, comprehensive testbenches were written in Verilog for each module and for the combined digital top. Simulations were run in ModelSim, both before synthesis (RTL) and after synthesis (gate-level), to detect potential timing issues introduced by the synthesis process. In addition, Static Timing Analysis (STA) was conducted in Synopsys PrimeTime to verify that all timing constraints were met and to ensure that the design operated reliably at the target clock frequency.
+        The figure below shows the ModelSim simulation waveform alongside a snapshot of the PrimeTime timing report.
+    </p>
+    <div class="image-placeholder">Insert Simulation Results</div>
+
+    <h4>Analog Blocks</h4>
+    <h4>Closed-loop Simulation</h4>
+    <h4>Post-APR Simulation</h4>
+
+    <h3>Post-silicon</h3>
     <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
   </section>
   
