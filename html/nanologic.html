@@ -1592,6 +1592,10 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
 
           <img src="../images/nanologic/designflow.png" alt="System block diagram">
           <p class="caption">Chip Design Flow</p>
+	  <br>
+	<div class="video-container">
+      <iframe src="https://www.youtube.com/watch?v=r14xPdXEXRM" title="Design Flow demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
 
     <h3>RTL Design</h3>
     <p>The RTL design of the SoC was developed and compiled using the ModelSim simulation environment. The codebase follows a clear hierarchical structure that separates chip-level integration, functional logic, and DFT infrastructure. At the highest level, the design begins with soc-pins, which connect the internal SoC signals to the padframe. Directly beneath it is soc-top, the actual top-level RTL of the chip. This module contains both the functional SoC and the DFT subsystem, which are designed as two independent power domains: the DFT logic operates under VDD_Test, while all functional logic is powered by VDD_Core. This separation ensures safe testing in scan mode without interfering with normal system behavior.
