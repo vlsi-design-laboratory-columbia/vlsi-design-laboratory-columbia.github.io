@@ -465,7 +465,7 @@
     <a href="#introduction">Introduction</a>
     <a href="#architecture">Architecture</a>
     <a href="#design-flow">Design Flow</a>
-    <a href="#software">Software & Testing</a>
+    <a href="#software">Testing & Verification</a>
     <a href="#pcb">PCB Design</a>
     <a href="#demo">Demonstration</a>
     <a href="#specs">Specifications</a>
@@ -585,13 +585,6 @@
     </p>
     <img src="../images/dpmic/floor_plan.png">
     <img src="../images/dpmic/chip_layout.png">
-    <p>
-      The top-level post-layout simulation results are shown as follows.
-    </p>
-    <img src="../images/dpmic/post_layout_sim.png">
-    <p align="center">
-      <img src="../images/dpmic/efficiency.png" width="60%">
-    </p>
   </section>
   
   <section id="software">
@@ -612,11 +605,22 @@
     <div class="image-placeholder">Insert Simulation Results</div>
 
     <h4>Analog Blocks</h4>
-    <h4>Closed-loop Simulation</h4>
-    <h4>Post-APR Simulation</h4>
-
+    <h4>Post-layout Closed-loop Simulation</h4>
+    <p>
+      The top-level post-layout simulation results are shown as follows.
+    </p>
+    <img src="../images/dpmic/post_layout_sim.png">
+    <p align="center">
+      <img src="../images/dpmic/efficiency.png" width="60%">
+    </p>
     <h3>Post-silicon</h3>
-    <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
+    <p>[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
+    <p align="center">
+      <img src="../images/dpmic/pcb_design/test_scanchain.png" width=80%>
+    </p>
+    <p align="center">
+      <img src="../images/dpmic/pcb_design/test_buck.png" width=80%>
+    </p>
   </section>
   
   <section id="pcb">
@@ -686,15 +690,11 @@
   
   <section id="demo">
     <h2>Demonstration</h2>
-    <p class="instruction-text">[Replace with demonstration description: Show working examples, test results, and real-world performance of your chip.]</p>
-
     <p>
       The pictures below show two demonstration modes of our board: in the first, the chip supplies 1.8 V to the MCU while it runs a snake game; in the second, the chip powers the 1.8 V LED array. In both cases, the real-time output voltage and current provided by the chip are displayed on the OLED screen.
     </p>
     <img src="../images/dpmic/demo_photos/demo1.jpeg">
     <img src="../images/dpmic/demo_photos/demo2.png">
-    <div class="image-placeholder">Insert demonstration photo or screenshot</div>
-    
     <h3>Video Demonstration</h3>
     <div class="video-container">
       <iframe src="https://www.youtube.com/embed/iYCrBk69G7g" title="Project demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -809,26 +809,32 @@
       <div class="team-member">
         <strong>Hongxin Xu</strong>
         <span>Analog Blocks Design, Physical Design, PCB Design and Test</span>
+        <span>hx2389@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Andi Li</strong>
         <span> Digital Blocks Design, Physical Design, PCB Design and Test</span>
+        <span>al4725@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Ziyang Wang</strong>
         <span>Analog and Digital Blocks Design, Physical Design</span>
+        <span>zw3022@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Sean Chou</strong>
         <span>Analog Blocks Design, Physical Design, PCB Firmware Design</span>
+        <span>tc3381@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Haoran Zhao</strong>
         <span>Analog Blocks Design, Physical Design</span>
+        <span>hz2972@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Yuxiao Ma</strong>
         <span>Analog Blocks Design, Physical Design</span>
+        <span>ym3055@columbia.edu</span>
       </div>
     </div>
   </section>
