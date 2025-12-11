@@ -1315,7 +1315,7 @@ h4 {
       </div>
     </div>
 
-      <img src="../images/nanologic/overview.HEIC" alt="System block diagram">
+      <img src="../images/nanologic/overview.jpg" alt="System block diagram">
       <p class="caption">Whole System on PCB</p>
 
   </section>
@@ -1333,7 +1333,7 @@ h4 {
       <span class="pill">Scan-ready memories</span>
     </div>
 
-<img src="../images/nanologic/block_diagram.png" alt="System block diagram">
+<img src="../images/nanologic/block_diagram.jpg" alt="System block diagram">
       <p class="caption">SoC Chip Block Diagram</p>
 
     
@@ -1357,7 +1357,7 @@ During the early front-end architecture planning, we initially enabled floating-
       <em>CV32E40P Core</em><br>
 The CPU shown in the diagram is based on the CV32E40P core, a 4-stage, in-order RISC-V processor optimized for embedded and low-power applications. Its microarchitecture consists of the classic IF, ID, EX, and WB pipeline stages, with tightly integrated control logic to manage instruction flow, hazard resolution, and power-saving modes. The front end includes a prefetch buffer, instruction aligner, and compressed instruction decoder to improve instruction delivery efficiency. The register file and decoder feed multiple execution units, including an ALU, multiplier/divider, CSR unit, and an optional floating-point unit, enabling a wide range of integer and arithmetic operations. A dedicated Load-Store Unit (LSU) handles memory accesses and interacts with the external data interface. The core also integrates specialized units such as hardware loop registers, debug interface, interrupt controller, and a sleep unit for fine-grained power management. Overall, the design delivers a compact, configurable, and energy-efficient RISC-V processing solution suitable for microcontroller-class systems.
    
-  <img src="../images/nanologic/CV32E40P_Block_Diagram.png" alt="System block diagram">
+  <img src="../images/nanologic/CV32E40P_Block_Diagram.jpg" alt="System block diagram">
         <p class="caption">CV32E40P CPU Core</p>
 </p>
 
@@ -1371,13 +1371,13 @@ CV32E40P uses a clock-gating strategy at the top level to reduce dynamic power c
    <p>
     ICG cell integrates a latch and gating logic to ensure glitch-free clock gating, and also includes a test-enable input for scan and DFT support. Using this standard, fully characterized cell guarantees safe operation and seamless integration with synthesis, CTS, and STA.
    </p>
-   <img src="../images/nanologic/icg.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
+   <img src="../images/nanologic/icg.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
           <p class="caption">Clock Gating Cell</p>
    <br><br>
       <p>
       <em>FPU</em><br>
 We originally planned to integrate an FPU into the SoC and successfully completed the compiler and linker configuration required to support floating-point operations. The FPU passed our initial functional simulations and worked correctly at the RTL level. However, after synthesis, physical design, and timing analysis, the FPU ran into timing issues which were not easily solved. To maintain overall system stability and achieve a much higher operating frequency, we ultimately decided to remove the FPU. Without the FPU's long combinational paths, the SoC's maximum clock period improved from 15 ns to 5 ns, resulting in substantially better performance and a more reliable design.
-  <img src="../images/nanologic/FPU.png" alt="FPU">
+  <img src="../images/nanologic/FPU.jpg" alt="FPU">
             <p class="caption">Floating Point Operations</p>
    </p>
    <h4>Memory</h4>
@@ -1432,7 +1432,7 @@ To enable complete chip-level scan coverage, the wrappers include logic that rec
 <li>The memory wrapper becomes part of the SoC's continuous scan chain, enabling scan vector to scan-in / scan-out. </li>
 </ul>
 </p>
-   <img src="../images/nanologic/sram_wrapper.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
+   <img src="../images/nanologic/sram_wrapper.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
           <p class="caption">DMEM Wrapper</p>
 
 
@@ -1442,7 +1442,7 @@ To enable complete chip-level scan coverage, the wrappers include logic that rec
 A central AMBA AHB system bus forms the primary communication backbone of the SoC. The bus is organized in a 1-master / 6-slave (M16S) topology, with the RISC-V CPU core acting as the only AHB master. It helps keep the interconnect simple, low-latency, and area-efficient.
 <br>
 <br>
-   <img src="../images/nanologic/ahb_picture.png" alt="System block diagram">
+   <img src="../images/nanologic/ahb_picture.jpg" alt="System block diagram">
    <p class="caption">AHB Interconnection</p>
 Among the AHB slaves, the data memory (DMEM) is connected directly to the AHB bus as an AHB slave. All load/store instructions issued by the CPU are translated into AHB transactions through the LSU module, providing a straightforward path for data accesses.
 <br>
@@ -1464,7 +1464,7 @@ The AHB-to-APB bridge decouples the higher-speed AHB domain from the simpler APB
 <li>Isolating the timing and fan-out of the peripheral bus from the main system bus</li>
 </ul>
 </p>
-<img src="../images/nanologic/apb.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br><br>
+<img src="../images/nanologic/apb.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br><br>
             <p class="caption">APB FSM Diagram</p>
     
 
@@ -1511,7 +1511,7 @@ The last peripheral is a set of timers. The timer is a versatile module designed
 </p>
 <p>
 These signals are flattened into a single contiguous scan path:<br>
-   <img src="../images/nanologic/scanchain.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
+   <img src="../images/nanologic/scanchain.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
    <p class="caption">Scan Chain</p>
 </p>
 
@@ -1543,10 +1543,10 @@ When scan mode is deactivated, the memory wrappers and control signals reconnect
   </ul>
 </p>
 <p>The transition between scan mode and run mode is cleanly controlled to ensure no metastability or unintended corruption of memory or control registers.</p>
-  <img src="../images/nanologic/scan_in.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
+  <img src="../images/nanologic/scan_in.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
    <p class="caption">Scan In Cell</p>
    <br>
-    <img src="../images/nanologic/scan_out.png" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
+    <img src="../images/nanologic/scan_out.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
    <p class="caption">Scan Out Cell</p>
    <br>
 
@@ -1571,7 +1571,7 @@ The final clock output of the generator is routed to the CPU core, AHB bus, memo
 <br>
 Mode selection, as well as auxiliary control signals (such as step length in debug mode), are themselves loaded through the scan chain. This allows complete control of clock behavior from external test equipment without relying on software.
 </p>
-   <img src="../images/nanologic/fsm.png" alt="System block diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
+   <img src="../images/nanologic/fsm.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
    <p class="caption">Debug FSM</p>
 
 
@@ -1590,11 +1590,11 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     Following fabrication, the bare dies are packaged and undergo bring-up on both a breadboard environment and a dedicated PCB. The entire PCB, including power regulation, signal breakouts, connectors, and measurement points, was fully designed by our team, with all components hand-selected to support chip evaluation. Silicon validation verifies real-chip functionality, performance, and power consumption. After successful validation, the chip is used for demonstrations and system-level experiments.
   </p>
 
-          <img src="../images/nanologic/designflow.png" alt="System block diagram">
+          <img src="../images/nanologic/designflow.jpg" alt="System block diagram">
           <p class="caption">Chip Design Flow</p>
 	  <br>
 	<div class="video-container">
-      <iframe src="https://www.youtube.com/watch?v=r14xPdXEXRM" title="Design Flow demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/r14xPdXEXRM" title="Design Flow demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
 
     <h3>RTL Design</h3>
@@ -1610,7 +1610,7 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>
     Overall, the RTL is organized to cleanly separate functionality and test logic while maintaining a modular structure that mirrors the physical hierarchy of the final chip. This structure supported efficient simulation, synthesis, and later physical design, and provided a clear boundary between the functional SoC and its DFT infrastructure.  
     </p>
-      <img src="../images/nanologic/rtl.png" alt="System block diagram">
+      <img src="../images/nanologic/rtl.jpg" alt="System block diagram">
       <p class="caption">RTL Modules Architecture</p>
 
   
@@ -1620,13 +1620,13 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>The SystemVerilog testbench models the full bring-up sequence of the physical chip. Before each run, the testbench assembles the 248-bit scan-in vector by organizing the scan chain fields according to their functional purposes, including IMEM contents, DMEM initialization, clock generator configuration, and FSM mode bits. Verification begins with a global reset, followed by placing the internal FSM into scan mode so that the testbench can shift instructions and configuration data into the scan chain. Once the scan load is complete, the FSM transitions into run mode, enabling the CPU to fetch instructions from IMEM and execute the compiled C program. Waveforms are monitored during execution to observe CPU behavior, AHB and APB transactions, peripheral activity, and memory accesses, ensuring architectural and protocol correctness.</p>
     <p>After program execution finishes, the FSM is switched back into scan mode to shift out DMEM data. By comparing the scanned-out results against the expected outputs generated by the C testcase, we verify the correctness of program execution, the integrity of the scan chain, and the functionality of the memory wrappers. This verification flow—reset → scan-in → run → scan-out—exactly mirrors the operational steps used during post-silicon bring-up, ensuring a high degree of consistency between pre-silicon simulation and hardware validation.
 </p>
-      <img src="../images/nanologic/dv1.png" alt="hierarchy">
+      <img src="../images/nanologic/dv1.jpg" alt="hierarchy">
       <p class="caption">GPIO Write Test Case</p>
 
-      <img src="../images/nanologic/dv2.png" alt="DC - Total Cell Area">
+      <img src="../images/nanologic/dv2.jpg" alt="DC - Total Cell Area">
       <p class="caption">GPIO Read and Memory Test Case</p>
 
-      <img src="../images/nanologic/dv3.png" alt="DC - Total Cell Area" >
+      <img src="../images/nanologic/dv3.jpg" alt="DC - Total Cell Area" >
       <p class="caption">Post-Synthesis Reports</p>
 
     <h3>Synthesis</h3>
@@ -1636,10 +1636,10 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>In our synthesis flow, we follow a hierarchical methodology aligned with the RTL file organization. All IP modules—such as the CPU core, SPI, UART, I2C, GPIO, timer, scan chain, and various FSMs—are synthesized individually to ensure modularity and ease of debugging. When synthesizing the SoC-level design, we include the previously generated netlists for these IP blocks and then proceed with synthesizing the SoC bus, SoC memory subsystem, and SoC top, together with the SRAM integration files.</p>
     <p>For each test case, we perform post-synthesis gate-level simulation to validate functional correctness. Due to several modules exhibiting hold-time violations, not all test cases pass at this stage. These hold issues are expected and will be resolved during the physical design (PD) stage through proper buffering and timing refinement. Importantly, we ensure that there are no setup-time violations after synthesis, providing a solid timing foundation for the subsequent place-and-route process.</p>
     <p>Following synthesis, we generated reports for area utilization, hierarchical timing, constraint coverage, and scan connectivity. The final synthesized netlist, along with the macro placement constraints and clock definitions, was handed off to the physical design stage for floorplanning and place-and-route. This marked the transition from RTL-level development to backend implementation.</p>
-      <img src="../images/nanologic/dc1.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
+      <img src="../images/nanologic/dc1.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
       <p class="caption">Timing and Area Summary</p>
       <br><br>
-      <img src="../images/nanologic/dc2.png" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
+      <img src="../images/nanologic/dc2.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
       <p class="caption">Gate-Level Results Overview</p>
 
     <h3>Physical Design</h3>
@@ -1650,13 +1650,13 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>As mentioned earlier in the synthesis section, some modules exhibited hold-time violations at the netlist level. These issues are systematically resolved during the place-and-route stage. Using post-route parasitic information, we perform hold-fixing in Innovus by inserting delay cells and adjusting routing where necessary. Our goal is to eliminate all hold-time violations while preserving setup-time margins, so that the final implementation is both functionally correct and timing-clean under the target operating conditions.</p>
     <p>After the place-and-route flow is completed, the final layout is imported into Cadence Virtuoso for signoff-level physical verification. We perform full-layout DRC (Design Rule Check) and LVS (Layout Versus Schematic) to ensure that the layout is free of rule violations and is electrically consistent with the synthesized netlist. In addition, we back-annotate the extracted delay information into our simulation environment and re-run the full set of test cases at the gate-level with timing. All test cases are verified to pass with correct waveforms and converged timing behavior, providing strong confidence in both functionality and implementation quality.</p>
     <p>For timing signoff, we use Synopsys PrimeTime to perform static timing analysis across the relevant process, voltage, and temperature corners. Based on the extracted parasitics from the routed layout, we verify that no setup or hold violations remain on any timing path and that there are no additional issues such as excessive clock skew or unconstrained paths. Through this combination of Innovus PnR, Virtuoso physical verification, gate-level simulations with back-annotated delays, and PrimeTime static timing analysis, we ensure that the design is ready for fabrication with clean physical, functional, and timing signoff.</p>
-    <img src="../images/nanologic/pd1.png" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
+    <img src="../images/nanologic/pd1.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
     <p class="caption">Core, Bus, and Peripherals Layout</p>
-    <img src="../images/nanologic/pd_sc.png" alt="layout diagram">
+    <img src="../images/nanologic/pd_sc.jpg" alt="layout diagram">
     <p class="caption">Scan Chain Layout</p>
     <p>In our physical design, the standard vertical power rails for each small module are implemented at metal layer M6, while the horizontal local power routing within the modules uses M1. Because the soc_mem block—which contains the CPU core, peripherals, and the two memory macros—also relies on vertically oriented power rails, its power grid must be precisely aligned with the internal module rails. Even a small offset would cause DRC violations due to misaligned straps or insufficient metal overlap. At the chip’s top level (soc_pin), the global power distribution network transitions to a higher metal layer, where wide horizontal power rails are used to provide low-resistance current delivery across the full SoC. This hierarchical alignment of vertical and horizontal power structures ensures correct connectivity, prevents DRC errors, and supports stable power distribution throughout the design.</p>
-    <img src="../images/nanologic/layout.png" alt="layout diagram">
-    <img src="../images/nanologic/layout2.png" alt="layout diagram">
+    <img src="../images/nanologic/layout.jpg" alt="layout diagram">
+    <img src="../images/nanologic/layout2.jpg" alt="layout diagram">
     <p class="caption">Final Layout Views</p>
     
     <h3>Packaging Overview</h3>
@@ -1672,9 +1672,9 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
           <em>Bonding Diagram and Pinout</em><br>
         The bonding diagram shows the complete mapping between die pads and LQFP64L pins. Power, ground, GPIO, SPI, UART, scan chains, and test signals are organized to minimize crossing wires and to maintain short bond lengths. This arrangement improves manufacturability, reduces parasitic inductance, and enhances reliability.
     </p>
-    <img src="../images/nanologic/bond_table.png" alt="layout diagram">
+    <img src="../images/nanologic/bond_table.jpg" alt="layout diagram">
         <p class="caption">Bond Table</p>
-        <img src="../images/nanologic/bond_diagram.png" alt="layout diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
+        <img src="../images/nanologic/bond_diagram.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
             <p class="caption">Bond Diagram</p>
   </section>
   
@@ -1703,7 +1703,7 @@ The software development and testing workflow begins with writing programs in C,
       </div>
     </div>
 
-      <img src="../images/nanologic/sw_flow.png" alt="layout diagram"><br>
+      <img src="../images/nanologic/sw_flow.jpg" alt="layout diagram"><br>
     <p class="caption">Chip Software Flow</p><br>
     <h3>Software Development</h3>
    <h4>Compiler:</h4>
@@ -2555,22 +2555,22 @@ void setBacklight (uint8_t value) {
    <p>The purpose of creating a dedicated PCB is to provide a stable, well-structured, and electrically robust platform for testing our chip. The PCB ensures controlled routing, proper grounding, low-noise power distribution, and mechanically secure connections—all of which are essential for accurate measurement and characterization. It also integrates voltage regulators, test points, connectors, and peripheral interfaces in a clean and reproducible layout, enabling more complex experiments that would not be practical on a breadboard.
 </p>
    <p>Overall, the PCB transforms the project from an early prototype into a reliable test and evaluation system, supporting systematic bring-up, debugging, and performance testing of the chip.</p>
-  <img src="../images/nanologic/board.HEIC" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
+  <img src="../images/nanologic/board.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
     <p class="caption">Assembled PCB Overview</p>
 
     <h3>Board Architecture</h3>
     <p>The PCB is organized around the custom test chip placed at the center of the board, with all critical signals and supplies fanning out symmetrically. On the left side, an Arduino-UNO-compatible header provides a convenient digital interface for configuration, scan control, and simple firmware development. Around the chip, dedicated connectors expose scan, load, clock, and GPIO pins for lab instrumentation and external measurement.</p>
     <p>The lower portion of the board is reserved for the power-management section, where the LDO regulators and associated jumpers, test points, and decoupling networks are grouped together. Along the bottom edge, an array of Cherry MX push buttons is connected to the chip GPIOs through pull-down resistors, forming a simple and robust user input interface. Mechanical features such as mounting holes and the reserved LCD area are aligned with the board outline so that the complete system can be mounted in a chassis or demo fixture. This layout keeps high-current power paths short, separates digital I/O from sensitive supply routing, and makes probing and debugging straightforward during bring-up.</p>
-    <img src="../images/nanologic/pcb1.png" alt="layout diagram"><br>
+    <img src="../images/nanologic/pcb1.jpg" alt="layout diagram"><br>
         <p class="caption">PCB Top Layout</p>
-    <img src="../images/nanologic/pcb2.png" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
+    <img src="../images/nanologic/pcb2.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
         <p class="caption">PCB Bottom Layout</p>
 
     <h3>Power Distribution</h3>
     <p>The board is powered from a 5 V input, which is locally regulated down to several on-board supply rails. Three TPS7A7100 LDO regulators generate the main voltages used by the chip: VDD_CORE, VDD_CLEAN, and VDD_TEST. Each regulator has its own input filter, adjustable feedback network, and output decoupling, allowing the core, clean, and test domains to be powered independently and tuned to the required voltage levels.</p>
     <p>For measurement and bring-up, every rail is routed through “pre” and “post” jumpers and dedicated test points. This allows an ammeter or shunt resistor to be inserted in series with the supply to monitor per-domain current consumption without modifying the PCB. Banks of bulk (10 µF) and high-frequency (100 nF) capacitors are placed close to the test chip pins on each rail to reduce supply noise and stabilize the regulators. The 3.3 V logic domain used by the GPIO switches and external connectors is kept separate from the core supplies, ensuring that digital I/O activity does not disturb the more sensitive core and clean power domains. Together, this power-distribution scheme provides flexible, low-noise, and well-observable supplies for detailed silicon characterization.
 </p>
-    <img src="../images/nanologic/pcb3.png" alt="layout diagram">
+    <img src="../images/nanologic/pcb3.jpg" alt="layout diagram">
             <p class="caption">PCB Rendering</p>
 
   </section>
@@ -3214,13 +3214,13 @@ static void print_pi_uart(int digits) {
     <img src="../images/nanologic/demo/prime.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
     <p class="caption">Prime Demo on LCD</p>
 
-    <img src="../images/nanologic/demo/primes_term.png" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
+    <img src="../images/nanologic/demo/primes_term.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
     <p class="caption">Prime Demo Output over UART</p>
 
     <img src="../images/nanologic/demo/pai.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
     <p class="caption">Pi Demo on LCD</p>
 
-    <img src="../images/nanologic/demo/pi_term.png" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
+    <img src="../images/nanologic/demo/pi_term.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
     <p class="caption">Pi Demo Output over UART</p>
 
     <img src="../images/nanologic/demo/game_menu.jpg" alt="layout diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
