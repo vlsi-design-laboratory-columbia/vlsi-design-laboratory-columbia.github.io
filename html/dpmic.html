@@ -757,16 +757,36 @@
   
   <section id="conclusions">
     <h2>Conclusions</h2>
-    <p class="instruction-text">[Replace with conclusions: Summarize achievements, lessons learned, challenges overcome, and potential future improvements.]</p>
-    
     <h3>Key Achievements</h3>
-    <p class="instruction-text">[List major accomplishments and successful design outcomes.]</p>
-    
+    <p>
+      In our first tape-out experience, we successfully designed, implemented, and validated the proposed buck converter, leveraging knowledge from prior coursework and insights from the relevant research literature.
+    </p>
+    <p>
+      Throughout this project, we developed a deeper understanding of the key design trade-offs involved in power converter design, including efficiency, stability, transient response, and area constraints. In addition, we gained extensive hands-on experience with a wide range of EDA tools spanning digital IC design, analog IC design, and PCB design, covering the complete workflow from system-level architecture, circuit design and simulation, to layout, verification, and integration.
+    </p>
+    <p>
+      This tape-out experience significantly strengthened our ability to translate theoretical concepts into a manufacturable silicon implementation and enhanced our practical engineering skills in mixed-signal power management IC design.
+    </p>
     <h3>Lessons Learned</h3>
-    <p class="instruction-text">[Discuss important insights gained during the design process.]</p>
-    
+    <p>
+      Chip design is a highly demanding and multidisciplinary process that requires designers to possess both broad knowledge and practical experience. Designers should avoid narrowing their focus to a single domain and instead learn to approach problems from multiple perspectives. For example, analog designers can significantly enhance their design capability by understanding digital circuits, while digital designers can benefit from learning analog fundamentals.
+    </p>
+    <p>
+      Chip design and tape-out extend far beyond running simulations and observing waveforms. In real industrial practice, a robust design that functions reliably across PVT corners and achieves reasonable yield is often more valuable than sophisticated or aggressive circuit topologies that are difficult to manufacture or validate.
+    </p>
+    <p>
+      Chip layout is an art, especially in analog IC design. It demands careful consideration of matching, symmetry, parasitics, routing, and layout-dependent effects. Although the analog blocks in our project are not complex, achieving a clean, well-optimized layout remains a challenging, iterative process, underscoring the critical role of layout quality in overall chip performance.
+    </p>
     <h3>Future Work</h3>
-    <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
+    <p>
+      Future work can focus on hybrid control architectures for the buck converter, inspired by hybrid-controlled LDO designs. By incorporating an analog control loop into a digitally controlled buck converter, higher output voltage accuracy and improved transient performance can be achieved, while the digital control loop continues to provide flexibility and ease of compensation tuning.
+    </p>
+    <p>
+      Adaptive or self-calibrated control techniques can also be explored to automatically adjust loop parameters across PVT corners. For example, on-chip calibration of comparator offsets, ADC gain, or digital PID coefficients can further improve output accuracy and robustness without manual tuning, reducing sensitivity to process and temperature variations.
+    </p>
+    <p>
+      In addition, more comprehensive on-chip monitoring and protection circuits can be integrated to enhance system robustness and reliability. These may include over-current protection (OCP), over-voltage protection (OVP), under-voltage lockout (UVLO), and thermal protection, enabling safe operation across a wide range of load and environmental conditions.
+    </p>
   </section>
   
   <section id="references">
