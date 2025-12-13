@@ -1018,6 +1018,29 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
     because the PCPI and memory overhead dominate when the vector work is too light.
   </p>
 
+ <div class="side-by-side-images">
+  <figure style="margin: 0; text-align: center;">
+    <img src="../images/soc/posterize_onlyCPU_effect.png" alt="Demo3:onlyCPU Mode">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      Demo3:'onlyCPU' Mode
+    </figcaption>
+  </figure>
+
+  <figure style="margin: 0; text-align: center;">
+    <img src="../images/soc/posterize_withVPU_effect.png" alt="Demo3:CPU+VPU Mode">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      Demo3:'CPU+VPU' Mode
+    </figcaption>
+  </figure>
+</div>
+    
+<figure style="margin: 0; text-align: center;">
+  <img src="../images/soc/posterize_speedup.png" alt="Demo3:Speedup">
+  <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+    Demo3:End to end speedup (CPU-only vs. CPU+VPU)
+  </figcaption>
+</figure>
+    
   <p class="instruction-text">
     So, across these three workloads, we sweep from VPU-heavy to light, and you can directly see how higher VPU utilization gives better speedup on our architecture.
   </p>
