@@ -1208,7 +1208,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
       Demo2 ROI: End-to-end Speedup (CPU-only vs. CPU+VPU)
     </figcaption>
   </figure>
-
+<br><br>
   <!-- Full-frame Sobel -->
   <div class="side-by-side-images">
     <figure style="margin: 0; text-align: center;">
@@ -1241,7 +1241,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   <p style="margin: 0 0 12px;">
     Demo 3 is a 4-level posterize filter. This is mostly simple per-pixel quantization with almost no vector multiply or convolution.
     Here the VPU utilization is only about <strong>5%</strong>, and as a result we see very little acceleration — sometimes even slower —
-    because the PCPI and memory overhead dominate when the vector work is too light.
+    because the PCPI handshake + data movement cost dominates, and that overhead is larger than just doing the few adds/shifts directly on the CPU. As a result, end-to-end cycles are higher and the VPU appears “slower” for this posterize case.
   </p>
 
   <div class="side-by-side-images">
@@ -1274,7 +1274,9 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   </p>
 
   <h3>Results Summary</h3>
-  <p class="instruction-text">
+
+<div class="instruction-text">
+  <p style="margin: 0 0 14px;">
     Below summarizes our results. For the CNN-style 4-channel 3×3 convolution, the VPU is busy about <strong>80%</strong> of the time (high utilization)
     and we see roughly <strong>6×</strong> speedup. For full-frame Sobel, VPU utilization drops to about <strong>60%</strong> (medium utilization)
     and the speedup is around <strong>3×</strong>; with ROI Sobel, utilization is around <strong>45%</strong> and the speedup is about <strong>2×</strong>.
@@ -1284,7 +1286,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
     This conclusion was also reached after processing a large amount of images and data.
   </p>
 
-  <table class="specs-table">
+  <table class="specs-table" style="margin: 0;">
     <thead>
       <tr>
         <th>Workload</th>
@@ -1315,6 +1317,8 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
       </tr>
     </tbody>
   </table>
+</div>
+
     
     
     <h3>Video Demonstration</h3>
