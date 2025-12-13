@@ -470,6 +470,22 @@
   font-size: 0.95em;
 }
 
+    /* Put the table inside the blue box and tighten spacing */
+.instruction-text .specs-table {
+  margin: 12px 0 8px;        /* 原来 24px 0 太大 */
+}
+
+.memory-map-box {
+  margin-top: 12px;
+  margin-bottom: 12px;       /* 减少和下一个模块的空白 */
+  padding-bottom: 14px;      /* 蓝框内底部留一点点就好 */
+}
+
+/* 可选：如果蓝框里的表格阴影太重，可以弱化 */
+.memory-map-box .specs-table {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
     
   </style>
 </head>
