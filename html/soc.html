@@ -641,7 +641,7 @@
     <img src="../images/soc/clk.png">
 
     <h5>Testing FSM</h5>
-    <p class="instruction-text">[For controlled post-silicon debugging we also added a small finite-state machine (FSM) that drives the clock-gating logic of the chip. The FSM supports three operating modes, all of its mode control signals are loaded through the scan chain. When the scan chain is being used to shift data in or out, the FSM sits in an idle state and completely blocks the system clock so that no internal state changes. For normal run mode, the FSM simply lets the selected clock source (internal or external) propagate to the rest of the SoC. In countdown mode, the FSM enables the clock for a programmable number of cycles and then turns it off again, allowing cycle-accurate inspection of the design.]</p>
+    <p class="instruction-text">For controlled post-silicon debugging we also added a small finite-state machine (FSM) that drives the clock-gating logic of the chip. The FSM supports three operating modes, all of its mode control signals are loaded through the scan chain. When the scan chain is being used to shift data in or out, the FSM sits in an idle state and completely blocks the system clock so that no internal state changes. For normal run mode, the FSM simply lets the selected clock source (internal or external) propagate to the rest of the SoC. In countdown mode, the FSM enables the clock for a programmable number of cycles and then turns it off again, allowing cycle-accurate inspection of the design.</p>
 
               
                 <!-- <p>Essential support infrastructure ensures correct operation and testability. This includes the **Clock Generator** for timing control, a **Finite State Machine (FSM)** for managing power-on-reset and system states, and a **Scan Chain** implementation for comprehensive in-field and factory testing (Design-for-Testability).</p> -->
@@ -649,12 +649,6 @@
         </li>
     </ul>
     
-
-
-
-
-    
-    <div class="image-placeholder">Insert block diagram</div>
   </section>
 
   
