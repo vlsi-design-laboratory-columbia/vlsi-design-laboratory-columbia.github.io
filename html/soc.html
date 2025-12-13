@@ -1594,14 +1594,14 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   <div class="instruction-text">
     <ul style="margin: 0 0 0 20px; color: #4a5568;">
       <li>
-        <strong>Custom Vector ISA + PCPI offload path:</strong>
-        We designed a <strong>custom vector ISA</strong> and integrated it through PicoRV32’s <strong>PCPI</strong> interface, enabling seamless CPU-issued
-        vector offloads and clean, reproducible <strong>CPU-only vs. CPU+VPU</strong> benchmarking under the same workload structure and memory map.
-      </li>
-      <li>
         <strong>Autonomous VPU control plane:</strong>
         The VPU includes dedicated decode and multi-cycle control FSMs that manage instruction sequencing, base/stride address generation,
         memory handshaking, and PE scheduling—reducing CPU-side loop and address-update overhead.
+      </li>
+      <li>
+        <strong>Custom Vector ISA + PCPI offload path:</strong>
+        We designed a <strong>custom vector ISA</strong> and integrated it through PicoRV32’s <strong>PCPI</strong> interface, enabling seamless CPU-issued
+        vector offloads and clean, reproducible <strong>CPU-only vs. CPU+VPU</strong> benchmarking under the same workload structure and memory map.
       </li>
       <li>
         <strong>Silicon-proven SoC integration:</strong>
