@@ -881,20 +881,21 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
   triggers execution, then retrieves scan-out data to <strong>visualize outputs</strong> and <strong>compute performance metrics</strong>.
 </p>
 
-  <p class="instruction-text">
-    <strong>Measurement Method: CPU-only vs. CPU+VPU</strong><br>
+  <div class="instruction-text">
+  <strong>Measurement Method: CPU-only vs. CPU+VPU</strong><br>
   Each workload is executed in two modes using the <strong>same inputs</strong>, <strong>same memory map</strong>, and
   <strong>identical output locations</strong>:
-</p>
-<ul style="margin-left: 20px; margin-bottom: 20px; color: #4a5568;">
-  <li><strong>CPU-only:</strong> scalar inner loops on PicoRV32 (no vector offload).</li>
-  <li><strong>CPU+VPU:</strong> inner loops offloaded through custom PCPI vector instructions.</li>
-</ul>
-<p class="instruction-text">
+
+  <ul style="margin-left: 20px; margin-bottom: 20px; color: #4a5568;">
+    <li><strong>CPU-only:</strong> scalar inner loops on PicoRV32 (no vector offload).</li>
+    <li><strong>CPU+VPU:</strong> inner loops offloaded through custom PCPI vector instructions.</li>
+  </ul>
+
   Speedup is defined as:
   <br>
   <strong>Speedup = Cycles(CPU-only) / Cycles(CPU+VPU)</strong>.
-</p>
+</div>
+
     
     <p class="instruction-text">
     <strong>Demo Flow</strong><br>
