@@ -918,33 +918,49 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
       <img src="../images/soc/SF.png">    <br>
     
     After completing the physical design, we performed full signoff verification on each submodule and the top-level design. Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean. Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.</p>
-    <h4>PPA optimization</h4>
+    
+  <h4>PPA optimization</h4>
 
-    <p class="instruction-text">In our chip design, we placed strong emphasis on PPA (Power, Performance, Area) optimization. Several low-power techniques were applied throughout the design stages:</p>
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    In our chip design, we placed strong emphasis on PPA (Power, Performance, Area) optimization.
+    Several low-power techniques were applied throughout the design stages:
+  </p>
 
-    <ul>
-        <li>
-            <strong>Fixed Voltage Domains:</strong> The chip uses fixed voltage domains, with 2.5V for IO pads and 1.0V for the core logic, ensuring stable and efficient power distribution.
-        </li>
-        <li>
-            <strong>Clock Division:</strong> We applied clock division techniques. For example, the SPI module operates on a divided clock derived from the main clock, reducing switching activity and lowering dynamic power consumption.
-        </li>
-        <li>
-            <strong>RTL Resource Sharing:</strong> At the RTL level, we adopted resource sharing, reusing registers and functional units whenever possible to reduce redundant hardware.
-        </li>
-        <li>
-            <strong>State Encoding Optimizations:</strong> State encoding optimizations were applied, such as using Gray code instead of conventional binary encoding to minimize bit toggles and reduce dynamic power.
-        </li>
-        <li>
-            <strong>Automatic Clock Gating:</strong> During synthesis, automatic clock gating was enabled to shut off clocks when modules are idle. Although this increases area slightly, it significantly reduces dynamic power consumption.
-        </li>
-        <li>
-            <strong>High-Vth Cell Insertion:</strong> In the physical design stage, we selectively replaced LVT (Low-Vth) cells with HVT (High-Vth) cells, which reduces leakage power at the cost of some performance and area overhead.
-        </li>
-    </ul>
+  <ul style="margin-left: 20px; margin-bottom: 12px; color: #4a5568;">
+    <li>
+      <strong>Fixed Voltage Domains:</strong> The chip uses fixed voltage domains, with 2.5V for IO pads and 1.0V for the core logic,
+      ensuring stable and efficient power distribution.
+    </li>
+    <li>
+      <strong>Clock Division:</strong> We applied clock division techniques. For example, the SPI module operates on a divided clock derived
+      from the main clock, reducing switching activity and lowering dynamic power consumption.
+    </li>
+    <li>
+      <strong>RTL Resource Sharing:</strong> At the RTL level, we adopted resource sharing, reusing registers and functional units whenever possible
+      to reduce redundant hardware.
+    </li>
+    <li>
+      <strong>State Encoding Optimizations:</strong> State encoding optimizations were applied, such as using Gray code instead of conventional binary
+      encoding to minimize bit toggles and reduce dynamic power.
+    </li>
+    <li>
+      <strong>Automatic Clock Gating:</strong> During synthesis, automatic clock gating was enabled to shut off clocks when modules are idle.
+      Although this increases area slightly, it significantly reduces dynamic power consumption.
+    </li>
+    <li>
+      <strong>High-Vth Cell Insertion:</strong> In the physical design stage, we selectively replaced LVT (Low-Vth) cells with HVT (High-Vth) cells,
+      which reduces leakage power at the cost of some performance and area overhead.
+    </li>
+  </ul>
 
-    <p class="instruction-text">These combined strategies allowed us to effectively manage power while maintaining overall performance and design efficiency.</p>
+  <p style="margin: 0;">
+    These combined strategies allowed us to effectively manage power while maintaining overall performance and design efficiency.
+  </p>
+</div>  
   </section>
+
+  
   
 <section id="software">
   <h2>Software & Testing Flow</h2>
