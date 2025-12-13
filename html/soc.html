@@ -733,37 +733,37 @@
           </tbody>
         </table>
     <h3>Synthesis</h3>
-    <p class="instruction-text">[We used Synopsys Design Compiler for logic synthesis. Before running synthesis, we prepared a complete SDC file that defined all necessary constraints, including clock definitions, clock constraints, drive and load constraints, operating conditions, and wire-load models. Specifically, the SDC file included parameters such as clock name, clock period, clock uncertainty, clock transition, as well as input and output delay constraints.
+    <p class="instruction-text">We used Synopsys Design Compiler for logic synthesis. Before running synthesis, we prepared a complete SDC file that defined all necessary constraints, including clock definitions, clock constraints, drive and load constraints, operating conditions, and wire-load models. Specifically, the SDC file included parameters such as clock name, clock period, clock uncertainty, clock transition, as well as input and output delay constraints.
 
-Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip..]</p>
+Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip..</p>
     <h3>Physical Design</h3>
     <h4>Auto P&R</h4>
-    <p class="instruction-text">[We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included: loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS), signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
+    <p class="instruction-text">We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included: loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS), signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
 
-The physical hierarchy of the chip consists of submodules, the top module, the chip-level module, and the IO pads. Our place-and-route strategy followed the same bottom-up approach used during synthesis. The Dmem and Imem blocks used existing layout macros, while modules such as the SPI block, scan chain, test FSM, coprocessor, and CPU core were placed and routed independently. The remaining modules were integrated and routed within the top-level design.]</p>
+The physical hierarchy of the chip consists of submodules, the top module, the chip-level module, and the IO pads. Our place-and-route strategy followed the same bottom-up approach used during synthesis. The Dmem and Imem blocks used existing layout macros, while modules such as the SPI block, scan chain, test FSM, coprocessor, and CPU core were placed and routed independently. The remaining modules were integrated and routed within the top-level design.</p>
     <img src="../images/soc/PhysicalFlow.png">
 
-    <p class="instruction-text">[The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew. Surrounding the entire design are the required IO pads that interface the chip with the external system..]</p>
+    <p class="instruction-text">The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew. Surrounding the entire design are the required IO pads that interface the chip with the external system..</p>
     <img src="../images/soc/chip_labelled.jpg">
 
 
     <h4>IO Pad</h4>
-    <p class="instruction-text">[Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs. And these IOs includes Input/Output Signals(SPI, UART, Scan_Chain, rst_n, clk), POC, CVDD, DVDD, VDD, VDD_TEST, GND. We tried to minimize our IO number because we need a bigger area for logic circuits.]</p>
+    <p class="instruction-text">Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs. And these IOs includes Input/Output Signals(SPI, UART, Scan_Chain, rst_n, clk), POC, CVDD, DVDD, VDD, VDD_TEST, GND. We tried to minimize our IO number because we need a bigger area for logic circuits.</p>
     <img src="../images/soc/IO.png">
 
     <h4>Package</h4>
-    <p class="instruction-text">[Below is the picture of our taped out chip with bonding wires and packages.]</p>
+    <p class="instruction-text">Below is the picture of our taped out chip with bonding wires and packages.</p>
     <div class="side-by-side-images">
         <img src="../images/soc/P1.png" alt="Description of P1">
         <img src="../images/soc/P2.png" alt="Description of P2">
     </div>
 
     <h4>STA & Sign-off</h4>
-    <p class="instruction-text">[During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route, the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical paths within the top module met their setup and hold time requirements, and no setup or hold violations were observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
+    <p class="instruction-text">During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route, the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical paths within the top module met their setup and hold time requirements, and no setup or hold violations were observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
     
       <img src="../images/soc/SF.png">    <br>
     
-    After completing the physical design, we performed full signoff verification on each submodule and the top-level design. Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean. Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.]</p>
+    After completing the physical design, we performed full signoff verification on each submodule and the top-level design. Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean. Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.</p>
     <h4>PPA optimization</h4>
 
     <p class="instruction-text">In our chip design, we placed strong emphasis on PPA (Power, Performance, Area) optimization. Several low-power techniques were applied throughout the design stages:</p>
@@ -841,14 +841,14 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
   
   <section id="pcb">
     <h2>PCB Design</h2>
-    <p class="instruction-text">[We used a PCB board for our final demonstration. The PCB will help with providing power, voltage stabilization and decoupling.]</p>
+    <p class="instruction-text">We used a PCB board for our final demonstration. The PCB will help with providing power, voltage stabilization and decoupling.</p>
     
     <h3>Schematic</h3>
-    <p class="instruction-text">[The schematic of the PCB layouts mainly includes 3 parts: main circuits, power supply circuit and decoupling circuits.]</p>
+    <p class="instruction-text">The schematic of the PCB layouts mainly includes 3 parts: main circuits, power supply circuit and decoupling circuits.</p>
     <img src="../images/soc/schematic.png">
     <p>In the main circuits, we created the symbol for out chip. The footprint of our chip is LQPF-64 10*10mm_pin 0.5mm. Some of the pins are not used. Reset IO pins are connected to the switches, so we can control the reset signals to be VDD/GND by hand, which implement asynchronous resetting. DVDD is used for powering IO pads, and VDD is used for powering chip. The footprints of all the res and cap are 1206.The PCB support 2 modes of power supplying, which are batteries or FPGA, and can selected by a switch.</p>
     <img src="../images/soc/power.png">
-    <p class="instruction-text">[In the power supply circuit, the LDO is used for transferring 5V to 2.5V and 1V. The resistance and the capacitance of input/output capacitors is referred to the TI's official manual of TPS71710CDR.]</p>
+    <p class="instruction-text">In the power supply circuit, the LDO is used for transferring 5V to 2.5V and 1V. The resistance and the capacitance of input/output capacitors is referred to the TI's official manual of TPS71710CDR.</p>
     <img src="../images/soc/power.png">
     <p>Decoupling circuit is designed for decoupling when supplying power. The number of the capacitors is determined by the circuit in each nets. </p>
     <p>Main circuit connects chip and other circuits. We used jumpers for debugging and left pins to connect with FPGA. After that, we used JLCPCB for manufacturing PCB board. Finally, the welding was performed manually by us.</p>
