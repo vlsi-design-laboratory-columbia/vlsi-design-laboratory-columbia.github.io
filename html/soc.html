@@ -633,9 +633,11 @@
     The process of reading internal state back is symmetric. With scan_i0o1 set to scan-out mode, the memory wrappers and selected registers feed their data into the scan-out cells. After latching these values, we generate the required number of scan clock cycles to shift the 252-bit vector to the scan_out pin, where the tester observes it as a serial data stream. In this way we can verify program execution by dumping results from data memory or checking configuration registers, all using the same unified scan interface.</p>
 
     <h5>Clock Generator</h5>
-    <p class="instruction-text">[To support flexible post-silicon testing, normal operation, and control over low, high, and custom operating frequencies, our SoC includes a programmable on-chip clock generator.]</p>
-    <p>All of its frequency control signals are loaded through the scan chain, where it can be controlled by: fc[0:4] as fine-tune to adjust the oscillator length for fine frequency steps. div[0:3] sets the digital divider ratio for coarse frequency scaling. In addition to frequency control signals, it also has a control signal from chip I/O en_int that allows it to choose between the internal generated clock path and an external clock clk_ext.</p>
-    <p>These controls work together to generate the system clock clk with a selectable frequency and source, giving us both a tunable internal clock and a safe external-clock fallback.</p>
+    <p class="instruction-text">To support flexible post-silicon testing, normal operation, and control over low, high, and custom operating frequencies, our SoC includes a programmable on-chip clock generator.
+    <br>
+    All of its frequency control signals are loaded through the scan chain, where it can be controlled by: fc[0:4] as fine-tune to adjust the oscillator length for fine frequency steps. div[0:3] sets the digital divider ratio for coarse frequency scaling. In addition to frequency control signals, it also has a control signal from chip I/O en_int that allows it to choose between the internal generated clock path and an external clock clk_ext.
+    <br>
+    These controls work together to generate the system clock clk with a selectable frequency and source, giving us both a tunable internal clock and a safe external-clock fallback.</p>
     <img src="../images/soc/clk.png">
 
     <h5>Testing FSM</h5>
