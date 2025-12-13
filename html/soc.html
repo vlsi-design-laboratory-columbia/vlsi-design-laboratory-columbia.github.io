@@ -934,24 +934,24 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
 
 <div class="side-by-side-images">
   <figure style="margin: 0; text-align: center;">
-    <img src="../images/soc/conv_onlyCPU.png" alt="Demo1-onlyCPU Mode">
+    <img src="../images/soc/conv_onlyCPU.png" alt="Demo1:onlyCPU Mode">
     <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
-      CPU-only (scalar baseline)
+      Demo1:'CPU-only' Mode
     </figcaption>
   </figure>
 
   <figure style="margin: 0; text-align: center;">
-    <img src="../images/soc/conv_withVPU.png" alt="Demo1-CPU+VPU Mode">
+    <img src="../images/soc/conv_withVPU.png" alt="Demo1:CPU+VPU Mode">
     <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
-      CPU + VPU (PCPI offload)
+      Demo1:'CPU + VPU' Mode
     </figcaption>
   </figure>
 </div>
     
 <figure style="margin: 0; text-align: center;">
-  <img src="../images/soc/conv_Speedup.png" alt="Demo1 Speedup">
+  <img src="../images/soc/conv_Speedup.png" alt="Demo1:Speedup">
   <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
-    End-to-end speedup (CPU-only vs. CPU+VPU)
+    Demo1:End-to-end Speedup (CPU-only vs. CPU+VPU)
   </figcaption>
 </figure>
 
@@ -965,6 +965,29 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
     This demo highlights how even with the same algorithm family, changing the amount of VPU work shifts the speedup.
   </p>
 
+    <div class="side-by-side-images">
+  <figure style="margin: 0; text-align: center;">
+    <img src="../images/soc/ROISobel_onlyCPU.png" alt="Demo2 ROI:onlyCPU Mode">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      Demo2 ROI:'onlyCPU' Mode
+    </figcaption>
+  </figure>
+
+  <figure style="margin: 0; text-align: center;">
+    <img src="../images/soc/ROISobel_withVPU.png" alt="Demo2 ROI:CPU+VPU Mode">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      Demo2 ROI:'CPU+VPU' Mode
+    </figcaption>
+  </figure>
+</div>
+    
+<figure style="margin: 0; text-align: center;">
+  <img src="../images/soc/ROISobel_Speedup.png" alt="Demo2 ROI:Speedup">
+  <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+    Demo2 ROI:End to end speedup (CPU-only vs. CPU+VPU)
+  </figcaption>
+</figure>
+    
   <h3>Demo 3 — 4-Level Posterize Filter</h3>
   <p class="instruction-text">
     Demo 3 is a 4-level posterize filter. This is mostly simple per-pixel quantization with almost no vector multiply or convolution.
