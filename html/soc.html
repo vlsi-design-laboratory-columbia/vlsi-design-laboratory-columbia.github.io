@@ -1574,17 +1574,100 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   
   
   <section id="conclusions">
-    <h2>Conclusions</h2>
-    <p class="instruction-text">[Replace with conclusions: Summarize achievements, lessons learned, challenges overcome, and potential future improvements.]</p>
-    
-    <h3>Key Achievements</h3>
-    <p class="instruction-text">[List major accomplishments and successful design outcomes.]</p>
-    
-    <h3>Lessons Learned</h3>
-    <p class="instruction-text">[Discuss important insights gained during the design process.]</p>
-    
-    <h3>Future Work</h3>
-    <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
+    <section id="conclusions">
+  <h2>Conclusions</h2>
+
+  <!-- Conclusions (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0;">
+      We taped out and demonstrated a silicon-proven CPU–VPU heterogeneous RISC-V SoC in TSMC 65 nm. The chip integrates PicoRV32,
+      a custom PCPI-attached VPU, on-chip IMEM/DMEM SRAM, essential I/O, and a scan-based bring-up/measurement flow. Live demos on
+      fabricated silicon validate end-to-end hardware/software co-design and reveal a clear trend: <strong>end-to-end speedup increases
+      monotonically with VPU utilization (vector intensity)</strong>—from ~1× on vector-light workloads to ~6× on convolution/MAC-heavy workloads.
+      This behavior matches our architectural intent: the CPU orchestrates control flow while the VPU accelerates regular, data-parallel inner loops.
+    </p>
+  </div>
+
+  <h3>Key Achievements</h3>
+
+  <!-- Key Achievements (one blue box) -->
+  <div class="instruction-text">
+    <ul style="margin: 0 0 0 20px; color: #4a5568;">
+      <li>
+        <strong>Custom Vector ISA + PCPI offload path:</strong>
+        We designed a <strong>custom vector ISA</strong> and integrated it through PicoRV32’s <strong>PCPI</strong> interface, enabling seamless CPU-issued
+        vector offloads and clean, reproducible <strong>CPU-only vs. CPU+VPU</strong> benchmarking under the same workload structure and memory map.
+      </li>
+      <li>
+        <strong>Autonomous VPU control plane:</strong>
+        The VPU includes dedicated decode and multi-cycle control FSMs that manage instruction sequencing, base/stride address generation,
+        memory handshaking, and PE scheduling—reducing CPU-side loop and address-update overhead.
+      </li>
+      <li>
+        <strong>Silicon-proven SoC integration:</strong>
+        PicoRV32 + custom VPU + on-chip IMEM/DMEM + peripherals were fully integrated and validated on fabricated silicon.
+      </li>
+      <li>
+        <strong>Demo-ready post-silicon infrastructure:</strong>
+        A repeatable PC ⇄ MATLAB ⇄ FPGA (PMOD) ⇄ level shifter ⇄ PCB ⇄ chip pipeline supports scan-in / run / scan-out, automated visualization,
+        and cycle-accurate performance measurement.
+      </li>
+      <li>
+        <strong>Measured end-to-end scaling:</strong>
+        CNN-style multi-channel convolution achieves the highest utilization and the largest speedup, while ROI-based and vector-light workloads show
+        proportionally smaller gains as fixed offload and data-movement overhead becomes visible.
+      </li>
+    </ul>
+  </div>
+
+  <h3>Lessons Learned</h3>
+
+  <!-- Lessons Learned (one blue box) -->
+  <div class="instruction-text">
+    <ul style="margin: 0 0 0 20px; color: #4a5568;">
+      <li>
+        <strong>Acceleration is workload-dependent:</strong>
+        The VPU delivers the biggest benefit when kernels are dominated by regular MAC/vector inner loops; when vector intensity is low,
+        fixed PCPI and memory-transaction overhead can dominate and reduce (or negate) speedup.
+      </li>
+      <li>
+        <strong>Co-design is essential:</strong>
+        ISA design, memory layout, and measurement methodology must be aligned with the datapath and controller to obtain silicon-reproducible gains,
+        not just isolated micro-benchmark wins.
+      </li>
+      <li>
+        <strong>Bring-up infrastructure is first-class:</strong>
+        A robust scan-based flow plus MATLAB/FPGA control significantly improves iteration speed and debugging confidence during post-silicon validation.
+      </li>
+    </ul>
+  </div>
+
+  <h3>Future Work</h3>
+
+  <!-- Future Work (one blue box) -->
+  <div class="instruction-text">
+    <ul style="margin: 0 0 0 20px; color: #4a5568;">
+      <li>
+        <strong>Reduce demo latency:</strong>
+        Speed up scan-in/scan-out using higher scan clock, more efficient scan framing, or a higher-throughput debug interface to improve live-demo responsiveness.
+      </li>
+      <li>
+        <strong>Scale beyond on-chip SRAM:</strong>
+        Use SPI as a practical path to attach external storage (or an FPGA-based memory model) for larger tensors/weights and rapid re-parameterization of AI workloads.
+      </li>
+      <li>
+        <strong>Increase VPU capability and observability:</strong>
+        Extend the custom vector ISA (more ops, better reduction support, improved load/store patterns) and add lightweight performance counters to attribute cycles
+        spent in CPU vs. VPU more precisely.
+      </li>
+      <li>
+        <strong>Richer I/O demonstrations:</strong>
+        Stream intermediate results and processed images more directly (e.g., UART-driven display pipeline) for more interactive, real-time demos.
+      </li>
+    </ul>
+  </div>
+</section>
+
   </section>
   
   <section id="references">
