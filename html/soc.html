@@ -680,26 +680,13 @@
 
     <div class="instruction-text">
       <p style="margin: 0 0 12px;">
-        <strong>UART (External I/O + Demo/Debug Link)</strong><br>
-        The SoC integrates a UART interface as a lightweight and reliable channel for system bring-up,
-        debugging, and demo I/O. UART provides a simple bridge between the chip and external devices,
-        enabling log/telemetry output, runtime status reporting, and basic command/control during evaluation.
-        In our demo setup, UART can also be used to connect to an external LCD module (directly or through a
-        small controller), allowing the chip to stream processed image results or visualization data off-chip
-        for real-time display. This makes UART especially valuable for end-to-end demonstrations where computed
-        outputs (e.g., filtered frames, edge maps, or CNN-like feature maps) need to be shown clearly without
-        relying on internal memory inspection.
+        <strong>UART (Host + Display Bridge for Demo)</strong><br>
+        The SoC provides a UART interface used as the main link for bring-up, control, and demo I/O. In the demo setup, a PC communicates with the chip through an ESP32-DevKitC-32E, which serves as a compact USB-to-UART bridge and controller. A TXS0108E 8-channel level shifter is used to translate logic levels between the chip I/O domain and the 3.3 V external hardware. Through this UART path, the host can trigger workloads, read back status/cycle counters, and stream result data. The same UART link also enables visualization on a 240×240 IPS LCD module via the external controller, allowing processed images and intermediate results to be displayed in real time during demonstrations.
       </p>
 
       <p style="margin: 0;">
-        <strong>SPI (External Storage for AI Parameters and Data)</strong><br>
-        To support larger and more practical AI-style workloads, the SoC includes an SPI interface intended for
-        attaching external non-volatile memory (e.g., SPI flash) or other SPI peripherals. SPI enables the system
-        to store and retrieve CNN weights, biases, and model configuration (“parameters”) off-chip, overcoming the
-        capacity limits of on-chip memory and making it feasible to run re-parameterizable AI tasks without recompiling
-        or reloading the entire program image. This design choice improves flexibility: the CPU can manage parameter
-        loading, while the VPU focuses on accelerating MAC- and convolution-heavy kernels, enabling a scalable path
-        from small on-chip demos to larger, more realistic neural-network workloads.
+        <strong>SPI (External Storage / Parameter Expansion Interface)</strong><br>
+        The SoC exposes an SPI interface as an external storage expansion port, designed for use cases where model parameters, lookup tables, or large input tensors exceed on-chip memory capacity. In a typical workflow, the chip can pull blocks of data over SPI into on-chip DMEM before launching compute, enabling re-parameterization (e.g., swapping CNN weights or coefficients) without rebuilding the entire on-chip image. This is a practical and widely used design point for compact accelerators: SPI provides a simple, pin-efficient, and board-friendly path to attach off-chip memory or a storage controller. For prototyping and demos, the SPI target can be implemented flexibly—an FPGA can emulate external memory behavior, or the interface can connect to other off-chip storage solutions—providing a scalable route toward larger AI workloads while keeping the on-chip design lightweight.
       </p>
     </div>
 
