@@ -854,21 +854,50 @@
     <h3>Synthesis</h3>
     <p class="instruction-text">We used Synopsys Design Compiler for logic synthesis. Before running synthesis, we prepared a complete SDC file that defined all necessary constraints, including clock definitions, clock constraints, drive and load constraints, operating conditions, and wire-load models. Specifically, the SDC file included parameters such as clock name, clock period, clock uncertainty, clock transition, as well as input and output delay constraints.
 
-Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip..</p>
+Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip.</p>
     <h3>Physical Design</h3>
-    <h4>Auto P&R</h4>
-    <p class="instruction-text">We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included: loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS), signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
+<h4>Auto P&amp;R</h4>
 
-The physical hierarchy of the chip consists of submodules, the top module, the chip-level module, and the IO pads. Our place-and-route strategy followed the same bottom-up approach used during synthesis. The Dmem and Imem blocks used existing layout macros, while modules such as the SPI block, scan chain, test FSM, coprocessor, and CPU core were placed and routed independently. The remaining modules were integrated and routed within the top-level design.</p>
-    <img src="../images/soc/PhysicalFlow.png">
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included:
+    loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS),
+    signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
+    <br><br>
+    The physical hierarchy of the chip consists of submodules, the top module, the chip-level module, and the IO pads.
+    Our place-and-route strategy followed the same bottom-up approach used during synthesis. The Dmem and Imem blocks used
+    existing layout macros, while modules such as the SPI block, scan chain, test FSM, coprocessor, and CPU core were placed
+    and routed independently. The remaining modules were integrated and routed within the top-level design.
+  </p>
 
-    <p class="instruction-text">The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew. Surrounding the entire design are the required IO pads that interface the chip with the external system..</p>
-    <img src="../images/soc/chip_labelled.jpg">
+  <img src="../images/soc/PhysicalFlow.png" alt="Physical design flow"
+       style="width: 65%; max-width: 900px; display: block; margin: 0 auto 18px;">
+
+  <p style="margin: 0 0 12px;">
+    The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite
+    ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock
+    generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew.
+    Surrounding the entire design are the required IO pads that interface the chip with the external system.
+  </p>
+
+  <img src="../images/soc/chip_labelled.jpg" alt="Chip layout labeled"
+       style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
+</div>
+
 
 
     <h4>IO Pad</h4>
-    <p class="instruction-text">Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs. And these IOs includes Input/Output Signals(SPI, UART, Scan_Chain, rst_n, clk), POC, CVDD, DVDD, VDD, VDD_TEST, GND. We tried to minimize our IO number because we need a bigger area for logic circuits.</p>
-    <img src="../images/soc/IO.png">
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs.
+    These IOs include input/output signals (SPI, UART, Scan_Chain, <code>rst_n</code>, <code>clk</code>), POC,
+    CVDD, DVDD, VDD, VDD_TEST, and GND. We tried to minimize our IO number because we need a bigger area for logic circuits.
+  </p>
+
+  <img src="../images/soc/IO.png" alt="IO pad integration"
+       style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
+</div>
 
     <h4>Package</h4>
     <p class="instruction-text">Below is the picture of our taped out chip with bonding wires and packages.</p>
