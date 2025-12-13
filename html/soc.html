@@ -1016,28 +1016,74 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
 
     
   
-  <section id="pcb">
-    <h2>PCB Design</h2>
-    <p class="instruction-text">We used a PCB board for our final demonstration. The PCB will help with providing power, voltage stabilization and decoupling.</p>
-    
-    <h3>Schematic</h3>
-    <p class="instruction-text">The schematic of the PCB layouts mainly includes 3 parts: main circuits, power supply circuit and decoupling circuits.</p>
-    <img src="../images/soc/schematic.png">
-    <p>In the main circuits, we created the symbol for out chip. The footprint of our chip is LQPF-64 10*10mm_pin 0.5mm. Some of the pins are not used. Reset IO pins are connected to the switches, so we can control the reset signals to be VDD/GND by hand, which implement asynchronous resetting. DVDD is used for powering IO pads, and VDD is used for powering chip. The footprints of all the res and cap are 1206.The PCB support 2 modes of power supplying, which are batteries or FPGA, and can selected by a switch.</p>
-    <img src="../images/soc/power.png">
-    <p class="instruction-text">In the power supply circuit, the LDO is used for transferring 5V to 2.5V and 1V. The resistance and the capacitance of input/output capacitors is referred to the TI's official manual of TPS71710CDR.</p>
-    <img src="../images/soc/power.png">
-    <p>Decoupling circuit is designed for decoupling when supplying power. The number of the capacitors is determined by the circuit in each nets. </p>
-    <p>Main circuit connects chip and other circuits. We used jumpers for debugging and left pins to connect with FPGA. After that, we used JLCPCB for manufacturing PCB board. Finally, the welding was performed manually by us.</p>
-    <h3>PCB Layout</h3>
-    <p class="instruction-text">Below shows the PCB Layout and PCB</p> 
-        <div class="side-by-side-images">
-        <img src="../images/soc/PCB_Layout.png" alt="Description of P1">
-        <img src="../images/soc/PCB.png" alt="Description of P2">
+<section id="pcb">
+  <h2>PCB Design</h2>
+
+  <!-- Point 1: Overview (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0;">
+      We used a PCB board for our final demonstration. The PCB helps provide power,
+      voltage stabilization, and decoupling.
+    </p>
+  </div>
+
+  <h3>Schematic</h3>
+
+  <!-- Point 2: Schematic (one blue box: text + images) -->
+  <div class="instruction-text">
+    <p style="margin: 0 0 12px;">
+      The schematic of the PCB layouts mainly includes three parts: main circuits, power supply circuit,
+      and decoupling circuits.
+    </p>
+
+    <img src="../images/soc/schematic.png" alt="PCB schematic"
+         style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+    <p style="margin: 0 0 12px;">
+      In the main circuits, we created the symbol for our chip. The footprint of our chip is
+      LQFP-64 (10×10 mm, 0.5 mm pitch). Some pins are not used. Reset IO pins are connected to switches,
+      so we can control reset to VDD/GND by hand (asynchronous reset). DVDD powers IO pads, and VDD powers
+      the core. All resistors and capacitors use 1206 footprints. The PCB supports two power modes
+      (battery or FPGA), selectable by a switch.
+    </p>
+
+    <img src="../images/soc/power.png" alt="Power supply block"
+         style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+    <p style="margin: 0 0 12px;">
+      In the power supply circuit, the LDO transfers 5V to 2.5V and 1V. The resistor and capacitor
+      values for input/output filtering follow the TI reference recommendations for TPS71710CDR.
+    </p>
+
+    <!-- 如果你第二张 power.png 其实是另一张图，请把文件名换掉；否则可以删掉这一张避免重复 -->
+    <img src="../images/soc/power.png" alt="LDO and decoupling details"
+         style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+    <p style="margin: 0 0 12px;">
+      The decoupling circuit is designed to reduce supply noise during operation. The number of capacitors
+      is determined by the requirements of each power net.
+    </p>
+
+    <p style="margin: 0;">
+      The main circuit connects the chip to other board components. We used jumpers for debugging and left
+      pins for FPGA connections. The PCB was manufactured by JLCPCB, and soldering was performed manually.
+    </p>
+  </div>
+
+  <h3>PCB Layout</h3>
+
+  <!-- Point 3: PCB Layout (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0 0 12px;">Below shows the PCB Layout and PCB.</p>
+
+    <!-- 保持你现在 side-by-side 的大小逻辑，不额外缩小 -->
+    <div class="side-by-side-images">
+      <img src="../images/soc/PCB_Layout.png" alt="PCB layout">
+      <img src="../images/soc/PCB.png" alt="Assembled PCB">
     </div>
+  </div>
+</section>
 
-
-  </section>
   
   <section id="demo">
     <h2>Demonstration</h2>
