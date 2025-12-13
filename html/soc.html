@@ -910,6 +910,12 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
     and we see a large speedup compared to the CPU-only baseline.
   </p>
 
+<div class="side-by-side-images">
+  <img src="../images/soc/conv_onlyCPU.png" alt="Demo1-onlyCPU Mode">
+  <img src="../images/soc/conv_withVPU.png" alt="Demo1-CPU+VPU Mode">
+</div>
+
+    
   <h3>Demo 2 — Sobel Edge Detection (Full-frame vs. ROI-Sobel)</h3>
   <p class="instruction-text">
     Demo 2 is edge detection with Sobel filters. We show two versions: full-frame Sobel, where we run VPU convolution on every pixel,
