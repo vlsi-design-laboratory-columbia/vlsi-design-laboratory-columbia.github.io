@@ -685,8 +685,22 @@
                 <h4>DFT Module: Scan Chain, Clock Generator, Testing FSM</h4>
     <p class="instruction-text">Our chip uses a custom, academic-level DFT infrastructure whose central element is a scan chain, together with the on-chip clock generator and the mode-control FSM. These modules are used for post-silicon functional testing, it provides the way to load data into the on-chip memories and configuration registers and to read internal state back out of the fabricated chip.</p>
     <h5>Scan Chain</h5>
-    <p class="instruction-text">The scan chain contains 252 scan cells connected between the external pins scan_in and scan_out. A simplified diagram illustration as shown in Figure below, each cell corresponds to one bit of an internal signal: instruction/data memory address and data buses, as well as the configuration registers of the clock generator and the testing FSM. In normal operation the memories are driven directly by the core, but in test mode the scan chain can temporarily take over, driving or sampling these ports and even reading back the contents of the instruction and data memories to verify that the chip is operating correctly.
-    <img src="../images/soc/dft.png"></p>
+    
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    The scan chain contains 252 scan cells connected between the external pins <code>scan_in</code> and <code>scan_out</code>.
+    A simplified diagram illustration as shown in Figure below, each cell corresponds to one bit of an internal signal:
+    instruction/data memory address and data buses, as well as the configuration registers of the clock generator and the testing FSM.
+    In normal operation the memories are driven directly by the core, but in test mode the scan chain can temporarily take over,
+    driving or sampling these ports and even reading back the contents of the instruction and data memories to verify that the chip is
+    operating correctly.
+  </p>
+
+  <img src="../images/soc/dft.png" alt="Scan chain overview"
+       style="width: 75%; max-width: 900px; display: block; margin: 0 auto;">
+</div>
+
+              
     <div class="instruction-text">
   <p style="margin: 0 0 12px;">
     The below Figure illustrate the internal structure of the scan cells and their connection in the chain.
