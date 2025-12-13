@@ -684,9 +684,11 @@
             <div class="highlight-item">
                 <h4>DFT Module: Scan Chain, Clock Generator, Testing FSM</h4>
     <p class="instruction-text">Our chip uses a custom, academic-level DFT infrastructure whose central element is a scan chain, together with the on-chip clock generator and the mode-control FSM. These modules are used for post-silicon functional testing, it provides the way to load data into the on-chip memories and configuration registers and to read internal state back out of the fabricated chip.</p>
-    <h5>Scan Chain</h5>
-    
+
+<h5>Scan Chain</h5>
+
 <div class="instruction-text">
+  <!-- Block 1 -->
   <p style="margin: 0 0 12px;">
     The scan chain contains 252 scan cells connected between the external pins <code>scan_in</code> and <code>scan_out</code>.
     A simplified diagram illustration as shown in Figure below, each cell corresponds to one bit of an internal signal:
@@ -697,11 +699,9 @@
   </p>
 
   <img src="../images/soc/dft.png" alt="Scan chain overview"
-       style="width: 75%; max-width: 900px; display: block; margin: 0 auto;">
-</div>
+       style="width: 65%; max-width: 900px; display: block; margin: 0 auto 18px;">
 
-              
-    <div class="instruction-text">
+  <!-- Block 2 -->
   <p style="margin: 0 0 12px;">
     The below Figure illustrate the internal structure of the scan cells and their connection in the chain.
     Regarding the scan chain operation, a control signal <code>scan_i0o1</code> selects the operating mode.
@@ -714,15 +714,29 @@
     of instruction or data memory.
   </p>
 
-  <div class="side-by-side-images two-up">
+  <div class="side-by-side-images two-up" style="margin-bottom: 18px;">
     <img src="../images/soc/si.png" alt="Scan-in cell structure">
     <img src="../images/soc/so.png" alt="Scan-out cell structure">
   </div>
-</div>
-    <p class="instruction-text">During testing, we stream a serial bit pattern into scan_in while toggling the scan clock. After 252 shift cycles, the pattern has propagated to all cells in the chain. When scan_i0o1 is configured for scan-in and the load signal is pulsed, the contents of the scan cells are written into the connected memories and control registers: for example, a 32-bit instruction address together with its 32-bit instruction word, or new settings for the clock generator (div, fc, en_int,) and the FSM (mode and cycle count). Also, some of the scan cells provides the “virtual” memory clock imem_clk/dmem_clk, we create a memory write by first loading the desired pattern, then re-loading the same pattern with that particular bit toggled from low to high to emulate a rising edge on the memory clock.
-    <br><br>
-    The process of reading internal state back is symmetric. With scan_i0o1 set to scan-out mode, the memory wrappers and selected registers feed their data into the scan-out cells. After latching these values, we generate the required number of scan clock cycles to shift the 252-bit vector to the scan_out pin, where the tester observes it as a serial data stream. In this way we can verify program execution by dumping results from data memory or checking configuration registers, all using the same unified scan interface.</p>
 
+  <!-- Block 3 -->
+  <p style="margin: 0;">
+    During testing, we stream a serial bit pattern into <code>scan_in</code> while toggling the scan clock.
+    After 252 shift cycles, the pattern has propagated to all cells in the chain. When <code>scan_i0o1</code> is configured
+    for scan-in and the load signal is pulsed, the contents of the scan cells are written into the connected memories and control registers:
+    for example, a 32-bit instruction address together with its 32-bit instruction word, or new settings for the clock generator
+    (<code>div</code>, <code>fc</code>, <code>en_int</code>) and the FSM (mode and cycle count). Also, some of the scan cells provides the
+    “virtual” memory clock <code>imem_clk</code>/<code>dmem_clk</code>; we create a memory write by first loading the desired pattern,
+    then re-loading the same pattern with that particular bit toggled from low to high to emulate a rising edge on the memory clock.
+    <br><br>
+    The process of reading internal state back is symmetric. With <code>scan_i0o1</code> set to scan-out mode, the memory wrappers and selected
+    registers feed their data into the scan-out cells. After latching these values, we generate the required number of scan clock cycles to shift
+    the 252-bit vector to the <code>scan_out</code> pin, where the tester observes it as a serial data stream. In this way we can verify program
+    execution by dumping results from data memory or checking configuration registers, all using the same unified scan interface.
+  </p>
+</div>
+
+              
     <h5>Clock Generator</h5>
     <p class="instruction-text">To support flexible post-silicon testing, normal operation, and control over low, high, and custom operating frequencies, our SoC includes a programmable on-chip clock generator.
     <br>
