@@ -480,11 +480,22 @@
   margin: 0 !important;
 }
 
-    .instruction-text .side-by-side-images img {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 !important;   /* 覆盖你全局 img 的 margin:24px 0 */
+/* Two images side-by-side inside blue box, prevent overflow */
+.instruction-text .side-by-side-images.two-up img{
+  width: calc(50% - 10px);
+  max-width: calc(50% - 10px);
+  height: auto;
+  margin: 0 !important;      /* 覆盖全局 img margin */
 }
+
+/* Small screen: stack vertically */
+@media (max-width: 768px){
+  .instruction-text .side-by-side-images.two-up img{
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 
     
   </style>
@@ -689,7 +700,7 @@
     of instruction or data memory.
   </p>
 
-  <div class="side-by-side-images">
+  <div class="side-by-side-images two-up">
     <img src="../images/soc/si.png" alt="Scan-in cell structure">
     <img src="../images/soc/so.png" alt="Scan-out cell structure">
   </div>
