@@ -865,6 +865,22 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
   <section id="demo">
     <h2>Demonstration</h2>
 
+    <h3>Demonstration Overview</h3>
+<p class="instruction-text">
+  We demonstrate a <strong>silicon-proven CPU–VPU heterogeneous RISC-V SoC</strong> on fabricated silicon.
+  The <strong>CPU</strong> orchestrates program control and system flow, while a custom <strong>Vector Processing Unit (VPU)</strong>
+  accelerates data-parallel kernels. This platform enables <strong>direct, reproducible</strong> comparisons between
+  scalar execution and vector offload under the same memory map, I/O path, and workload code structure.
+</p>
+
+<h3>Demo Setup: PCB + FPGA Scan + MATLAB Control</h3>
+<p class="instruction-text">
+  The chip is mounted on a custom PCB and connected to an FPGA through a level shifter.
+  The FPGA handles low-level scan-in/scan-out pin toggling and basic control signals.
+  A MATLAB-based host script orchestrates the full loop: it streams the program and input data into on-chip memories,
+  triggers execution, then retrieves scan-out data to <strong>visualize outputs</strong> and <strong>compute performance metrics</strong>.
+</p>
+    
     <p class="instruction-text">
     <strong>Demo Flow</strong><br>
     We prepared three workloads that cover high, medium, and low VPU utilization.
