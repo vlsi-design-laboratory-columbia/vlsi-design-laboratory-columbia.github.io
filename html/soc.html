@@ -911,10 +911,28 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
   </p>
 
 <div class="side-by-side-images">
-  <img src="../images/soc/conv_onlyCPU.png" alt="Demo1-onlyCPU Mode">
-  <img src="../images/soc/conv_withVPU.png" alt="Demo1-CPU+VPU Mode">
+  <figure style="margin: 0; text-align: center;">
+    <img src="../images/soc/conv_onlyCPU.png" alt="Demo1-onlyCPU Mode">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      CPU-only (scalar baseline)
+    </figcaption>
+  </figure>
+
+  <figure style="margin: 0; text-align: center;">
+    <img src="../images/soc/conv_withVPU.png" alt="Demo1-CPU+VPU Mode">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      CPU + VPU (PCPI offload)
+    </figcaption>
+  </figure>
 </div>
-<img src="../images/soc/conv_Speedup.png" alt="Demo1 Speedup">
+    
+<figure style="margin: 0; text-align: center;">
+  <img src="../images/soc/conv_Speedup.png" alt="Demo1 Speedup">
+  <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+    End-to-end speedup (CPU-only vs. CPU+VPU)
+  </figcaption>
+</figure>
+
 
     
   <h3>Demo 2 — Sobel Edge Detection (Full-frame vs. ROI-Sobel)</h3>
