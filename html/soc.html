@@ -881,7 +881,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   </p>
 
   <img src="../images/soc/chip_labelled.jpg" alt="Chip layout labeled"
-       style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
+       style="width: 90%; max-width: 900px; display: block; margin: 0 auto;">
 </div>
 
 
@@ -900,11 +900,17 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
 </div>
 
     <h4>Package</h4>
-    <p class="instruction-text">Below is the picture of our taped out chip with bonding wires and packages.</p>
-    <div class="side-by-side-images">
-        <img src="../images/soc/P1.png" alt="Description of P1">
-        <img src="../images/soc/P2.png" alt="Description of P2">
-    </div>
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    Below is the picture of our taped out chip with bonding wires and packages.
+  </p>
+
+  <div class="side-by-side-images">
+    <img src="../images/soc/P1.png" alt="Description of P1">
+    <img src="../images/soc/P2.png" alt="Description of P2">
+  </div>
+</div>
+
 
     <h4>STA & Sign-off</h4>
     <p class="instruction-text">During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route, the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical paths within the top module met their setup and hold time requirements, and no setup or hold violations were observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
