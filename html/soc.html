@@ -1574,17 +1574,18 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   
   
   <section id="conclusions">
-    <section id="conclusions">
   <h2>Conclusions</h2>
 
   <!-- Conclusions (one blue box) -->
   <div class="instruction-text">
     <p style="margin: 0;">
-      We taped out and demonstrated a silicon-proven CPU–VPU heterogeneous RISC-V SoC in TSMC 65 nm. The chip integrates PicoRV32,
-      a custom PCPI-attached VPU, on-chip IMEM/DMEM SRAM, essential I/O, and a scan-based bring-up/measurement flow. Live demos on
-      fabricated silicon validate end-to-end hardware/software co-design and reveal a clear trend: <strong>end-to-end speedup increases
-      monotonically with VPU utilization (vector intensity)</strong>—from ~1× on vector-light workloads to ~6× on convolution/MAC-heavy workloads.
-      This behavior matches our architectural intent: the CPU orchestrates control flow while the VPU accelerates regular, data-parallel inner loops.
+      We taped out and demonstrated a silicon-proven CPU–VPU heterogeneous RISC-V SoC in TSMC 65 nm, featuring an
+      <strong>in-house, fully custom-designed VPU</strong> attached to PicoRV32 via PCPI, along with on-chip IMEM/DMEM SRAM,
+      essential I/O, and a scan-based bring-up/measurement flow. Live demos on fabricated silicon validate end-to-end
+      hardware/software co-design and reveal a clear trend: <strong>end-to-end speedup increases monotonically with VPU
+      utilization (vector intensity)</strong>—from ~1× on vector-light workloads to ~6× on convolution/MAC-heavy workloads.
+      This behavior matches our architectural intent: the CPU orchestrates control flow while the VPU accelerates regular,
+      data-parallel inner loops.
     </p>
   </div>
 
@@ -1594,13 +1595,14 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   <div class="instruction-text">
     <ul style="margin: 0 0 0 20px; color: #4a5568;">
       <li>
-        <strong>Autonomous VPU control plane:</strong>
-        The VPU includes dedicated decode and multi-cycle control FSMs that manage instruction sequencing, base/stride address generation,
-        memory handshaking, and PE scheduling—reducing CPU-side loop and address-update overhead.
+        <strong>In-house custom VPU microarchitecture:</strong>
+        We designed and implemented the VPU datapath and controller from scratch, including dedicated decode and multi-cycle control FSMs
+        that manage instruction sequencing, base/stride address generation, memory handshaking, and PE scheduling—reducing CPU-side loop and
+        address-update overhead.
       </li>
       <li>
         <strong>Custom Vector ISA + PCPI offload path:</strong>
-        We designed a <strong>custom vector ISA</strong> and integrated it through PicoRV32’s <strong>PCPI</strong> interface, enabling seamless CPU-issued
+        We created a <strong>custom vector ISA</strong> and integrated it through PicoRV32’s <strong>PCPI</strong> interface, enabling seamless CPU-issued
         vector offloads and clean, reproducible <strong>CPU-only vs. CPU+VPU</strong> benchmarking under the same workload structure and memory map.
       </li>
       <li>
@@ -1614,8 +1616,8 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
       </li>
       <li>
         <strong>Measured end-to-end scaling:</strong>
-        CNN-style multi-channel convolution achieves the highest utilization and the largest speedup, while ROI-based and vector-light workloads show
-        proportionally smaller gains as fixed offload and data-movement overhead becomes visible.
+        CNN-style multi-channel convolution achieves the highest utilization and the largest speedup, while ROI-based and vector-light workloads
+        show proportionally smaller gains as fixed offload and data-movement overhead becomes visible.
       </li>
     </ul>
   </div>
@@ -1668,7 +1670,6 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   </div>
 </section>
 
-  </section>
   
   <section id="references">
     <h2>References</h2>
