@@ -470,22 +470,17 @@
   font-size: 0.95em;
 }
 
-    /* Put the table inside the blue box and tighten spacing */
-.instruction-text .specs-table {
-  margin: 12px 0 8px;        /* 原来 24px 0 太大 */
-}
-
+/* Put the table inside the blue box and tighten spacing */
 .memory-map-box {
   margin-top: 12px;
-  margin-bottom: 12px;       /* 减少和下一个模块的空白 */
-  padding-bottom: 14px;      /* 蓝框内底部留一点点就好 */
+  margin-bottom: 12px; /* reduce gap to next module */
+  padding-bottom: 14px;
 }
 
-/* 可选：如果蓝框里的表格阴影太重，可以弱化 */
-.memory-map-box .specs-table {
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+/* tighter table spacing when inside instruction-text */
+.instruction-text .specs-table {
+  margin: 12px 0 8px;
 }
-
     
   </style>
 </head>
@@ -596,52 +591,65 @@
 </li>
       
         <li>
-            <div class="highlight-item">
-                <h4>Bus Interconnect: <a href="https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_interconnect.v" target="_blank">AXI-Lite Interconnect</a></h4>
-                <p class="instruction-text">The Opensource AXI-Lite Interconnect we we adopted supports multiple masters and slaves. The maximum frequency after synthesizing is around 500MHz and the area is pretty small. It does not supports burst transactions, OoO and outstanding in AXI protocol.</p>
-                <section id="memory-map">
-                    <h4>System Memory Map</h4>
-                    <table class="specs-table">
-                      <thead>
-                        <tr>
-                          <th>Device / Region</th>
-                          <th>Start Address</th>
-                          <th>End Address</th>
-                          <th>Size</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td><strong>Instruction Memory (IMEM)</strong></td>
-                          <td><code>0x0000_0000</code></td>
-                          <td><code>0x0000_7FFF</code></td>
-                          <td>32 KB (<code>0x8000</code>)</td>
-                        </tr>
-                        <tr>
-                          <td><strong>Data Memory (DMEM)</strong></td>
-                          <td><code>0x0000_8000</code></td>
-                          <td><code>0x0000_FFFF</code></td>
-                          <td>32 KB (<code>0x8000</code>)</td>
-                        </tr>
-                        <tr>
-                          <td><strong>UART</strong></td>
-                          <td><code>0x0010_0000</code></td>
-                          <td><code>0x0010_000F</code></td>
-                          <td>16 Bytes (<code>0x10</code>)</td>
-                        </tr>
-                        <tr>
-                          <td><strong>SPI</strong></td>
-                          <td><code>0x0010_0000</code></td>
-                          <td><code>0x0010_00A3</code></td>
-                          <td>164 Bytes (<code>0xA4</code>)</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                </section>
-                
-                <!-- <p>All major components communicate via the **AXI-Lite Interconnect**. This streamlined version of the AMBA AXI protocol ensures reliable, low-latency communication between the core, memory, and peripherals, maintaining system coherence and data integrity.</p> -->
-            </div>
-        </li>
+  <div class="highlight-item">
+    <h4>
+      Bus Interconnect:
+      <a href="https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_interconnect.v" target="_blank">
+        AXI-Lite Interconnect
+      </a>
+    </h4>
+
+    <p class="instruction-text" style="margin-bottom: 12px;">
+      The open-source AXI-Lite Interconnect we adopted supports multiple masters and slaves.
+      The maximum frequency after synthesizing is around 500 MHz and the area is pretty small.
+      It does not support burst transactions, out-of-order (OoO), or outstanding transactions in the AXI protocol.
+    </p>
+
+    <!-- ✅ Blue box that contains BOTH the title and the table -->
+    <div class="instruction-text memory-map-box">
+      <h4 style="margin: 0 0 8px;">System Memory Map</h4>
+
+      <table class="specs-table" style="margin: 12px 0 0;">
+        <thead>
+          <tr>
+            <th>Device / Region</th>
+            <th>Start Address</th>
+            <th>End Address</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Instruction Memory (IMEM)</strong></td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>0x0000_7FFF</code></td>
+            <td>32 KB (<code>0x8000</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>Data Memory (DMEM)</strong></td>
+            <td><code>0x0000_8000</code></td>
+            <td><code>0x0000_FFFF</code></td>
+            <td>32 KB (<code>0x8000</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>UART</strong></td>
+            <td><code>0x0010_0000</code></td>
+            <td><code>0x0010_000F</code></td>
+            <td>16 Bytes (<code>0x10</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>SPI</strong></td>
+            <td><code>0x0010_0000</code></td>
+            <td><code>0x0010_00A3</code></td>
+            <td>164 Bytes (<code>0xA4</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</li>
+
         <li>
             <div class="highlight-item">
                 <h4>Memory Subsystem: IMEM & DMEM</h4>
