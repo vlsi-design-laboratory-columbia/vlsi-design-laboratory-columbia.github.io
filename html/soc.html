@@ -675,11 +675,37 @@
             </div>
         </li>
         <li>
-            <div class="highlight-item">
-                <h4>I/O Peripherals: UART & SPI</h4>
-                <!-- <p>External communication and interfacing are managed through standard peripherals: **UART (Universal Asynchronous Receiver/Transmitter)** provides a serial port for debugging and console access, while **SPI (Serial Peripheral Interface)** supports high-speed communication with external devices like flash memory or sensors.</p> -->
-            </div>
-        </li>
+  <div class="highlight-item">
+    <h4>I/O Peripherals: UART &amp; SPI</h4>
+
+    <div class="instruction-text">
+      <p style="margin: 0 0 12px;">
+        <strong>UART (External I/O + Demo/Debug Link)</strong><br>
+        The SoC integrates a UART interface as a lightweight and reliable channel for system bring-up,
+        debugging, and demo I/O. UART provides a simple bridge between the chip and external devices,
+        enabling log/telemetry output, runtime status reporting, and basic command/control during evaluation.
+        In our demo setup, UART can also be used to connect to an external LCD module (directly or through a
+        small controller), allowing the chip to stream processed image results or visualization data off-chip
+        for real-time display. This makes UART especially valuable for end-to-end demonstrations where computed
+        outputs (e.g., filtered frames, edge maps, or CNN-like feature maps) need to be shown clearly without
+        relying on internal memory inspection.
+      </p>
+
+      <p style="margin: 0;">
+        <strong>SPI (External Storage for AI Parameters and Data)</strong><br>
+        To support larger and more practical AI-style workloads, the SoC includes an SPI interface intended for
+        attaching external non-volatile memory (e.g., SPI flash) or other SPI peripherals. SPI enables the system
+        to store and retrieve CNN weights, biases, and model configuration (“parameters”) off-chip, overcoming the
+        capacity limits of on-chip memory and making it feasible to run re-parameterizable AI tasks without recompiling
+        or reloading the entire program image. This design choice improves flexibility: the CPU can manage parameter
+        loading, while the VPU focuses on accelerating MAC- and convolution-heavy kernels, enabling a scalable path
+        from small on-chip demos to larger, more realistic neural-network workloads.
+      </p>
+    </div>
+
+  </div>
+</li>
+
         <li>
             <div class="highlight-item">
                 <h4>DFT Module: Scan Chain, Clock Generator, Testing FSM</h4>
