@@ -470,17 +470,16 @@
   font-size: 0.95em;
 }
 
-/* Put the table inside the blue box and tighten spacing */
 .memory-map-box {
   margin-top: 12px;
-  margin-bottom: 12px; /* reduce gap to next module */
-  padding-bottom: 14px;
+  margin-bottom: 12px;
 }
 
-/* tighter table spacing when inside instruction-text */
-.instruction-text .specs-table {
-  margin: 12px 0 8px;
+/* 蓝框里表格不要额外上下 margin */
+.memory-map-box .specs-table {
+  margin: 0 !important;
 }
+
     
   </style>
 </head>
@@ -599,17 +598,17 @@
       </a>
     </h4>
 
-    <p class="instruction-text" style="margin-bottom: 12px;">
-      The open-source AXI-Lite Interconnect we adopted supports multiple masters and slaves.
-      The maximum frequency after synthesizing is around 500 MHz and the area is pretty small.
-      It does not support burst transactions, out-of-order (OoO), or outstanding transactions in the AXI protocol.
-    </p>
-
-    <!-- ✅ Blue box that contains BOTH the title and the table -->
+    <!-- ✅ One single blue box: text + memory map + table -->
     <div class="instruction-text memory-map-box">
-      <h4 style="margin: 0 0 8px;">System Memory Map</h4>
+      <p style="margin: 0 0 14px;">
+        The open-source AXI-Lite Interconnect we adopted supports multiple masters and slaves.
+        The maximum frequency after synthesizing is around 500 MHz and the area is pretty small.
+        It does not support burst transactions, out-of-order (OoO), or outstanding transactions in the AXI protocol.
+      </p>
 
-      <table class="specs-table" style="margin: 12px 0 0;">
+      <h4 style="margin: 0 0 10px;">System Memory Map</h4>
+
+      <table class="specs-table" style="margin: 0;">
         <thead>
           <tr>
             <th>Device / Region</th>
@@ -649,6 +648,7 @@
 
   </div>
 </li>
+
 
         <li>
             <div class="highlight-item">
