@@ -836,37 +836,7 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
 
 </section>
 
-    <h3>DFT Module</h3>
-    <p class="instruction-text">[Our chip uses a custom, academic-level DFT infrastructure whose central element is a scan chain, together with the on-chip clock generator and the mode-control FSM. These modules are used for post-silicon functional testing, it provides the way to load data into the on-chip memories and configuration registers and to read internal state back out of the fabricated chip.]</p>
-    <h4>Scan Chain</h4>
-    <p class="instruction-text">[The scan chain contains 252 scan cells connected between the external pins scan_in and scan_out. A simplified diagram illustration as shown in Figure below, each cell corresponds to one bit of an internal signal: instruction/data memory address and data buses, as well as the configuration registers of the clock generator and the testing FSM. In normal operation the memories are driven directly by the core, but in test mode the scan chain can temporarily take over, driving or sampling these ports and even reading back the contents of the instruction and data memories to verify that the chip is operating correctly.]</p>
-    <img src="../images/soc/dft.png">
-    <p class="instruction-text">[The below Figure illustrate the internal structure of the scan cells and their connection in the chain. Regarding the scan chain operation, a control signal scan_i0o1 selects the operating mode. Internally, both the scan-in and scan-out cells contain a small input-select MUX plus two back-to-back transparent latches clocked by non-overlapping scan clocks; this two-latch structure avoids hold-time issues that are common in long shift registers. In scan-in mode, the MUX in a scan-in cell chooses between the serial input from the previous cell (to shift new data through the chain) and a feedback path that simply preserves the current value during normal execution. In scan-out mode, the corresponding MUX in a scan-out cell selects either the previous cell's serial data for shifting, or the design signal that we want to observe, such as a bit of instruction or data memory.]</p>
-        <div class="side-by-side-images">
-        <img src="../images/soc/si.png" alt="Description of P1">
-        <img src="../images/soc/so.png" alt="Description of P2">
-    </div>
-    <p>During testing, we stream a serial bit pattern into scan_in while toggling the scan clock. After 252 shift cycles, the pattern has propagated to all cells in the chain. When scan_i0o1 is configured for scan-in and the load signal is pulsed, the contents of the scan cells are written into the connected memories and control registers: for example, a 32-bit instruction address together with its 32-bit instruction word, or new settings for the clock generator (div, fc, en_int,) and the FSM (mode and cycle count). Also, some of the scan cells provides the “virtual” memory clock imem_clk/dmem_clk, we create a memory write by first loading the desired pattern, then re-loading the same pattern with that particular bit toggled from low to high to emulate a rising edge on the memory clock.</p>
-    <p>The process of reading internal state back is symmetric. With scan_i0o1 set to scan-out mode, the memory wrappers and selected registers feed their data into the scan-out cells. After latching these values, we generate the required number of scan clock cycles to shift the 252-bit vector to the scan_out pin, where the tester observes it as a serial data stream. In this way we can verify program execution by dumping results from data memory or checking configuration registers, all using the same unified scan interface.</p>
-
-    <h4>Clock Generator</h4>
-    <p class="instruction-text">[To support flexible post-silicon testing, normal operation, and control over low, high, and custom operating frequencies, our SoC includes a programmable on-chip clock generator.]</p>
-    <p>All of its frequency control signals are loaded through the scan chain, where it can be controlled by: fc[0:4] as fine-tune to adjust the oscillator length for fine frequency steps. div[0:3] sets the digital divider ratio for coarse frequency scaling. In addition to frequency control signals, it also has a control signal from chip I/O en_int that allows it to choose between the internal generated clock path and an external clock clk_ext.</p>
-    <p>These controls work together to generate the system clock clk with a selectable frequency and source, giving us both a tunable internal clock and a safe external-clock fallback.</p>
-    <img src="../images/soc/clk.png">
-
-    <h4>Testing FSM</h4>
-    <p class="instruction-text">[For controlled post-silicon debugging we also added a small finite-state machine (FSM) that drives the clock-gating logic of the chip. The FSM supports three operating modes, all of its mode control signals are loaded through the scan chain. When the scan chain is being used to shift data in or out, the FSM sits in an idle state and completely blocks the system clock so that no internal state changes. For normal run mode, the FSM simply lets the selected clock source (internal or external) propagate to the rest of the SoC. In countdown mode, the FSM enables the clock for a programmable number of cycles and then turns it off again, allowing cycle-accurate inspection of the design.]</p>
-
-    <h2>Software & Testing Flow</h2>
-    <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
     
-    <h3>Software Development</h3>
-    <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
-    
-    <h3>Testing Methodology</h3>
-    <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
-  </section>
   
   <section id="pcb">
     <h2>PCB Design</h2>
