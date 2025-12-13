@@ -736,14 +736,28 @@
   </p>
 </div>
 
-              
-    <h5>Clock Generator</h5>
-    <p class="instruction-text">To support flexible post-silicon testing, normal operation, and control over low, high, and custom operating frequencies, our SoC includes a programmable on-chip clock generator.
+       <h5>Clock Generator</h5>
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    To support flexible post-silicon testing, normal operation, and control over low, high, and custom operating frequencies,
+    our SoC includes a programmable on-chip clock generator.
     <br>
-    All of its frequency control signals are loaded through the scan chain, where it can be controlled by: fc[0:4] as fine-tune to adjust the oscillator length for fine frequency steps. div[0:3] sets the digital divider ratio for coarse frequency scaling. In addition to frequency control signals, it also has a control signal from chip I/O en_int that allows it to choose between the internal generated clock path and an external clock clk_ext.
+    All of its frequency control signals are loaded through the scan chain, where it can be controlled by:
+    <code>fc[0:4]</code> as fine-tune to adjust the oscillator length for fine frequency steps.
+    <code>div[0:3]</code> sets the digital divider ratio for coarse frequency scaling. In addition to frequency control signals,
+    it also has a control signal from chip I/O <code>en_int</code> that allows it to choose between the internal generated clock path
+    and an external clock <code>clk_ext</code>.
     <br>
-    These controls work together to generate the system clock clk with a selectable frequency and source, giving us both a tunable internal clock and a safe external-clock fallback.</p>
-    <img src="../images/soc/clk.png">
+    These controls work together to generate the system clock <code>clk</code> with a selectable frequency and source,
+    giving us both a tunable internal clock and a safe external-clock fallback.
+  </p>
+
+  <img src="../images/soc/clk.png" alt="Clock generator"
+       style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
+</div>
+       
+    
 
     <h5>Testing FSM</h5>
     <p class="instruction-text">For controlled post-silicon debugging we also added a small finite-state machine (FSM) that drives the clock-gating logic of the chip. The FSM supports three operating modes, all of its mode control signals are loaded through the scan chain. When the scan chain is being used to shift data in or out, the FSM sits in an idle state and completely blocks the system clock so that no internal state changes. For normal run mode, the FSM simply lets the selected clock source (internal or external) propagate to the rest of the SoC. In countdown mode, the FSM enables the clock for a programmable number of cycles and then turns it off again, allowing cycle-accurate inspection of the design.</p>
