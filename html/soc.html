@@ -685,20 +685,32 @@
 
 
     <h3>RTL Design</h3>
-        <p class="instruction-text">The RTL (Register Transfer Level) design serves as the core of our digital implementation, bridging the gap between high-level algorithms and physical hardware.</p>
 
+<div class="instruction-text">
+  <p style="margin-top: 0;">
+    The RTL (Register Transfer Level) design serves as the core of our digital implementation,
+    bridging the gap between high-level algorithms and physical hardware.
+  </p>
 
-    <h4>Hierarchical Design & Verification</h4>
-    <p>
-        We adopted a rigorous <strong>Bottom-Up Implementation</strong> strategy. Design work starts with coding individual, low-level <strong>submodules</strong>. Once these leaf blocks are completed, they are integrated into larger parent modules, eventually culminating in the <strong>Top-Level</strong> SoC.
-    </p><p>
-        Verification follows a corresponding layered approach:
-    </p>
-    <ul style="margin-left: 20px; margin-bottom: 20px; color: #4a5568;">
-        <li><strong>Unit-Level Verification:</strong> Submodules are first verified in isolation using dedicated testbenches to ensure local correctness.</li>
-        <li><strong>Integration Verification:</strong> As blocks are assembled, verification focuses on interface protocols and data flow between modules.</li>
-        <li><strong>Full-Chip Verification:</strong> The complete design is simulated (using tools like <strong>ModelSim, VCS, and Verdi</strong>) and cross-compared against the C reference model to validate system-wide functionality.</li>
-    </ul>
+  <h4 style="margin: 14px 0 8px;">Hierarchical Design &amp; Verification</h4>
+
+  <p>
+    We adopted a rigorous <strong>Bottom-Up Implementation</strong> strategy. Design work starts with coding individual,
+    low-level <strong>submodules</strong>. Once these leaf blocks are completed, they are integrated into larger parent modules,
+    eventually culminating in the <strong>Top-Level</strong> SoC.
+  </p>
+
+  <p style="margin-bottom: 10px;">
+    Verification follows a corresponding layered approach:
+  </p>
+
+  <ul style="margin-left: 20px; margin-bottom: 0; color: #4a5568;">
+    <li><strong>Unit-Level Verification:</strong> Submodules are first verified in isolation using dedicated testbenches to ensure local correctness.</li>
+    <li><strong>Integration Verification:</strong> As blocks are assembled, verification focuses on interface protocols and data flow between modules.</li>
+    <li><strong>Full-Chip Verification:</strong> The complete design is simulated (using tools like <strong>ModelSim, VCS, and Verdi</strong>) and cross-compared against the C reference model to validate system-wide functionality.</li>
+  </ul>
+</div>
+
 
             <table class="specs-table">
           <thead>
