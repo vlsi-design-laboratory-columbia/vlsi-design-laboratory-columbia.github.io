@@ -449,6 +449,28 @@
       .nav-buttons a {font-size: 0.85em; padding: 8px 16px;}
       .image-placeholder {height: 250px; font-size: 0.95em;}
     }
+
+/* === Fix: side-by-side images bigger + captions closer === */
+.side-by-side-images figure{
+  flex: 1;            /* 让每个 figure 平分宽度 */
+  margin: 0;
+}
+
+.side-by-side-images figure img{
+  width: 100%;        /* 图片撑满 figure */
+  max-width: 100%;
+  height: auto;
+  margin: 0 !important;   /* 覆盖全局 img 的 24px margin */
+}
+
+.side-by-side-images figcaption{
+  margin-top: 10px;
+  text-align: center;
+  color: #4a5568;
+  font-size: 0.95em;
+}
+
+    
   </style>
 </head>
 <body>
