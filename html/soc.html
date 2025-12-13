@@ -911,14 +911,27 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   </div>
 </div>
 
+    <h4>STA &amp; Sign-off</h4>
 
-    <h4>STA & Sign-off</h4>
-    <p class="instruction-text">During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route, the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical paths within the top module met their setup and hold time requirements, and no setup or hold violations were observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
-    
-      <img src="../images/soc/SF.png">    <br>
-    
-    After completing the physical design, we performed full signoff verification on each submodule and the top-level design. Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean. Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.</p>
-    
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route,
+    the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical
+    paths within the top module met their setup and hold time requirements, and no setup or hold violations were
+    observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
+  </p>
+
+  <img src="../images/soc/SF.png" alt="STA and sign-off summary"
+       style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+  <p style="margin: 0;">
+    After completing the physical design, we performed full signoff verification on each submodule and the top-level design.
+    Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean.
+    Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.
+  </p>
+</div>
+
+
   <h4>PPA optimization</h4>
 
 <div class="instruction-text">
@@ -1037,7 +1050,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
     </p>
 
     <img src="../images/soc/schematic.png" alt="PCB schematic"
-         style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px;">
+         style="width: 80%; max-width: 900px; display: block; margin: 0 auto 16px;">
 
     <p style="margin: 0 0 12px;">
       In the main circuits, we created the symbol for our chip. The footprint of our chip is
