@@ -800,9 +800,7 @@
 </div>
 
     
-
-
-    <h3>RTL Design</h3>
+<h3>RTL Design</h3>
 
 <div class="instruction-text">
   <p style="margin-top: 0;">
@@ -822,68 +820,37 @@
     Verification follows a corresponding layered approach:
   </p>
 
-  <ul style="margin-left: 20px; margin-bottom: 0; color: #4a5568;">
+  <ul style="margin-left: 20px; margin-bottom: 14px; color: #4a5568;">
     <li><strong>Unit-Level Verification:</strong> Submodules are first verified in isolation using dedicated testbenches to ensure local correctness.</li>
     <li><strong>Integration Verification:</strong> As blocks are assembled, verification focuses on interface protocols and data flow between modules.</li>
     <li><strong>Full-Chip Verification:</strong> The complete design is simulated (using tools like <strong>ModelSim, VCS, and Verdi</strong>) and cross-compared against the C reference model to validate system-wide functionality.</li>
   </ul>
+
+  <table class="specs-table" style="margin: 0;">
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Feature</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>0.0</strong></td><td>Basic Model from PicoRV32 RISCV Core</td></tr>
+      <tr><td><strong>0.1</strong></td><td>Integrated Instruction SRAM with memory wrappers</td></tr>
+      <tr><td><strong>0.2</strong></td><td>Integrated AXI-Lite Interconnect</td></tr>
+      <tr><td><strong>0.3</strong></td><td>Integrated Data SRAM with memory wrappers</td></tr>
+      <tr><td><strong>0.4</strong></td><td>Integrated Scan Chain</td></tr>
+      <tr><td><strong>0.5</strong></td><td>Integrated UART and SPI</td></tr>
+      <tr><td><strong>0.6</strong></td><td>Integrated Vector Processing Unit</td></tr>
+      <tr><td><strong>0.7</strong></td><td>Integrated Clock Generator, Scan Chain and FSM</td></tr>
+      <tr><td><strong>0.8</strong></td><td>Modified Vector Processing Unit for Smaller Size</td></tr>
+      <tr><td><strong>0.9</strong></td><td>Integrated Pad Frame and IO Cells</td></tr>
+      <tr><td><strong>1.0</strong></td><td>Verified Functionality from Chip Level and RTL Freeze</td></tr>
+    </tbody>
+  </table>
 </div>
 
 
-            <table class="specs-table">
-          <thead>
-            <tr>
-              <th>Version</th>
-              <th>Feature</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>0.0</strong></td>
-              <td>Basic Model from PicoRV32 RISCV Core</td>
-            </tr>
-            <tr>
-              <td><strong>0.1</strong></td>
-              <td>Integrated Instruction SRAM with memory wrappers</td>
-            </tr>
-            <tr>
-              <td><strong>0.2</strong></td>
-              <td>Integrated AXI-Lite Interconnect</td>
-            </tr>
-            <tr>
-              <td><strong>0.3</strong></td>
-              <td>Integrated Data SRAM with memory wrappers</td>
-            </tr>
-            <tr>
-              <td><strong>0.4</strong></td>
-              <td>Integrated Scan Chain</td>
-            </tr>
-            <tr>
-              <td><strong>0.5</strong></td>
-              <td>Integrated UART and SPI</td>
-            </tr>
-            <tr>
-              <td><strong>0.6</strong></td>
-              <td>Integrated Vector Processing Unit</td>
-            </tr>
-            <tr>
-              <td><strong>0.7</strong></td>
-              <td>Integrated Clock Generator, Scan Chain and FSM</td>
-            </tr>
-            <tr>
-              <td><strong>0.8</strong></td>
-              <td>Modified Vector Processing Unit for Smaller Size</td>
-            </tr>
-            <tr>
-              <td><strong>0.9</strong></td>
-              <td>Integrated Pad Frame and IO Cells</td>
-            </tr>
-            <tr>
-              <td><strong>1.0</strong></td>
-              <td>Verified Functionality from Chip Level and RTL Freeze</td>
-            </tr>
-          </tbody>
-        </table>
+    
     <h3>Synthesis</h3>
     <p class="instruction-text">We used Synopsys Design Compiler for logic synthesis. Before running synthesis, we prepared a complete SDC file that defined all necessary constraints, including clock definitions, clock constraints, drive and load constraints, operating conditions, and wire-load models. Specifically, the SDC file included parameters such as clock name, clock period, clock uncertainty, clock transition, as well as input and output delay constraints.
 
