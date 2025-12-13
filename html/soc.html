@@ -864,7 +864,81 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
   
   <section id="demo">
     <h2>Demonstration</h2>
-    <p class="instruction-text">[Replace with demonstration description: Show working examples, test results, and real-world performance of your chip.]</p>
+
+    <p class="instruction-text">
+    <strong>Demo Flow</strong><br>
+    We prepared three workloads that cover high, medium, and low VPU utilization.
+    The goal is to show very clearly how VPU utilization translates into end-to-end speedup on our chip.
+  </p>
+
+  <h3>Demo 1 — CNN-style 4-Channel 3×3 Convolution</h3>
+  <p class="instruction-text">
+    Demo 1 is a CNN-style 4-channel 3×3 convolution. Here almost every pixel goes through two 3×3 convolutions on four feature maps,
+    so the code is very MAC-heavy. In this case, the VPU is active for around <strong>80%</strong> of the total cycles,
+    and we see a large speedup compared to the CPU-only baseline.
+  </p>
+
+  <h3>Demo 2 — Sobel Edge Detection (Full-frame vs. ROI-Sobel)</h3>
+  <p class="instruction-text">
+    Demo 2 is edge detection with Sobel filters. We show two versions: full-frame Sobel, where we run VPU convolution on every pixel,
+    and ROI-Sobel, where we first do a cheap scalar pre-check and only call the VPU on high-gradient regions.
+    So full-frame Sobel uses the VPU for about <strong>60%</strong> of the time, while ROI-Sobel is lower, around <strong>45%</strong>.
+    This demo highlights how even with the same algorithm family, changing the amount of VPU work shifts the speedup.
+  </p>
+
+  <h3>Demo 3 — 4-Level Posterize Filter</h3>
+  <p class="instruction-text">
+    Demo 3 is a 4-level posterize filter. This is mostly simple per-pixel quantization with almost no vector multiply or convolution.
+    Here the VPU utilization is only about <strong>5%</strong>, and as a result we see very little acceleration — sometimes even slower —
+    because the PCPI and memory overhead dominate when the vector work is too light.
+  </p>
+
+  <p class="instruction-text">
+    So, across these three workloads, we sweep from VPU-heavy to light, and you can directly see how higher VPU utilization gives better speedup on our architecture.
+  </p>
+
+  <h3>Results Summary</h3>
+  <p class="instruction-text">
+    Below summarizes our results. For the CNN-style 4-channel 3×3 convolution, the VPU is busy about <strong>80%</strong> of the time (high utilization)
+    and we see roughly <strong>6×</strong> speedup. For full-frame Sobel, VPU utilization drops to about <strong>60%</strong> (medium utilization)
+    and the speedup is around <strong>3×</strong>; with ROI Sobel, utilization is around <strong>45%</strong> and the speedup is about <strong>2×</strong>.
+    Finally, the 4-level posterize workload only uses the VPU about <strong>5%</strong> of the time (low utilization), so the speedup is basically <strong>1×</strong> — overhead dominates.
+    <br><br>
+    Overall, speedup clearly scales with vector intensity: the more time we spend in VPU-friendly vector math, the more benefit we get from our custom VPU.
+    This conclusion was also reached after processing a large amount of images and data.
+  </p>
+
+  <table class="specs-table">
+    <thead>
+      <tr>
+        <th>Workload</th>
+        <th>VPU Utilization</th>
+        <th>Speedup</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>CNN-style 4ch 3×3 Conv</strong></td>
+        <td>~80% (High)</td>
+        <td>~6×</td>
+      </tr>
+      <tr>
+        <td><strong>Sobel (Full-frame)</strong></td>
+        <td>~60% (Medium)</td>
+        <td>~3×</td>
+      </tr>
+      <tr>
+        <td><strong>Sobel (ROI)</strong></td>
+        <td>~45% (Medium–Low)</td>
+        <td>~2×</td>
+      </tr>
+      <tr>
+        <td><strong>Posterize (4-level)</strong></td>
+        <td>~5% (Low)</td>
+        <td>~1×</td>
+      </tr>
+    </tbody>
+  </table>
     
     <div class="image-placeholder">Insert demonstration photo or screenshot</div>
     
