@@ -493,31 +493,31 @@
   <a class="back" href="../index.html">Back to all projects</a>
   
   <section id="introduction">
-    <h2>Introduction</h2>
-    <p class="instruction-text">[Replace with project introduction: Describe the motivation, objectives, and overview of your chip design. Explain why this project is important and what problems it aims to solve.]</p>
-    <p class="instruction-text">
-  Welcome to the SoC team page! We present a complete RISC-V System-on-Chip (SoC) implemented and
-  taped out in TSMC 65-nm technology. This work was developed as part of Columbia University’s
-  EE6350 VLSI Laboratory, and we gratefully acknowledge the supervision of Prof. Mingoo Seok,
-  the generous support from Apple Inc., and the support of the course TAs.
-</p>
+  <h2>Introduction</h2>
 
-<p class="instruction-text">
-  The chip adopts a CPU–VPU heterogeneous architecture, integrating the open-source PicoRV32 RISC-V
-  CPU and a custom-designed VPU, along with on-chip memory and essential I/O (UART, SPI), to
-  accelerate data-parallel workloads such as vector operations and convolution-like kernels used in
-  image processing and lightweight AI pipelines. The CPU provides system-level programmability and
-  orchestration, while the VPU couples a SIMD datapath with a dedicated control plane for vector
-  decode, memory sequencing, and PE scheduling. This separation enables straightforward CPU-only vs.
-  VPU-offloaded benchmarking, making acceleration benefits easy to reproduce and quantify on silicon.
-</p>
+  <p class="instruction-text">
+    Welcome to the SoC team page! We present a complete RISC-V System-on-Chip (SoC) implemented and
+    taped out in TSMC 65-nm technology. This work was developed as part of Columbia University’s
+    EE6350 VLSI Laboratory, and we gratefully acknowledge the supervision of Prof. Mingoo Seok,
+    the generous support from Apple Inc., and the support of the course TAs.
+  </p>
 
-<p class="instruction-text">
-  From RTL design and verification through synthesis, place-and-route, and pad integration, we
-  completed an end-to-end ASIC flow and validated the chip via post-silicon board bring-up and
-  testing. The result is a compact, software-programmable platform that demonstrates digital system
-  integration and silicon-proven hardware/software co-design.
-</p>
+  <p class="instruction-text">
+    The chip adopts a CPU–VPU heterogeneous architecture, integrating the open-source PicoRV32 RISC-V
+    CPU and a custom-designed VPU, along with on-chip memory and essential I/O (UART, SPI), to
+    accelerate data-parallel workloads such as vector operations and convolution-like kernels used in
+    image processing and lightweight AI pipelines. The CPU provides system-level programmability and
+    orchestration, while the VPU couples a SIMD datapath with a dedicated control plane for vector
+    decode, memory sequencing, and PE scheduling. This separation enables straightforward CPU-only vs.
+    VPU-offloaded benchmarking, making acceleration benefits easy to reproduce and quantify on silicon.
+  </p>
+
+  <p class="instruction-text">
+    From RTL design and verification through synthesis, place-and-route, and pad integration, we
+    completed an end-to-end ASIC flow and validated the chip via post-silicon board bring-up and
+    testing. The result is a compact, software-programmable platform that demonstrates digital system
+    integration and silicon-proven hardware/software co-design.
+  </p>
 
     <img src="../images/soc/Chip_Raw_Labelled.jpg">
     <!-- <div class="image-placeholder">Insert chip photo or project overview image</div> -->
