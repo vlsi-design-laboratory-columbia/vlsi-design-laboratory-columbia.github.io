@@ -873,14 +873,15 @@ The physical hierarchy of the chip consists of submodules, the top module, the c
   scalar execution and vector offload under the same memory map, I/O path, and workload code structure.
 </p>
 
-<h3>Demo Setup: PCB + FPGA Scan + MATLAB Control</h3>
-<p class="instruction-text">
+
+  <p class="instruction-text">
+    <strong>Demo Setup: PCB + FPGA Scan + MATLAB Control</strong><br>
   The chip is mounted on a custom PCB and connected to an FPGA through a level shifter.
   The FPGA handles low-level scan-in/scan-out pin toggling and basic control signals.
   A MATLAB-based host script orchestrates the full loop: it streams the program and input data into on-chip memories,
   triggers execution, then retrieves scan-out data to <strong>visualize outputs</strong> and <strong>compute performance metrics</strong>.
 </p>
-    
+    <br><br>
     <p class="instruction-text">
     <strong>Demo Flow</strong><br>
     We prepared three workloads that cover high, medium, and low VPU utilization.
