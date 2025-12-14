@@ -846,7 +846,8 @@
 
 Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip.</p>
    <h3>Physical Design</h3>
-<h4>Auto P&amp;R</h4>
+<div class="highlight-item">
+    <h4>Auto P&amp;R</h4>
 
 <div class="instruction-text">
   <p style="margin: 0 0 12px;">
@@ -873,9 +874,9 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   <img src="../images/soc/chip_labelled.jpg" alt="Chip layout labeled"
        style="width: 90%; max-width: 900px; display: block; margin: 0 auto;">
 </div>
+</div>
 
-
-
+<div class="highlight-item">
     <h4>IO Pad</h4>
 
 <div class="instruction-text">
@@ -888,7 +889,8 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   <img src="../images/soc/IO.png" alt="IO pad integration"
        style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
 </div>
-
+  </div>
+<div class="highlight-item">
     <h4>Package</h4>
 <div class="instruction-text">
   <p style="margin: 0 0 12px;">
@@ -900,7 +902,8 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
     <img src="../images/soc/P2.png" alt="Description of P2">
   </div>
 </div>
-
+  </div>
+<div class="highlight-item">
     <h4>STA &amp; Sign-off</h4>
 
 <div class="instruction-text">
@@ -920,8 +923,8 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
     Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.
   </p>
 </div>
-
-
+</div>
+<div class="highlight-item">
   <h4>PPA optimization</h4>
 
 <div class="instruction-text">
@@ -961,7 +964,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
     These combined strategies allowed us to effectively manage power while maintaining overall performance and design efficiency.
   </p>
 </div>  
-
+</div>
   </section>
 
   
