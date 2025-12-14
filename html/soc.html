@@ -295,9 +295,14 @@
       font-style: normal;
       text-align: justify;
       text-justify: inter-word;
+      text-align-last: left;   /* 最后一行不拉开 */
     }
     
     .instruction-text {
+  text-align-last: left;
+}
+    .instruction-text br + *{
+  text-align: left;
   text-align-last: left;
 }
     
