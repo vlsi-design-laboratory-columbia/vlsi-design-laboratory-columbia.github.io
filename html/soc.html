@@ -547,6 +547,19 @@
   text-align: center !important;
 }
 
+    /* === FIX: single figure image/caption spacing inside blue box === */
+.instruction-text figure > img{
+  margin: 0 !important;          /* 干掉全局 img 的 24px 上下边距 */
+}
+
+.instruction-text figure{
+  margin: 14px 0 !important;     /* 可选：统一 figure 上下间距 */
+}
+
+.instruction-text figure > figcaption{
+  margin-top: 8px;               /* 你想更近就改成 4px */
+}
+
 
     
   </style>
