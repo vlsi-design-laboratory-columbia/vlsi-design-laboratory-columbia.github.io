@@ -560,6 +560,15 @@
   margin-top: 8px;               /* 你想更近就改成 4px */
 }
 
+/* === FIX: make h4 closer to the blue box right below === */
+.highlight-item > h4{
+  margin-bottom: 8px !important;   /* 标题下方更近 */
+}
+
+/* 如果蓝框紧跟在 h4 后面，压掉蓝框的上边距 */
+.highlight-item > h4 + .instruction-text{
+  margin-top: 8px !important;      /* 你想更近就改成 4px 或 0 */
+}
 
     
   </style>
