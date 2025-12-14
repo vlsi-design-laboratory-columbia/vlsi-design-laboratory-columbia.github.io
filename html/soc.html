@@ -737,7 +737,7 @@
         contents are written into connected memories and control registers (e.g., instruction address/data, clock generator settings
         <code>div</code>/<code>fc</code>/<code>en_int</code>, and FSM mode/cycle count). Some scan cells also provide “virtual” memory clocks
         <code>imem_clk</code>/<code>dmem_clk</code>; we emulate a rising edge by re-loading the same scan pattern with that clock bit toggled from low to high.
-        <br><br>
+        <br>
         Readback is symmetric: with <code>scan_i0o1</code> set to scan-out, selected memory/register signals feed the scan-out cells. After latching,
         we shift out the 252-bit vector through <code>scan_out</code>, enabling inspection of internal state and dumping results from DMEM using the same interface.
       </p>
