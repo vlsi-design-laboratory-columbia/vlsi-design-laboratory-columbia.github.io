@@ -508,16 +508,35 @@
   }
 }
 
-    /* 让图注永远居中，不吃 .instruction-text 的两端对齐 */
-.instruction-text .side-by-side-images figure{
-  text-align: center !important;
+    /* === FORCE center for figure + image + caption (put at the VERY end) === */
+.side-by-side-images{
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.instruction-text .side-by-side-images figure figcaption{
-  text-align: center !important;
+.side-by-side-images figure{
+  flex: 1 1 0;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;              /* 关键：让图片本身居中 */
+}
+
+.side-by-side-images figure > img{
+  display: block !important;        /* 关键：避免 inline 靠左 */
+  width: 100% !important;
+  max-width: 100% !important;       /* 关键：压掉你之前的 max-width:48% */
+  height: auto !important;
+  margin: 0 !important;             /* 压掉全局 img 的 24px margin */
+}
+
+.side-by-side-images figure > figcaption{
   width: 100%;
   display: block;
+  text-align: center !important;    /* 压掉 .instruction-text 的 justify */
+  margin-top: 10px;
 }
+
 
 
     
