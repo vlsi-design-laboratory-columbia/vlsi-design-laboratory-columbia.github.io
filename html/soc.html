@@ -697,20 +697,16 @@
   <div class="highlight-item">
     <h4>DFT Module: Scan Chain, Clock Generator, Testing FSM</h4>
 
-    <!-- ONE single blue box for everything below -->
     <div class="instruction-text">
-
-      <!-- Overview -->
-      <p style="margin: 0 0 14px;">
+      <p style="margin: 0 0 12px;">
         Our chip uses a custom, academic-level DFT infrastructure whose central element is a scan chain, together with the on-chip
-        clock generator and the mode-control FSM. These modules enable post-silicon functional testing by providing a unified method
-        to load programs/data into on-chip memories and configuration registers, and to read internal state back out of the fabricated chip.
+        clock generator and the mode-control FSM. These modules enable post-silicon functional testing by providing a unified method to
+        load programs/data into on-chip memories and configuration registers, and to read internal state back out of the fabricated chip.
       </p>
 
       <!-- Scan Chain -->
-      <h5 style="margin: 14px 0 10px; color: #1e3a5f;">Scan Chain</h5>
-
       <p style="margin: 0 0 12px;">
+        <strong>Scan Chain</strong><br>
         The scan chain contains 252 scan cells connected between the external pins <code>scan_in</code> and <code>scan_out</code>.
         Each cell corresponds to one bit of internal state, including instruction/data memory address and data buses, as well as
         configuration registers for the clock generator and the testing FSM. In normal operation, memories are driven by the core,
@@ -719,61 +715,54 @@
       </p>
 
       <img src="../images/soc/dft.png" alt="Scan chain overview"
-           style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px; box-shadow: none; border: none;">
+           style="width: 65%; max-width: 900px; display: block; margin: 0 auto 14px;">
 
       <p style="margin: 0 0 12px;">
         The figures below illustrate the internal structure of the scan cells and their connection in the chain. A control signal
         <code>scan_i0o1</code> selects the operating mode. Internally, scan-in and scan-out cells use an input-select MUX and two
         back-to-back transparent latches clocked by non-overlapping scan clocks, which helps avoid hold-time issues common in long shift registers.
-        In scan-in mode, the MUX selects the serial input from the previous cell (for shifting) or a feedback path (to preserve state).
-        In scan-out mode, the MUX selects either shifted serial data or the internal design signal to observe.
       </p>
 
-      <div class="side-by-side-images two-up" style="margin: 0 0 16px; gap: 16px;">
+      <div class="side-by-side-images two-up" style="margin: 0 0 14px; gap: 16px;">
         <img src="../images/soc/si.png" alt="Scan-in cell structure" style="margin: 0;">
         <img src="../images/soc/so.png" alt="Scan-out cell structure" style="margin: 0;">
       </div>
 
-      <p style="margin: 0 0 14px;">
+      <p style="margin: 0 0 12px;">
         During testing, we stream a serial bit pattern into <code>scan_in</code> while toggling the scan clock. After 252 shift cycles,
         the pattern propagates to all cells. When <code>scan_i0o1</code> is configured for scan-in and the load signal is pulsed, the scan
         contents are written into connected memories and control registers (e.g., instruction address/data, clock generator settings
         <code>div</code>/<code>fc</code>/<code>en_int</code>, and FSM mode/cycle count). Some scan cells also provide “virtual” memory clocks
-        <code>imem_clk</code>/<code>dmem_clk</code>; we emulate a rising edge by re-loading the same scan pattern with that clock bit toggled
-        from low to high.
+        <code>imem_clk</code>/<code>dmem_clk</code>; we emulate a rising edge by re-loading the same scan pattern with that clock bit toggled from low to high.
         <br><br>
         Readback is symmetric: with <code>scan_i0o1</code> set to scan-out, selected memory/register signals feed the scan-out cells. After latching,
         we shift out the 252-bit vector through <code>scan_out</code>, enabling inspection of internal state and dumping results from DMEM using the same interface.
       </p>
 
       <!-- Clock Generator -->
-      <h5 style="margin: 14px 0 10px; color: #1e3a5f;">Clock Generator</h5>
-
       <p style="margin: 0 0 12px;">
+        <strong>Clock Generator</strong><br>
         To support flexible post-silicon testing and controlled operating frequencies, our SoC includes a programmable on-chip clock generator.
         Its control signals are loaded through the scan chain: <code>fc[0:4]</code> provides fine tuning by adjusting oscillator length, and
-        <code>div[0:3]</code> sets a coarse digital divide ratio. A chip I/O signal <code>en_int</code> selects between the internal clock path
-        and an external reference clock <code>clk_ext</code>. Together these controls generate the system clock <code>clk</code> with selectable
-        frequency and source.
+        <code>div[0:3]</code> sets a coarse digital divide ratio. A chip I/O signal <code>en_int</code> selects between the internal clock path and an
+        external reference clock <code>clk_ext</code>. Together these controls generate the system clock <code>clk</code> with selectable frequency and source.
       </p>
 
       <img src="../images/soc/clk.png" alt="Clock generator"
-           style="width: 65%; max-width: 900px; display: block; margin: 0 auto 14px; box-shadow: none; border: none;">
+           style="width: 65%; max-width: 900px; display: block; margin: 0 auto 14px;">
 
       <!-- Testing FSM -->
-      <h5 style="margin: 14px 0 10px; color: #1e3a5f;">Testing FSM</h5>
-
       <p style="margin: 0;">
+        <strong>Testing FSM</strong><br>
         For controlled post-silicon debugging, we added a small finite-state machine (FSM) that drives clock-gating logic. All FSM mode controls
         are loaded through the scan chain. During scan shift operations, the FSM holds the system clock off to prevent unintended state changes.
         In run mode, it propagates the selected clock source (internal or external) to the SoC. In countdown mode, it enables the clock for a
         programmed number of cycles and then turns it off, allowing cycle-accurate inspection of internal state.
       </p>
-
     </div>
-    <!-- end ONE blue box -->
   </div>
 </li>
+
 
     </ul>
     
