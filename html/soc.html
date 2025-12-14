@@ -570,6 +570,22 @@
   margin-top: 8px !important;      /* 你想更近就改成 4px 或 0 */
 }
 
+/* === Tighten spacing: heading -> blue box === */
+h4{
+  margin: 18px 0 8px;      /* 控制 h4 自己上下间距：上18，下8（你可再调小） */
+  color: var(--primary-light);
+  font-weight: 600;
+}
+
+/* h3/h4 后面紧跟蓝框时，把蓝框的 top margin 压小 */
+h3 + .instruction-text,
+h4 + .instruction-text{
+  margin-top: 10px !important;   /* 原来是 20px */
+}
+
+
+
+    
     
   </style>
 </head>
