@@ -845,126 +845,135 @@
     <p class="instruction-text">We used Synopsys Design Compiler for logic synthesis. Before running synthesis, we prepared a complete SDC file that defined all necessary constraints, including clock definitions, clock constraints, drive and load constraints, operating conditions, and wire-load models. Specifically, the SDC file included parameters such as clock name, clock period, clock uncertainty, clock transition, as well as input and output delay constraints.
 
 Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip.</p>
-   <h3>Physical Design</h3>
-<div class="highlight-item">
-    <h4>Auto P&amp;R</h4>
 
-<div class="instruction-text">
-  <p style="margin: 0 0 12px;">
-    We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included:
-    loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS),
-    signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
-    <br><br>
-    The physical hierarchy of the chip consists of submodules, the top module, the chip-level module, and the IO pads.
-    Our place-and-route strategy followed the same bottom-up approach used during synthesis. The Dmem and Imem blocks used
-    existing layout macros, while modules such as the SPI block, scan chain, test FSM, coprocessor, and CPU core were placed
-    and routed independently. The remaining modules were integrated and routed within the top-level design.
-  </p>
+<h3>Physical Design</h3>
 
-  <img src="../images/soc/PhysicalFlow.png" alt="Physical design flow"
-       style="width: 90%; max-width: 900px; display: block; margin: 0 auto 18px;">
+<ul style="margin-left: 20px; margin-bottom: 0; color: #4a5568;">
 
-  <p style="margin: 0 0 12px;">
-    The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite
-    ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock
-    generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew.
-    Surrounding the entire design are the required IO pads that interface the chip with the external system.
-  </p>
+  <!-- 1) Auto P&R -->
+  <li>
+    <div class="highlight-item">
+      <h4 style="margin: 0 0 10px;">Auto P&amp;R</h4>
 
-  <img src="../images/soc/chip_labelled.jpg" alt="Chip layout labeled"
-       style="width: 90%; max-width: 900px; display: block; margin: 0 auto;">
-</div>
-</div>
+      <div class="instruction-text">
+        <p style="margin: 0 0 12px;">
+          We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included:
+          loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS),
+          signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
+          <br><br>
+          The physical hierarchy of the chip consists of submodules, the top module, the chip-level module, and the IO pads.
+          Our place-and-route strategy followed the same bottom-up approach used during synthesis. The Dmem and Imem blocks used
+          existing layout macros, while modules such as the SPI block, scan chain, test FSM, coprocessor, and CPU core were placed
+          and routed independently. The remaining modules were integrated and routed within the top-level design.
+        </p>
 
-<div class="highlight-item">
-    <h4>IO Pad</h4>
+        <img src="../images/soc/PhysicalFlow.png" alt="Physical design flow"
+             style="width: 90%; max-width: 900px; display: block; margin: 0 auto 18px;">
 
-<div class="instruction-text">
-  <p style="margin: 0 0 12px;">
-    Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs.
-    These IOs include input/output signals (SPI, UART, Scan_Chain, <code>rst_n</code>, <code>clk</code>), POC,
-    CVDD, DVDD, VDD, VDD_TEST, and GND. We tried to minimize our IO number because we need a bigger area for logic circuits.
-  </p>
+        <p style="margin: 0 0 12px;">
+          The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite
+          ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock
+          generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew.
+          Surrounding the entire design are the required IO pads that interface the chip with the external system.
+        </p>
 
-  <img src="../images/soc/IO.png" alt="IO pad integration"
-       style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
-</div>
-  </div>
-<div class="highlight-item">
-    <h4>Package</h4>
-<div class="instruction-text">
-  <p style="margin: 0 0 12px;">
-    Below is the picture of our taped out chip with bonding wires and packages.
-  </p>
+        <img src="../images/soc/chip_labelled.jpg" alt="Chip layout labeled"
+             style="width: 90%; max-width: 900px; display: block; margin: 0 auto;">
+      </div>
+    </div>
+  </li>
 
-  <div class="side-by-side-images">
-    <img src="../images/soc/P1.png" alt="Description of P1">
-    <img src="../images/soc/P2.png" alt="Description of P2">
-  </div>
-</div>
-  </div>
-<div class="highlight-item">
-    <h4>STA &amp; Sign-off</h4>
+  <!-- 2) IO Pad -->
+  <li>
+    <div class="highlight-item">
+      <h4 style="margin: 0 0 10px;">IO Pad</h4>
 
-<div class="instruction-text">
-  <p style="margin: 0 0 12px;">
-    During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route,
-    the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical
-    paths within the top module met their setup and hold time requirements, and no setup or hold violations were
-    observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
-  </p>
+      <div class="instruction-text">
+        <p style="margin: 0 0 12px;">
+          Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs.
+          These IOs include input/output signals (SPI, UART, Scan_Chain, <code>rst_n</code>, <code>clk</code>), POC,
+          CVDD, DVDD, VDD, VDD_TEST, and GND. We tried to minimize our IO number because we need a bigger area for logic circuits.
+        </p>
 
-  <img src="../images/soc/SF.png" alt="STA and sign-off summary"
-       style="width: 55%; max-width: 900px; display: block; margin: 0 auto 16px;">
+        <img src="../images/soc/IO.png" alt="IO pad integration"
+             style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
+      </div>
+    </div>
+  </li>
 
-  <p style="margin: 0;">
-    After completing the physical design, we performed full signoff verification on each submodule and the top-level design.
-    Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean.
-    Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.
-  </p>
-</div>
-</div>
-<div class="highlight-item">
-  <h4>PPA optimization</h4>
+  <!-- 3) Package (保持现在大小：不缩小) -->
+  <li>
+    <div class="highlight-item">
+      <h4 style="margin: 0 0 10px;">Package</h4>
 
-<div class="instruction-text">
-  <p style="margin: 0 0 12px;">
-    In our chip design, we placed strong emphasis on PPA (Power, Performance, Area) optimization.
-    Several low-power techniques were applied throughout the design stages:
-  </p>
+      <div class="instruction-text">
+        <p style="margin: 0 0 12px;">
+          Below is the picture of our taped out chip with bonding wires and packages.
+        </p>
 
-  <ul style="margin-left: 20px; margin-bottom: 12px; color: #4a5568;">
-    <li>
-      <strong>Fixed Voltage Domains:</strong> The chip uses fixed voltage domains, with 2.5V for IO pads and 1.0V for the core logic,
-      ensuring stable and efficient power distribution.
-    </li>
-    <li>
-      <strong>Clock Division:</strong> We applied clock division techniques. For example, the SPI module operates on a divided clock derived
-      from the main clock, reducing switching activity and lowering dynamic power consumption.
-    </li>
-    <li>
-      <strong>RTL Resource Sharing:</strong> At the RTL level, we adopted resource sharing, reusing registers and functional units whenever possible
-      to reduce redundant hardware.
-    </li>
-    <li>
-      <strong>State Encoding Optimizations:</strong> State encoding optimizations were applied, such as using Gray code instead of conventional binary
-      encoding to minimize bit toggles and reduce dynamic power.
-    </li>
-    <li>
-      <strong>Automatic Clock Gating:</strong> During synthesis, automatic clock gating was enabled to shut off clocks when modules are idle.
-      Although this increases area slightly, it significantly reduces dynamic power consumption.
-    </li>
-    <li>
-      <strong>High-Vth Cell Insertion:</strong> In the physical design stage, we selectively replaced LVT (Low-Vth) cells with HVT (High-Vth) cells,
-      which reduces leakage power at the cost of some performance and area overhead.
-    </li>
-  </ul>
+        <div class="side-by-side-images">
+          <img src="../images/soc/P1.png" alt="Package photo 1">
+          <img src="../images/soc/P2.png" alt="Package photo 2">
+        </div>
+      </div>
+    </div>
+  </li>
 
-  <p style="margin: 0;">
-    These combined strategies allowed us to effectively manage power while maintaining overall performance and design efficiency.
-  </p>
-</div>  
-</div>
+  <!-- 4) STA & Sign-off -->
+  <li>
+    <div class="highlight-item">
+      <h4 style="margin: 0 0 10px;">STA &amp; Sign-off</h4>
+
+      <div class="instruction-text">
+        <p style="margin: 0 0 12px;">
+          During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route,
+          the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical
+          paths within the top module met their setup and hold time requirements, and no setup or hold violations were
+          observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
+        </p>
+
+        <img src="../images/soc/SF.png" alt="STA and sign-off summary"
+             style="width: 55%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+        <p style="margin: 0;">
+          After completing the physical design, we performed full signoff verification on each submodule and the top-level design.
+          Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean.
+          Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.
+        </p>
+      </div>
+    </div>
+  </li>
+
+  <!-- 5) PPA optimization -->
+  <li>
+    <div class="highlight-item">
+      <h4 style="margin: 0 0 10px;">PPA optimization</h4>
+
+      <div class="instruction-text">
+        <p style="margin: 0 0 12px;">
+          In our chip design, we placed strong emphasis on PPA (Power, Performance, Area) optimization.
+          Several low-power techniques were applied throughout the design stages:
+        </p>
+
+        <ul style="margin-left: 20px; margin-bottom: 12px; color: #4a5568;">
+          <li><strong>Fixed Voltage Domains:</strong> 2.5V for IO pads and 1.0V for the core logic.</li>
+          <li><strong>Clock Division:</strong> SPI operates on a divided clock to reduce switching activity.</li>
+          <li><strong>RTL Resource Sharing:</strong> Reuse registers/functional units to reduce redundant hardware.</li>
+          <li><strong>State Encoding Optimizations:</strong> Gray code to minimize bit toggles.</li>
+          <li><strong>Automatic Clock Gating:</strong> Shut off clocks when modules are idle.</li>
+          <li><strong>High-Vth Cell Insertion:</strong> Replace LVT with HVT cells to reduce leakage.</li>
+        </ul>
+
+        <p style="margin: 0;">
+          These combined strategies allowed us to effectively manage power while maintaining overall performance and design efficiency.
+        </p>
+      </div>
+    </div>
+  </li>
+
+</ul>
+
+    
   </section>
 
   
