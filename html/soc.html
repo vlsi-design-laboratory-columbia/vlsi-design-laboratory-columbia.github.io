@@ -845,12 +845,11 @@
     <p class="instruction-text">We used Synopsys Design Compiler for logic synthesis. Before running synthesis, we prepared a complete SDC file that defined all necessary constraints, including clock definitions, clock constraints, drive and load constraints, operating conditions, and wire-load models. Specifically, the SDC file included parameters such as clock name, clock period, clock uncertainty, clock transition, as well as input and output delay constraints.
 
 Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip.</p>
-    <h3>Physical Design</h3>
+   <h3>Physical Design</h3>
+<h4>Auto P&amp;R</h4>
 
-<!-- • Auto P&R -->
 <div class="instruction-text">
   <p style="margin: 0 0 12px;">
-    <strong>• Auto P&amp;R</strong><br>
     We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included:
     loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS),
     signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
@@ -864,7 +863,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   <img src="../images/soc/PhysicalFlow.png" alt="Physical design flow"
        style="width: 90%; max-width: 900px; display: block; margin: 0 auto 18px;">
 
-  <p style="margin: 0;">
+  <p style="margin: 0 0 12px;">
     The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite
     ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock
     generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew.
@@ -872,13 +871,15 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   </p>
 
   <img src="../images/soc/chip_labelled.jpg" alt="Chip layout labeled"
-       style="width: 90%; max-width: 900px; display: block; margin: 18px auto 0;">
+       style="width: 90%; max-width: 900px; display: block; margin: 0 auto;">
 </div>
 
-<!-- • IO Pad -->
+
+
+    <h4>IO Pad</h4>
+
 <div class="instruction-text">
   <p style="margin: 0 0 12px;">
-    <strong>• IO Pad</strong><br>
     Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs.
     These IOs include input/output signals (SPI, UART, Scan_Chain, <code>rst_n</code>, <code>clk</code>), POC,
     CVDD, DVDD, VDD, VDD_TEST, and GND. We tried to minimize our IO number because we need a bigger area for logic circuits.
@@ -888,10 +889,9 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
        style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
 </div>
 
-<!-- • Package (keep image size) -->
+    <h4>Package</h4>
 <div class="instruction-text">
   <p style="margin: 0 0 12px;">
-    <strong>• Package</strong><br>
     Below is the picture of our taped out chip with bonding wires and packages.
   </p>
 
@@ -901,10 +901,10 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   </div>
 </div>
 
-<!-- • STA & Sign-off -->
+    <h4>STA &amp; Sign-off</h4>
+
 <div class="instruction-text">
   <p style="margin: 0 0 12px;">
-    <strong>• STA &amp; Sign-off</strong><br>
     During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route,
     the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical
     paths within the top module met their setup and hold time requirements, and no setup or hold violations were
@@ -921,10 +921,11 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   </p>
 </div>
 
-<!-- • PPA Optimization -->
+
+  <h4>PPA optimization</h4>
+
 <div class="instruction-text">
   <p style="margin: 0 0 12px;">
-    <strong>• PPA Optimization</strong><br>
     In our chip design, we placed strong emphasis on PPA (Power, Performance, Area) optimization.
     Several low-power techniques were applied throughout the design stages:
   </p>
@@ -959,7 +960,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   <p style="margin: 0;">
     These combined strategies allowed us to effectively manage power while maintaining overall performance and design efficiency.
   </p>
-</div>
+</div>  
 
   </section>
 
