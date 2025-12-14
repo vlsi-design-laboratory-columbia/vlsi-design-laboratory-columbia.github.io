@@ -298,8 +298,9 @@
       text-align-last: left;   /* 最后一行不拉开 */
     }
     
-    .instruction-text {
-  text-align-last: left;
+    p.instruction-text > img{
+  display: block;
+  margin: 16px auto 0;   /* 你也可以改回 24px */
 }
     .instruction-text br + *{
   text-align: left;
