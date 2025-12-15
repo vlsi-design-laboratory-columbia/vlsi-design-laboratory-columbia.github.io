@@ -549,16 +549,29 @@
   }
 }
 
-    .header-meta-item{
-  background: transparent !important;  /* 取消白底 */
-  border: none !important;             /* 取消边框 */
-  border-radius: 0 !important;         /* 取消椭圆圆角 */
-  padding: 0 !important;               /* 可选：取消内部留白 */
-  backdrop-filter: none !important;    /* 可选：取消磨砂效果 */
+
+.header-meta-item{
+  background: transparent !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;              
+  border-radius: 0 !important;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;                          
 }
+
+/* ✅ 保留左侧小点 */
 .header-meta-item::before{
-  display: none !important;            /* 可选：连左边小圆点也去掉 */
+  content: '' !important;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.25);
+  flex: 0 0 6px;
 }
+
 
 
 
