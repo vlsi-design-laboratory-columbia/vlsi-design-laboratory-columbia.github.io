@@ -150,35 +150,40 @@
   overflow: visible; /* 防止圆角/内容被父容器裁切 */
 }
 
+.nav-buttons{
+  overflow: visible;
+}
+
+/* ✅ 用更“整屏”的宽度，而不是卡死在 1200px */
 .nav-container{
-  max-width: calc(var(--container) + 220px);
+  width: min(1440px, calc(100vw - 32px)); /* 桌面基本能完整放下 */
+  max-width: none;
   margin: 0 auto;
   padding: 10px 18px;
 
   display: flex;
-  justify-content: flex-start;
+  justify-content: center; /* 居中更像 Apple 顶部导航 */
   gap: 6px;
 
   flex-wrap: nowrap;
+
+  /* 小屏兜底：放不下就横向滚动，但不会截断文字 */
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 
-  /* 关键：右侧额外留白，保证最后一个 pill 圆角不会贴边被裁 */
-  padding-right: 48px;
-
-  scrollbar-width: none;          /* Firefox */
+  padding-right: 48px; /* 右侧留白，避免最后一个 pill 贴边 */
+  scrollbar-width: none;
 }
-.nav-container::-webkit-scrollbar{ display: none; } /* Chrome/Safari */
+.nav-container::-webkit-scrollbar{ display:none; }
 
-/* 关键：彻底禁止被“挤压”，并确保文字永远完整显示 */
 .nav-container a{
   display: inline-flex;
   align-items: center;
 
   flex: 0 0 auto !important;
   flex-shrink: 0 !important;
-  min-width: max-content;         /* 防止 Acknowledgments 变成 Ackn */
+  width: max-content;          /* 比 min-width 更硬：永不被压短 */
   white-space: nowrap;
 }
 
