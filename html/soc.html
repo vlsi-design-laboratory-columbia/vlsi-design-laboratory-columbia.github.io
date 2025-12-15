@@ -146,37 +146,44 @@
       border-bottom: 1px solid var(--border);
       box-shadow: 0 1px 0 rgba(0,0,0,.02);
     }
-   .nav-container{
+  .nav-buttons{
+  overflow: visible; /* 防止圆角/内容被父容器裁切 */
+}
+
+.nav-container{
   max-width: calc(var(--container) + 220px);
   margin: 0 auto;
   padding: 10px 18px;
+
   display: flex;
   justify-content: flex-start;
+  gap: 6px;
 
-  /* 关键：强制一行 */
   flex-wrap: nowrap;
   overflow-x: auto;
-  white-space: nowrap;
-
-  gap: 6px;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-}
 
-/* 确保每个按钮不被压缩/不换行 */
-.nav-buttons a{
-  flex: 0 0 auto;
+  /* 关键：右侧额外留白，保证最后一个 pill 圆角不会贴边被裁 */
+  padding-right: 48px;
+
+  scrollbar-width: none;          /* Firefox */
+}
+.nav-container::-webkit-scrollbar{ display: none; } /* Chrome/Safari */
+
+/* 关键：彻底禁止被“挤压”，并确保文字永远完整显示 */
+.nav-container a{
+  display: inline-flex;
+  align-items: center;
+
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  min-width: max-content;         /* 防止 Acknowledgments 变成 Ackn */
   white-space: nowrap;
 }
 
-.nav-container::before,
-.nav-container::after{
-  content: "";
-  display: block;      /* 关键：让伪元素真的成为“可见的 flex item” */
-  flex: 0 0 48px;      /* 缓冲更大一点 */
-  width: 48px;         /* 关键：兼容性更稳 */
-  pointer-events: none;
-}
-.nav-container{ padding-right: 56px; }
+
+
 
 
 /* 可选：隐藏横向滚动条（不影响滚动） */
