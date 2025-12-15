@@ -154,7 +154,7 @@
   overflow: visible;
 }
 
-/* ✅ 用更“整屏”的宽度，而不是卡死在 1200px */
+
 .nav-container{
   width: min(1440px, calc(100vw - 32px)); /* 桌面基本能完整放下 */
   max-width: none;
@@ -172,7 +172,6 @@
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 
-  padding-right: 48px; /* 右侧留白，避免最后一个 pill 贴边 */
   scrollbar-width: none;
 }
 .nav-container::-webkit-scrollbar{ display:none; }
@@ -535,6 +534,23 @@
       .side-by-side-images{flex-direction: column;}
       .side-by-side-images figure, .side-by-side-images img{width:100%;}
     }
+
+/* ===== Fix nav centering ===== */
+.nav-container{
+  padding: 10px 18px !important;
+  justify-content: flex-start !important; /* 默认从左，适配横向滚动 */
+}
+
+/* 宽屏时才真正居中 */
+@media (min-width: 1100px){
+  .nav-container{
+    justify-content: center !important;
+  }
+}
+
+
+
+    
   </style>
 </head>
 <body>
