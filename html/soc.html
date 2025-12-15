@@ -146,15 +146,36 @@
       border-bottom: 1px solid var(--border);
       box-shadow: 0 1px 0 rgba(0,0,0,.02);
     }
-    .nav-container{
-      max-width: calc(var(--container) + 220px);
-      margin: 0 auto;
-      padding: 10px 18px;
-      display:flex;
-      justify-content:center;
-      flex-wrap:wrap;
-      gap: 6px;
-    }
+   .nav-container{
+  max-width: calc(var(--container) + 220px);
+  margin: 0 auto;
+  padding: 10px 18px;
+  display: flex;
+  justify-content: center;
+
+  /* 关键：强制一行 */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+
+  gap: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 确保每个按钮不被压缩/不换行 */
+.nav-buttons a{
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* 可选：隐藏横向滚动条（不影响滚动） */
+.nav-container{
+  scrollbar-width: none;          /* Firefox */
+}
+.nav-container::-webkit-scrollbar{
+  display: none;                  /* Chrome/Safari */
+}
+
     .nav-buttons a{
       color: var(--text);
       padding: 8px 12px;
