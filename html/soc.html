@@ -562,7 +562,6 @@
   gap: 12px;                          
 }
 
-/* ✅ 保留左侧小点 */
 .header-meta-item::before{
   content: '' !important;
   width: 6px;
@@ -747,8 +746,6 @@
   </div>
 
 
-
-        
             <div class="highlight-item">
                 <h4>Memory Subsystem: IMEM & DMEM</h4>
                 <p class="instruction-text">To maximize on-chip storage efficiency, the SoC integrates 64KB of SRAM, symmetrically divided into 32KB for Instruction Memory (IMEM) and 32KB for Data Memory (DMEM). We utilized the ARM Artisan Memory Compiler to generate these high-density, single-port memory macros. To ensure seamless connectivity, custom wrappers were developed to bridge the memory interface with the processor core. Furthermore, these wrappers facilitate system initialization, allowing instructions and data to be pre-loaded directly through the scan chain.</p>
