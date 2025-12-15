@@ -1200,18 +1200,16 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   scalar execution and vector offload under the same memory map, I/O path, and workload code structure.
 </p>
 
-  <div class="instruction-text">
-  <p style="margin: 0;">
+  <p class="instruction-text">
     <strong>Demo Setup: PCB + FPGA Scan + MATLAB Control</strong><br>
   The chip is mounted on a custom PCB and connected to an FPGA through a level shifter.
   The FPGA handles low-level scan-in/scan-out pin toggling and basic control signals.
   A MATLAB-based host script orchestrates the full loop: it streams the program and input data into on-chip memories,
   triggers execution, then retrieves scan-out data to <strong>visualize outputs</strong> and <strong>compute performance metrics</strong>.
-  </p>
-   <img src="../images/soc/demo_setup.png"
+    <img src="../images/soc/demo_setup.png"
        alt="Demo setup: PCB + FPGA Scan + MATLAB Control"
-       style="width: 55%; max-width: 900px; height: auto; display: block; margin: 14px auto 0;">
-</div>
+       style="display:block; margin:14px auto 0; width:55%; max-width:900px; height:auto;">
+</p>
 
 
   <div class="instruction-text">
