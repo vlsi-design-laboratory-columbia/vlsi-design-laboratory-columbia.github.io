@@ -569,7 +569,7 @@
   <section id="design-flow">
     <h2>Design Flow</h2>
     <p>
-      Because our project is a mixed-signal design, multiple EDA tools are used in the whole design flow.
+      Because our project is a mixed-signal design, multiple EDA tools are utilized throughout the entire design flow.
     </p>
     <img src="../images/dpmic/design_flow.png">
     <h3>Schematic and RTL Design</h3>
@@ -581,9 +581,18 @@
     </p>
     <h3>Physical Design</h3>
     <p>
-      [Explain physical implementation: floorplanning, placement, clock tree synthesis, routing, and timing closure.]
+      The floor plan is shown as follows:
     </p>
     <img src="../images/dpmic/floor_plan.png">
+    <p>
+      The layouts of the analog blocks are designed in Cadence Virtuoso, after which LEF files are extracted. The layouts of the digital blocks and the test block are generated using automatic placement and routing (APR) in Cadence Innovus.
+    </p>
+    <p>
+      The top-level layout (excluding I/O pads) is implemented in Cadence Innovus using APR. Subsequently, the I/O pads, seal ring, and dummy fill (to resolve density violations) are added in Innovus through APR. This completes the chip-level layout, after which the GDSII file is generated and submitted to the fabrication foundry for tape-out.
+    </p>
+    <p>
+      The final chip-level layout is shown as follows:
+    </p>
     <img src="../images/dpmic/chip_layout.png">
   </section>
   
