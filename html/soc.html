@@ -7,594 +7,614 @@
   <style>
 
 
-    :root{
-      --bg: #f5f5f7;
-      --panel: #ffffff;
-      --panel-2: #fbfbfd;
-      --text: #1d1d1f;
-      --text-muted: #6e6e73;
-      --border: #e5e5ea;
-      --border-strong: #d2d2d7;
-      --accent: #0071e3;          /* Apple link blue */
-      --accent-2: #0a84ff;
-      --shadow: 0 18px 60px rgba(0,0,0,.08);
-      --shadow-soft: 0 10px 30px rgba(0,0,0,.06);
-      --radius-xl: 28px;
-      --radius-lg: 22px;
-      --radius-md: 14px;
-      --container: 980px;
-    }
+    * {margin: 0; padding: 0; box-sizing: border-box;}
 
-    *{margin:0; padding:0; box-sizing:border-box;}
-    html{scroll-behavior:smooth;}
-    body{
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-                   "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: geometricPrecision;
-    }
+    /* 让容器变成弹性盒子，子元素会自动水平排列 */
+.side-by-side-images {
+    display: flex;
+    /* 可选：设置对齐方式，比如居中 center，或者两边对齐 space-between */
+    justify-content: center;
+    /* 可选：设置两张图片之间的间距 */
+    gap: 20px;
+    /* 可选：确保垂直方向居中对齐 */
+    align-items: center;
+}
 
-    /* Links */
-    a{color: var(--accent); text-decoration: none;}
-    a:hover{color: var(--accent-2); text-decoration: underline;}
-    a:focus-visible{
-      outline: 3px solid rgba(10,132,255,.35);
-      outline-offset: 3px;
-      border-radius: 10px;
+/* 关键：确保图片能够自适应宽度，不会超出容器 */
+.side-by-side-images img {
+    /* 设置最大宽度为略小于50%，给间距留点位置。
+       如果希望两张图强制等宽，可以设置为 width: 48%; */
+    max-width: 48%;
+    /* 保持图片原始比例 */
+    height: auto;
+    /* 可选：加个边框方便调试看看效果 */
+    /* border: 1px solid #ccc; */
+}
+    
+    :root {
+      --primary: #1e3a5f;
+      --primary-light: #2c5282;
+      --accent: #5d9cec;
+      --accent-light: #8ebaf5;
+      --columbia-blue: #b3d9ff;
+      --bg-light: #f8fafc;
+      --text-dark: #1a202c;
+      --text-gray: #4a5568;
+      --border: #e2e8f0;
     }
-
-    /* Header (Apple-like hero) */
-    header{
-      background: radial-gradient(1000px 420px at 50% 0%, rgba(0,0,0,.05), transparent 55%),
-                  linear-gradient(180deg, var(--bg), #ffffff);
-      color: var(--text);
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      background: #f7f9fc;
+      color: var(--text-dark);
+      line-height: 1.7;
+    }
+    
+    /* Header with gradient and modern design */
+    header {
+      background: linear-gradient(135deg, #5d9cec 0%, #7db3f5 50%, #9ec9f8 100%);
+      color: #ffffff;
       padding: 0;
       position: relative;
       overflow: hidden;
-      border-bottom: 1px solid var(--border);
     }
-    header::before{content:none !important;}
-
-    .header-content{
-      max-width: calc(var(--container) + 220px);
+    
+    /* Decorative background pattern */
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .header-content {
+      position: relative;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 56px 24px 34px;
+      padding: 40px 40px 30px;
       text-align: center;
+      z-index: 1;
     }
-
-    header h1{
-      font-size: clamp(2.1rem, 3.2vw, 3.1rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin: 0 0 10px;
-      color: var(--text);
-      text-shadow: none;
+    
+    /* Project type badge */
+    .project-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
+    
+    header h1 {
+      font-size: 3.2em;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
 
-    .header-meta{
-      display:flex;
-      justify-content:center;
-      gap: 14px;
+    
+    .header-meta {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
       flex-wrap: wrap;
       margin-top: 10px;
-      font-size: .95rem;
-      color: var(--text-muted);
-      
+      font-size: 0.9em;
+      opacity: 0.9;
     }
-    .header-meta-item{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.70);
-      border: 1px solid var(--border);
-      backdrop-filter: blur(10px);
+    
+    .header-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .header-meta-item::before{
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(0,0,0,.25);
+    
+    .header-meta-item::before {
+      content: '●';
+      color: rgba(255, 255, 255, 0.6);
     }
-
-    .author-info{
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
+    
+    /* Author Info */
+    .author-info {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
-    .authors-list{
-      display:flex;
-      justify-content:center;
-      flex-wrap:wrap;
-      gap: 10px;
+    
+    .authors-list {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
     }
-    .author-name{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.85);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-weight: 600;
-      font-size: .95rem;
-      text-decoration:none;
-      transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+    
+    .author-name {
+      font-size: 1em;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+      text-decoration: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: inline-block;
     }
-    .author-name:hover{
-      background: #fff;
-      border-color: var(--border-strong);
-      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    
+    .author-name:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.35);
       transform: translateY(-1px);
-      text-decoration:none;
     }
-
-    /* Sticky nav (glass) */
-    .nav-buttons{
-      background: rgba(245,245,247,.72);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+    
+    /* Navigation - sleek and modern */
+    .nav-buttons {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      padding: 0;
       position: sticky;
       top: 0;
       z-index: 100;
-      border-bottom: 1px solid var(--border);
-      box-shadow: 0 1px 0 rgba(0,0,0,.02);
-    }
-  .nav-buttons{
-  overflow: visible; /* 防止圆角/内容被父容器裁切 */
-}
-
-.nav-buttons{
-  overflow: visible;
-}
-
-
-.nav-container{
-  width: min(1440px, calc(100vw - 32px)); /* 桌面基本能完整放下 */
-  max-width: none;
-  margin: 0 auto;
-  padding: 10px 18px;
-
-  display: flex;
-  justify-content: center; /* 居中更像 Apple 顶部导航 */
-  gap: 6px;
-
-  flex-wrap: nowrap;
-
-  /* 小屏兜底：放不下就横向滚动，但不会截断文字 */
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-
-  scrollbar-width: none;
-}
-.nav-container::-webkit-scrollbar{ display:none; }
-
-.nav-container a{
-  display: inline-flex;
-  align-items: center;
-
-  flex: 0 0 auto !important;
-  flex-shrink: 0 !important;
-  width: max-content;          /* 比 min-width 更硬：永不被压短 */
-  white-space: nowrap;
-}
-
-
-
-
-
-/* 可选：隐藏横向滚动条（不影响滚动） */
-.nav-container{
-  scrollbar-width: none;          /* Firefox */
-}
-.nav-container::-webkit-scrollbar{
-  display: none;                  /* Chrome/Safari */
-}
-
-    .nav-buttons a{
-      color: var(--text);
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: .92rem;
-      font-weight: 600;
-      text-decoration:none;
-      border: 1px solid transparent;
-      transition: background .15s ease, border-color .15s ease, transform .15s ease, color .15s ease;
-    }
-    .nav-buttons a:hover{
-      background: rgba(255,255,255,.9);
-      border-color: var(--border);
-      color: var(--accent);
-      text-decoration:none;
-      transform: translateY(-1px);
-    }
-
-    /* Main container */
-    .container{
-      max-width: var(--container);
-      margin: 36px auto 70px;
-      padding: 56px 46px;
-      background: var(--panel);
-      border-radius: var(--radius-xl);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
-    /* Back link as Apple-style pill */
-    .back{
-      display:inline-flex;
-      align-items:center;
-      gap: 10px;
-      margin-bottom: 28px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      font-weight: 700;
-      font-size: .95rem;
-      text-decoration:none;
-      transition: transform .15s ease, background .15s ease, box-shadow .15s ease, border-color .15s ease;
-    }
-    .back::before{
-      content: '←';
-      font-size: 1.05rem;
-      opacity: .9;
-    }
-    .back:hover{
-      background: #fff;
-      border-color: var(--border-strong);
-      box-shadow: 0 10px 24px rgba(0,0,0,.08);
-      transform: translateY(-1px);
-      text-decoration:none;
-    }
-
-    /* Sections */
-    section{
-      scroll-margin-top: 92px;
-      margin-bottom: 54px;
-      padding-bottom: 44px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       border-bottom: 1px solid var(--border);
     }
-    section:last-of-type{border-bottom:none; padding-bottom: 0; margin-bottom: 0;}
-
-    h2{
-      color: var(--text);
-      font-size: clamp(1.7rem, 2.3vw, 2.25rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin: 0 0 18px;
-      padding-bottom: 12px;
+    
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 40px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    
+    .nav-buttons a {
+      display: inline-block;
+      color: var(--text-dark);
+      padding: 8px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9em;
+      font-weight: 500;
+      transition: all 0.2s ease;
       position: relative;
     }
-    h2::after{
-      content:'';
-      position:absolute;
-      left: 0;
-      bottom: 0;
-      width: 44px;
-      height: 3px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), rgba(0,113,227,.25));
+    
+    .nav-buttons a:hover {
+      color: var(--accent);
+      background: var(--bg-light);
     }
-
-    h3{
-      color: var(--text);
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: -0.015em;
-      margin: 28px 0 14px;
+    
+    /* Container */
+    .container {
+      max-width: 1000px;
+      margin: 50px auto;
+      padding: 60px 50px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
     }
-
-    h4{
-      color: var(--text);
-      font-size: 1.05rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      margin: 18px 0 10px;
-    }
-
-    p{
-      color: var(--text-muted);
-      font-size: 1.03rem;
-      line-height: 1.8;
-      margin-bottom: 14px;
-    }
-
-    /* Highlight / cards (formerly blue boxes) */
-    .instruction-text{
-      background: var(--panel-2) !important;
-      border: 1px solid var(--border) !important;
-      border-left: 4px solid rgba(0,113,227,.65) !important;
-      border-radius: var(--radius-lg) !important;
-      padding: 18px 20px !important;
-      margin: 18px 0 !important;
-      color: var(--text) !important;
-      box-shadow: 0 1px 0 rgba(0,0,0,.02);
-      text-align: left !important;
-      text-justify: auto !important;
-      text-align-last: auto !important;
-    }
-    .instruction-text *{max-width: 100%;}
-    .instruction-text strong{color: var(--text);}
-
-    /* Keep lists readable inside instruction boxes */
-    .instruction-text ul,
-    .instruction-text ol{
-      color: var(--text-muted);
-    }
-
-    /* Code */
-    code{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: .95em;
-      padding: 2px 6px;
+    
+    /* Back Link */
+    .back {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 40px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95em;
+      padding: 10px 18px;
       border-radius: 8px;
-      background: rgba(0,0,0,.04);
-      border: 1px solid rgba(0,0,0,.06);
-      color: var(--text);
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
     }
-
+    
+    .back:hover {
+      background: var(--bg-light);
+      border-color: var(--accent);
+      transform: translateX(-4px);
+    }
+    
+    .back::before {
+      content: '←';
+      margin-right: 8px;
+      font-size: 1.3em;
+      transition: transform 0.3s ease;
+    }
+    
+    .back:hover::before {
+      transform: translateX(-4px);
+    }
+    
+    /* Sections */
+    section {
+      scroll-margin-top: 100px;
+      margin-bottom: 70px;
+      padding-bottom: 50px;
+      border-bottom: 2px solid var(--bg-light);
+    }
+    
+    section:last-of-type {
+      border-bottom: none;
+    }
+    
+    h2 {
+      color: var(--primary);
+      font-size: 2.2em;
+      font-weight: 600;
+      margin-bottom: 24px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    
+    h3 {
+      color: var(--primary-light);
+      font-size: 1.5em;
+      font-weight: 600;
+      margin-top: 36px;
+      margin-bottom: 16px;
+    }
+    
+    .instruction-text {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-left: 4px solid #5d9cec;
+      padding: 16px 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      color: #1e3a5f;
+      font-size: 0.95em;
+      font-style: normal;
+      text-align: justify;
+      text-justify: inter-word;
+      text-align-last: left;   /* 最后一行不拉开 */
+    }
+    
+    p.instruction-text > img{
+  display: block;
+  margin: 16px auto 0;   /* 你也可以改回 24px */
+}
+    .instruction-text br + *{
+  text-align: left;
+  text-align-last: left;
+}
+    
+    p {
+      color: #4a5568;
+      font-size: 1.05em;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    
     /* Images */
-    img{
+    .image-placeholder {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
+      border-radius: 12px;
+      margin: 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed var(--border);
+      color: var(--text-light);
+      font-size: 1.1em;
+      font-weight: 500;
+    }
+    
+    img {
       max-width: 100%;
       height: auto;
-      border-radius: var(--radius-lg);
-      margin: 18px 0;
+      border-radius: 12px;
+      margin: 24px 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
     }
-
+    
     /* Video */
-    .video-container{
+    .video-container {
       position: relative;
       padding-bottom: 56.25%;
       height: 0;
       overflow: hidden;
-      border-radius: var(--radius-lg);
-      margin: 18px 0;
+      border-radius: 12px;
+      margin: 24px 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-      background: #000;
     }
-    .video-container iframe{
-      position:absolute;
-      inset: 0;
+    
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      border: 0;
+      border: none;
     }
-
-    /* Tables (Apple-like, thin lines) */
-    .specs-table{
+    
+    /* Specs Table */
+    .specs-table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      margin: 18px 0;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
+      border-collapse: collapse;
+      margin: 24px 0;
+      background: #ffffff;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
+    
     .specs-table th,
-    .specs-table td{
-      padding: 14px 18px;
+    .specs-table td {
+      padding: 18px 24px;
       text-align: left;
       border-bottom: 1px solid var(--border);
-      vertical-align: top;
     }
-    .specs-table th{
-      background: var(--panel-2);
-      color: var(--text);
-      font-weight: 800;
-      font-size: .92rem;
-      text-transform: none;
-      letter-spacing: 0;
+    
+    .specs-table th {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      font-weight: 600;
+      font-size: 0.9em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .specs-table tr:last-child td{border-bottom:none;}
-    .specs-table tbody tr:hover{background: rgba(0,0,0,.02);}
-    .specs-table td:first-child{font-weight: 800; color: var(--text);}
-
-    /* Side-by-side images (keep behavior, Apple spacing) */
-    .side-by-side-images{
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      gap: 18px;
-      margin: 14px 0;
+    
+    .specs-table tr:last-child td {
+      border-bottom: none;
     }
-    .side-by-side-images img{
-      flex: 1 1 0;
-      width: 100%;
-      max-width: 100%;
-      margin: 0 !important;
+    
+    .specs-table tr:hover {
+      background: var(--bg-light);
     }
-    .side-by-side-images figure{
-      flex: 1 1 0;
-      margin: 0 !important;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap: 10px;
+    
+    .specs-table td:first-child {
+      font-weight: 600;
+      color: var(--text-dark);
     }
-    .side-by-side-images figure > img{
-      width: 100% !important;
-      max-width: 100% !important;
-      margin: 0 !important;
-    }
-    .side-by-side-images figcaption{
-      width: 100%;
-      text-align: center !important;
-      color: var(--text-muted) !important;
-      font-size: .95rem;
-      margin: 0 !important;
-    }
-
-    /* Ensure captions centered even inside instruction-text */
-    .instruction-text figure,
-    .instruction-text figcaption{
-      text-align: center !important;
-      text-align-last: center !important;
-    }
-
-    /* Memory-map box: no extra table margins */
-    .memory-map-box{margin-top: 12px; margin-bottom: 12px;}
-    .memory-map-box .specs-table{margin: 0 !important;}
-
-    /* Highlights list reset */
-    .key-highlights-list{
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-    }
-    .highlight-item{
-      margin: 18px 0 26px;
-      padding: 0;
-    }
-
-    /* Team grid cards */
-    .team-grid{
-      display:grid;
+    
+    /* Team Grid */
+    .team-grid {
+      display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin: 20px 0;
+      gap: 24px;
+      margin: 30px 0;
     }
-    .team-member{
-      background: var(--panel-2);
+    
+    .team-member {
+      background: linear-gradient(135deg, var(--bg-light) 0%, #edf2f7 100%);
+      padding: 28px 24px;
+      border-radius: 12px;
+      text-align: center;
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 18px 18px;
-      text-align: center;
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+      transition: all 0.3s ease;
     }
-    .team-member:hover{
-      transform: translateY(-2px);
-      border-color: var(--border-strong);
-      background: #fff;
-      box-shadow: 0 12px 30px rgba(0,0,0,.08);
+    
+    .team-member:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+      border-color: var(--accent);
     }
-    .team-member strong{
-      color: var(--text);
-      font-size: 1.06rem;
-      display:block;
-      margin-bottom: 6px;
+    
+    .team-member strong {
+      color: var(--primary);
+      font-size: 1.15em;
+      display: block;
+      margin-bottom: 8px;
     }
-    .team-member span{
-      color: var(--text-muted);
-      font-size: .95rem;
-      display:block;
+    
+    .team-member span {
+      color: var(--text-gray);
+      font-size: 0.9em;
+      display: block;
     }
-
+    
     /* Footer */
-    footer{
-      background: var(--bg);
-      border-top: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 38px 18px;
+    footer {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: rgba(255,255,255,0.95);
+      padding: 40px 20px;
       text-align: center;
-      margin-top: 70px;
+      margin-top: 80px;
     }
-    footer p{color: var(--text-muted); margin: 8px 0;}
-
-    /* Image placeholder */
-    .image-placeholder{
-      width: 100%;
-      height: 360px;
-      background: var(--panel-2);
-      border-radius: var(--radius-lg);
-      margin: 18px 0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border: 1px dashed var(--border-strong);
-      color: var(--text-muted);
-      font-weight: 700;
+    
+    footer p {
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 8px;
     }
-
-    /* Reduce motion */
-    @media (prefers-reduced-motion: reduce){
-      *{scroll-behavior:auto !important; transition:none !important; animation:none !important;}
-    }
-
+    
     /* Responsive */
-    @media (max-width: 900px){
-      .container{padding: 44px 26px; margin: 26px 14px 60px;}
-      .header-content{padding: 46px 18px 28px;}
-    }
-    @media (max-width: 768px){
-      .nav-container{padding: 10px 12px;}
-      .side-by-side-images{flex-direction: column;}
-      .side-by-side-images figure, .side-by-side-images img{width:100%;}
+    @media (max-width: 768px) {
+      .header-content {padding: 70px 30px 50px;}
+      header h1 {font-size: 2.2em;}
+      .header-subtitle {font-size: 1.1em;}
+      .container {padding: 40px 30px; margin: 30px 20px;}
+      h2 {font-size: 1.8em;}
+      .nav-container {padding: 12px 20px;}
+      .nav-buttons a {font-size: 0.85em; padding: 8px 16px;}
+      .image-placeholder {height: 250px; font-size: 0.95em;}
     }
 
-/* ===== Fix nav centering ===== */
-.nav-container{
-  padding: 10px 18px !important;
-  justify-content: flex-start !important; /* 默认从左，适配横向滚动 */
+/* === Fix: side-by-side images bigger + captions closer === */
+.side-by-side-images figure{
+  flex: 1;            /* 让每个 figure 平分宽度 */
+  margin: 0;
 }
 
-/* 宽屏时才真正居中 */
-@media (min-width: 1100px){
-  .nav-container{
-    justify-content: center !important;
+.side-by-side-images figure img{
+  width: 100%;        /* 图片撑满 figure */
+  max-width: 100%;
+  height: auto;
+  margin: 0 !important;   /* 覆盖全局 img 的 24px margin */
+}
+
+.side-by-side-images figcaption{
+  margin-top: 10px;
+  text-align: center;
+  color: #4a5568;
+  font-size: 0.95em;
+}
+
+.memory-map-box {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+/* 蓝框里表格不要额外上下 margin */
+.memory-map-box .specs-table {
+  margin: 0 !important;
+}
+
+/* Two images side-by-side inside blue box, prevent overflow */
+.instruction-text .side-by-side-images.two-up img{
+  width: calc(50% - 10px);
+  max-width: calc(50% - 10px);
+  height: auto;
+  margin: 0 !important;      /* 覆盖全局 img margin */
+}
+
+/* Small screen: stack vertically */
+@media (max-width: 768px){
+  .instruction-text .side-by-side-images.two-up img{
+    width: 100%;
+    max-width: 100%;
   }
 }
 
-
-.header-meta-item{
-  background: transparent !important;
-  border: none !important;
-  backdrop-filter: none !important;
-  padding: 0 !important;              
-  border-radius: 0 !important;
-
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;                          
+    /* === FORCE center for figure + image + caption (put at the VERY end) === */
+.side-by-side-images{
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.header-meta-item::before{
-  content: '' !important;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(0,0,0,.25);
-  flex: 0 0 6px;
+.side-by-side-images figure{
+  flex: 1 1 0;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;              /* 关键：让图片本身居中 */
+}
+
+.side-by-side-images figure > img{
+  display: block !important;        /* 关键：避免 inline 靠左 */
+  width: 100% !important;
+  max-width: 100% !important;       /* 关键：压掉你之前的 max-width:48% */
+  height: auto !important;
+  margin: 0 !important;             /* 压掉全局 img 的 24px margin */
+}
+
+.side-by-side-images figure > figcaption{
+  width: 100%;
+  display: block;
+  text-align: center !important;    /* 压掉 .instruction-text 的 justify */
+  margin-top: 10px;
+}
+
+/* === FIX: captions inside .instruction-text should be centered (override text-align-last:left) === */
+.instruction-text figure,
+.instruction-text figcaption{
+  text-align-last: center !important;
+}
+
+.instruction-text figcaption{
+  text-align: center !important;
+}
+
+    /* === FIX: single figure image/caption spacing inside blue box === */
+.instruction-text figure > img{
+  margin: 0 !important;          /* 干掉全局 img 的 24px 上下边距 */
+}
+
+.instruction-text figure{
+  margin: 14px 0 !important;     /* 可选：统一 figure 上下间距 */
+}
+
+.instruction-text figure > figcaption{
+  margin-top: 8px;               /* 你想更近就改成 4px */
+}
+
+/* === FIX: make h4 closer to the blue box right below === */
+.highlight-item > h4{
+  margin-bottom: 8px !important;   /* 标题下方更近 */
+}
+
+/* 如果蓝框紧跟在 h4 后面，压掉蓝框的上边距 */
+.highlight-item > h4 + .instruction-text{
+  margin-top: 8px !important;      /* 你想更近就改成 4px 或 0 */
+}
+
+/* === Tighten spacing: heading -> blue box === */
+h4{
+  margin: 18px 0 8px;      /* 控制 h4 自己上下间距：上18，下8（你可再调小） */
+  color: var(--primary-light);
+  font-weight: 600;
+}
+
+/* h3/h4 后面紧跟蓝框时，把蓝框的 top margin 压小 */
+h3 + .instruction-text,
+h4 + .instruction-text{
+  margin-top: 10px !important;   /* 原来是 20px */
+}
+
+/* Bigger h4 titles (e.g., IO Pad, DFT Module...) */
+h4{
+  font-size: 1.2em;   /* 你想更大就改成 1.3 / 1.4 */
+  line-height: 1.25;
+  margin: 18px 0 8px;
+  color: var(--primary-light);
+  font-weight: 700;
 }
 
 
-
-
+    
     
   </style>
 </head>
 <body>
 <header>
   <div class="header-content">
-    <h1>SoC: RISC-V with a Custom Vector Processing Unit</h1>
+    <h1>SoC: RISC-V with a Custom Vector Co-Processor</h1>
     <div class="header-meta">
-      <span class="header-meta-item">System on Chip</span>
+      <span class="header-meta-item">System On Chip</span>
       <span class="header-meta-item">Vector Processing Unit</span>
-      <span class="header-meta-item">RISC-V</span>
+      <span class="header-meta-item">RISCV</span>
       <span class="header-meta-item">TSMC 65nm</span>
     </div>
     
     <div class="author-info">
       <div class="authors-list">
-        <a href="https://www.linkedin.com/in/jiajun-jiang-83764231a/" target="_blank" class="author-name">Jiajun Jiang</a>
-        <a href="https://www.linkedin.com/in/zhenningyang509/" target="_blank" class="author-name">Zhenning Yang</a>
-        <a href="mailto:yh3782@columbia.edu" class="author-name">Yicheng Huang</a>
-        <a href="mailto:zc2800@columbia.edu" class="author-name">Zhuohao Chang</a>
-        <a href="mailto:yj2839@columbia.edu" class="author-name">Yu Jia</a>
+        <a href="https://www.linkedin.com/in/jiajun-jiang-83764231a/" target="_blank" class="author-name">[Jiajun Jiang]</a>
+        <a href="https://www.linkedin.com/in/zhenningyang509/" target="_blank" class="author-name">[Zhenning Yang]</a>
+        <a href="mailto:yh3782@columbia.edu" class="author-name">[Yicheng Huang]</a>
+        <a href="mailto:zc2800@columbia.edu" class="author-name">[Zhuohao Chang]</a>
+        <a href="mailto:yj2839@columbia.edu" class="author-name">[Yu Jia]</a>
       </div>
     </div>
   </div>
@@ -746,6 +766,8 @@
   </div>
 
 
+
+        
             <div class="highlight-item">
                 <h4>Memory Subsystem: IMEM & DMEM</h4>
                 <p class="instruction-text">To maximize on-chip storage efficiency, the SoC integrates 64KB of SRAM, symmetrically divided into 32KB for Instruction Memory (IMEM) and 32KB for Data Memory (DMEM). We utilized the ARM Artisan Memory Compiler to generate these high-density, single-port memory macros. To ensure seamless connectivity, custom wrappers were developed to bridge the memory interface with the processor core. Furthermore, these wrappers facilitate system initialization, allowing instructions and data to be pre-loaded directly through the scan chain.</p>
@@ -801,17 +823,10 @@
         back-to-back transparent latches clocked by non-overlapping scan clocks, which helps avoid hold-time issues common in long shift registers.
       </p>
 
-<figure style="margin: 0 0 16px; text-align: center;">
-  <img src="../images/soc/si.png" alt="Scan-in cell structure"
-       style="width: 75%; max-width: 980px; height: auto; display: block; margin: 0 auto;">
-</figure>
-
-<figure style="margin: 0; text-align: center;">
-  <img src="../images/soc/so.png" alt="Scan-out cell structure"
-       style="width: 75%; max-width: 980px; height: auto; display: block; margin: 0 auto;">
-</figure>
-
-
+      <div class="side-by-side-images two-up" style="margin: 0 0 14px; gap: 16px;">
+        <img src="../images/soc/si.png" alt="Scan-in cell structure" style="margin: 0;">
+        <img src="../images/soc/so.png" alt="Scan-out cell structure" style="margin: 0;">
+      </div>
 
       <p style="margin: 0 0 12px;">
         During testing, we stream a serial bit pattern into <code>scan_in</code> while toggling the scan clock. After 252 shift cycles,
@@ -834,7 +849,7 @@
       </p>
 
       <img src="../images/soc/clk.png" alt="Clock generator"
-           style="width: 55%; max-width: 900px; display: block; margin: 0 auto 14px;">
+           style="width: 65%; max-width: 900px; display: block; margin: 0 auto 14px;">
 
       <!-- Testing FSM -->
       <p style="margin: 0;">
@@ -978,18 +993,10 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
     Below is the picture of our taped out chip with bonding wires and packages.
   </p>
 
-  <div class="side-by-side-images" style="margin: 0 0 14px; gap: 16px;">
-  <figure style="margin:0; width:100%; text-align:center;">
-    <img src="../images/soc/P1.png" alt="Description of P1"
-         style="margin:0; width:70%; height:auto; display:block;">
-  </figure>
-
-  <figure style="margin:0; width:100%; text-align:center;">
-    <img src="../images/soc/P2.png" alt="Description of P2"
-         style="margin:0; width:70%; height:auto; display:block;">
-  </figure>
-</div>
-
+  <div class="side-by-side-images">
+    <img src="../images/soc/P1.png" alt="Description of P1">
+    <img src="../images/soc/P2.png" alt="Description of P2">
+  </div>
 </div>
 
     <h4>STA &amp; Sign-off</h4>
@@ -1152,6 +1159,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
       values for input/output filtering follow the TI reference recommendations for TPS71710CDR.
     </p>
 
+    <!-- 如果你第二张 power.png 其实是另一张图，请把文件名换掉；否则可以删掉这一张避免重复 -->
     <img src="../images/soc/power.png" alt="LDO and decoupling details"
          style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px;">
 
@@ -1172,18 +1180,11 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
   <div class="instruction-text">
     <p style="margin: 0 0 12px;">Below shows the PCB Layout and PCB.</p>
 
-    <div class="side-by-side-images" style="margin: 0 0 14px; gap: 16px;">
-  <figure style="margin:0; width:100%; text-align:center;">
-    <img src="../images/soc/PCB_Layout.png" alt="PCB layout"
-         style="margin:0; width:100%; height:auto; display:block;">
-  </figure>
-
-  <figure style="margin:0; width:100%; text-align:center;">
-    <img src="../images/soc/PCB.png" alt="Assembled PCB"
-         style="margin:0; width:100%; height:auto; display:block;">
-  </figure>
-</div>
-
+    <!-- 保持你现在 side-by-side 的大小逻辑，不额外缩小 -->
+    <div class="side-by-side-images">
+      <img src="../images/soc/PCB_Layout.png" alt="PCB layout">
+      <img src="../images/soc/PCB.png" alt="Assembled PCB">
+    </div>
   </div>
 </section>
 
@@ -1839,8 +1840,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
       </div>
     </div>
   </section>
-
-  <br><br>
+  
   <a class="back" href="../index.html">Back to all projects</a>
 </div>
 
