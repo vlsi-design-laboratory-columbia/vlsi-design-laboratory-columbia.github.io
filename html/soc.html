@@ -573,23 +573,32 @@
   flex: 0 0 6px;
 }
 
-/* ===== Make正文更窄：左右留白更大 ===== */
+/* ===== Page width control（内容更宽 / 边距更小）===== */
 :root{
-  --article-width: 860px;   /* 桌面端正文最大宽度：越小每行字越少（可试 820/860/900） */
-  --article-gutter: 180px;  /* 视口两侧总留白：越大两侧空白越多（可试 180/220/260） */
+  --article-width: 1180px;  /* 越大：正文越宽 */
+  --article-gutter: 64px;   /* 越小：两侧空白越少（总和） */
 }
 
 .container{
-  max-width: min(var(--article-width), calc(100vw - var(--article-gutter))) !important;
-  margin: 28px auto 70px !important;
+  width: min(var(--article-width), calc(100vw - var(--article-gutter))) !important;
+  margin: 36px auto 70px !important;
 
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-
-  padding: 0 !important;
+  /* 保留白色卡片感，边距变化才明显 */
+  padding: 56px 46px !important;
+  background: var(--panel) !important;
+  border-radius: var(--radius-xl) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow) !important;
 }
+
+@media (max-width: 900px){
+  :root{ --article-gutter: 28px; }
+  .container{
+    padding: 44px 18px !important;
+    margin: 26px auto 60px !important;
+  }
+}
+
 
 
 
@@ -608,12 +617,7 @@ header{
   background: #ffffff !important;
 }
 
-/* 可选：小屏时别贴边 */
-@media (max-width: 900px){
-  .container{
-    max-width: calc(100vw - 32px) !important;
-  }
-}
+
 
 /* ===== REMOVE the blue instruction-text container (keep content unchanged) ===== */
 .instruction-text{
