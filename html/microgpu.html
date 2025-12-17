@@ -1032,8 +1032,73 @@
         <p style="text-align: justify;">
           We applied the same techniques on our DUT, the test FSM, scan chain, and the clock generator. 
           Below is the APR results for our modules and top. 
-          <br>
         </p>
+        <style>
+          .image-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+          }
+
+          .image-row figure {
+            width: 33.33%;
+            margin: 0;
+            text-align: center;
+          }
+
+          .image-row img {
+            max-width: 100%;   /* important */
+            height: auto;
+            display: block;
+            margin: 0 auto;
+          }
+
+          .image-row figcaption {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #444;
+          }
+        </style>
+
+        <div class="image-row">
+          <figure>
+            <img src="../images/microgpu/fsm_layout.jpg" alt="FSM layout">
+            <figcaption>FSM layout</figcaption>
+          </figure>
+          <figure>
+            <img src="../images/microgpu/clkgen_layout.jpg" alt="Clock generator layout">
+            <figcaption>Clock generator layout</figcaption>
+          </figure>
+          <figure>
+            <img src="../images/microgpu/scan_chain_layout.jpg" alt="Scan chain layout">
+            <figcaption>Scan chain layout</figcaption>
+          </figure>
+        </div>
+
+        <script>
+          window.addEventListener('load', () => {
+            const images = document.querySelectorAll('.image-row img');
+
+            // get rendered heights (after CSS scaling)
+            const heights = Array.from(images).map(img => img.getBoundingClientRect().height);
+            const minHeight = Math.min(...heights);
+
+            images.forEach(img => {
+              img.style.height = minHeight + 'px';
+              img.style.width = 'auto';
+            });
+          });
+        </script>
+
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/gpu_core_layout.jpg" alt="GPU core layout" style="margin-bottom: 0;">
+          <figcaption>GPU core layout</figcaption>
+        </figure>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/top_layout.jpg" alt="Top layout (including all the modules above)" style="margin-bottom: 0;">
+          <figcaption>Top layout (including all the modules above)</figcaption>
+        </figure>
+
         <h4> I/O and Power Pads Integration </h4>
         <p style="text-align: justify;">
           After finishing all the submodules, we put them all together and integrated with the pads. <br> 
@@ -1044,8 +1109,17 @@
           current, we put the power pads between sets of I/O ports. The power pads also act as the wall 
           for signals, which could probably enhance signal integrity. <br>
           Below is our final pad placement and the APR results after pad placement. 
-          <br>
         </p>
+        
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/iopad.png" alt="I/O pads placement" style="margin-bottom: 0;">
+          <figcaption>I/O pads placement</figcaption>
+        </figure>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/chip_io_layout.jpg" alt="Chip layout with I/O pads placement" style="margin-bottom: 0;">
+          <figcaption>Chip layout with I/O pads placement</figcaption>
+        </figure>
+        
         <h4>Sealring & Dummy</h4>
         <p style="text-align: justify;">
           This part is relatively easy, where we put our top module inside the seal ring provided by the TA. 
@@ -1054,6 +1128,10 @@
           our module didn't passed the DRC density test and we had to hand-place the dummies. 
           Our tips for placing the dummy is to ensure enough space around them.
         </p>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/chip_layout.png" alt="Final chip layout" style="margin-bottom: 0;">
+          <figcaption>Final chip layout</figcaption>
+        </figure>
   </section>
 
   <section id="software">
