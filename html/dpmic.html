@@ -483,6 +483,7 @@
     <p>
       In modern automotive and industrial electronic systems, DC-DC converters have become increasingly important due to the rising demand for high efficiency and reliable operation across a wide load and environmental conditions. Traditional analog-controlled converters often struggle to balance fast transient response, stability, and digital integration requirements in advanced CMOS processes. These challenges motivate the design of a digitally assisted power converter that can achieve both high performance and high robustness.
     </p>
+    <img src="../images/dpmic/chip.png">
     <p>
       This project aims to design a digital PID-controlled CMOS DC-DC buck converter featuring zero-crossing detection (ZCD) for enhanced switching efficiency (in DCM) using the TSMC 65nm process. The objective is to achieve stable regulation across a wide output range while minimizing switching loss and conduction loss, and improving transient response. By leveraging a digital PID controller, the converter benefits from programmability, PVT tolerance, and predictable loop dynamics compared with traditional analog control methods.
     </p>
@@ -604,7 +605,7 @@
         The testing process is divided into pre-silicon verification, which confirms circuit functionality before tape-out, and post-silicon validation, which evaluates the fabricated chip under real measurement conditions.
     </p>
 
-    <h3>Pre-silicon</h3>
+    <h3>Post-Layout Simulation>Post
     <!-- <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p> -->
 
     <h4>Digital Blocks</h4>
@@ -618,7 +619,7 @@
       Here, we present post-layout simulation results of several analog blocks, including the ADC and the comparators. For the comparators, Monte Carlo simulations were performed to evaluate the input-referred offset. For the ADC, spectral analysis was conducted to extract key performance metrics such as ENOB, SNDR, and SFDR. In addition, the ADC’s dynamic linearity was characterized through DNL and INL simulations.
     </p>
     <img src="../images/dpmic/adc_layout_sim.png">
-    <h4>Post-layout Closed-loop Simulation</h4>
+    <h4>Top-Level</h4>
     <p>
     To verify the design after the place-and-route (PnR) and I/O pad integration stages, static timing analysis (STA) was performed using PrimeTime, and the digital functionality was verified in ModelSim using dedicated testbenches. Since the integrated design includes analog blocks that cannot be meaningfully analyzed using digital static timing analysis or simulated using standard digital HDL simulators such as PrimeTime and ModelSim, a behavioral Verilog model was created to replace the analog top during post-PnR digital verification. This model serves as an interface bridge between the digital blocks, enabling post-PnR timing verification and functional simulation to be carried out using standard digital design tools. 
     </p>  
@@ -633,7 +634,7 @@
     <p align="center">
       <img src="../images/dpmic/efficiency.png" width="60%">
     </p>
-    <h3>Post-silicon</h3>
+    <h3>Post-Silicon Validation</h3>
     <p>
       After fabrication, the initial bring-up of the chip was performed using a breadboard-based test setup. The chip was mounted in a QFN-64 socket and connected to the breadboard via jumper wires, enabling basic functionality checks and early debugging.
     </p>
