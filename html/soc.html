@@ -461,35 +461,32 @@
       padding: 0;
     }
 
-    /* ===== Team Members: force 5 cards in one row ===== */
+    /* ===== Team Members: keep card style, force 5 in one row ===== */
 .team-grid{
   display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important; /* 强制5列 */
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important; /* 强制5列同一行 */
   gap: 16px !important;
   margin: 20px 0 !important;
-  align-items: stretch;
 }
 
-/* 防止内容把卡片撑宽导致换行/溢出 */
-.team-member{
-  min-width: 0 !important;
-}
-.team-member span{
-  word-break: break-word;
-}
+/* 防止卡片内容把列撑爆导致掉行 */
+.team-member{ min-width: 0 !important; }
+.team-member span{ word-break: break-word; }
 
-/* 小屏兜底：放不下就横向滚动，依然保持同一排 */
+/* 小屏放不下时：仍保持一行，允许横向滑动（卡片形式不变） */
 @media (max-width: 1100px){
   .team-grid{
-    grid-template-columns: repeat(5, 240px) !important;  /* 每张固定宽度 */
+    grid-auto-flow: column !important;
+    grid-auto-columns: minmax(220px, 1fr) !important;
+    grid-template-columns: none !important;
+
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    padding-bottom: 8px !important;
     -webkit-overflow-scrolling: touch;
-    justify-content: start;
+    padding-bottom: 8px;
   }
-  .team-grid::-webkit-scrollbar{ height: 8px; }
 }
+
 
 
     /* Footer */
