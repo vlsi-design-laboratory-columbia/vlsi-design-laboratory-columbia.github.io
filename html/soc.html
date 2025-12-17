@@ -624,12 +624,16 @@ header{
   border-radius: 0 !important;
 
   padding: 0 !important;
-  margin: 0 0 14px !important;     /* 像普通段落一样的间距 */
+  margin: 0 0 14px !important;
   color: var(--text-muted) !important;
 
-  text-align: left !important;
-  text-align-last: auto !important;
+  /* ✅ 左右两端对齐 */
+  text-align: justify !important;
+  text-justify: inter-word;
+  text-align-last: left !important; /* 最后一行保持左对齐 */
+  hyphens: auto;                    /* 缓解英文空隙过大 */
 }
+
 
 /* 里面的 strong 仍然保持正文强调 */
 .instruction-text strong{ color: var(--text) !important; }
