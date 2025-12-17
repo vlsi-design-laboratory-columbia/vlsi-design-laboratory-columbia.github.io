@@ -1119,11 +1119,11 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
 		<img src="../images/microgpu/power_supply_schematic.png" alt="microGPU power_supply_schematic">
 
 	<h4>Level Shifters</h4>
-		<p> Since our peripherals mainly support 3.3V I/O voltage, level shifters have been incorporated into the chip's I/O to convert the 2.5V/1.0V I/O voltage to 3.3V, and vice versa. The schematic of the level shifters is given below. </p>
+		<p> Since our peripherals mainly support 3.3V I/O voltage, level shifters have been incorporated into the chip's I/O to convert the 2.5V/1.0V I/O voltage to 3.3V. There are also scan_in signals, uart signals, etc. from FPGA 3.3v to chip, so a level shifter has been incorporated into the GPIO to convert the 3.3V voltage to 1.0V Chip IO. The schematic of the level shifters is given below. </p>
 		<img src="../images/microgpu/level_shifter_schematic.png" alt="microGPU level_shifter_schematic">
 
 	<h4>Decoupling Capacitor</h4>
-		<p>  Decoupling capacitors were added to ensure a stable and clean power supply to the chip. Each power domain of the chip is equipped with a 10 ÂµF capacitor, while each input power pin is provided with a 1 ÂµF capacitor. The relevant schematic is given below. </p>
+		<p>  Decoupling capacitors were added to ensure a stable and clean power supply to the chip. Each power domain of the chip is equipped with a 10µF and several 0.1µF capacitors. The relevant schematic is given below. </p>
 		<img src="../images/microgpu/dcap_schematic.png" alt="microGPU dcap_schematic">
 	<h4>FPGA Header</h4>
 		<p> This is used for the connection with the FPGA board. The relevant schematic is given below. </p>
