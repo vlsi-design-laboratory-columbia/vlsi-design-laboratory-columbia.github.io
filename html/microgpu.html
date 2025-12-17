@@ -25,6 +25,7 @@
       background: #f7f9fc;
       color: var(--text-dark);
       line-height: 1.7;
+      counter-reset: figure-counter table-counter;
     }
     
     /* Header with gradient and modern design */
@@ -437,6 +438,22 @@
     footer p {
       color: rgba(255,255,255,0.95);
       margin-bottom: 8px;
+    }
+
+    figure {
+      counter-increment: figure-counter;
+    }
+
+    figure figcaption::before {
+      content: "Figure " counter(figure-counter) ": ";
+    }
+
+    table {
+      counter-increment: table-counter;
+    }
+
+    table caption::before {
+      content: "Table " counter(table-counter) ": ";
     }
     
     /* Responsive */
@@ -1472,7 +1489,7 @@
     </p>
     
     <h3>Key Achievements</h3>
-    <p class="instruction-text">
+    <p class="text-align: justify;">
     This project successfully delivered a fully functional hardware 3D rendering pipeline fabricated in TSMC 65 nm CMOS technology, achieving real-time 480p VGA output at 60 fps with live UART control. The work encompassed the complete ASIC development lifecycle, from algorithm definition and architectural design to RTL implementation, verification, synthesis, physical design, and post-silicon validation. While inspired by open-source concepts, the project significantly extends theses ideas by developing a far more complex and fully custom system from the ground up.
     </p>
     
