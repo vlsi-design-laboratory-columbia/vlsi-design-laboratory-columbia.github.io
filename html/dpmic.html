@@ -489,7 +489,7 @@
     </p>
     <img src="../images/dpmic/die_photo.png">
     <p>
-      The PWM voltage mode control is used for the proposed converter. The input voltage is 2.5V, and the output voltage can be regulated to 0.9~2.0V. The maximum load current is 500mA, with ~50mV expected voltage ripple and 100mA current ripple. The detailed specifications are listed in the "Specifications" section.
+      The PWM voltage mode control is used for the proposed converter. The input voltage is 2.5V, and the output voltage can be regulated to 0.9~2.0V. The maximum load current is 500mA, with 20~50mV expected voltage ripple and 100mA current ripple. The detailed specifications are listed in the "Specifications" section.
     </p>
     <!-- <div class="image-placeholder">Insert chip photo or project overview image</div> -->
   </section>
@@ -759,7 +759,7 @@
       </tr>
       <tr>
         <td>Output Voltage Ripple</td>
-        <td>~50mV</td>
+        <td>20~50mV</td>
       </tr>
       <tr>
         <td>Current Ripple</td>
@@ -803,7 +803,7 @@
       Future work can focus on hybrid control architectures for the buck converter, inspired by hybrid-controlled LDO designs. By incorporating an analog control loop into a digitally controlled buck converter, higher output voltage accuracy and improved transient performance can be achieved, while the digital control loop continues to provide flexibility and ease of compensation tuning.
     </p>
     <p>
-      Adaptive or self-calibrated control techniques can also be explored to automatically adjust loop parameters across PVT corners. For example, on-chip calibration of comparator offsets, ADC gain, or digital PID coefficients can further improve output accuracy and robustness without manual tuning, reducing sensitivity to process and temperature variations.
+      Adaptive or self-calibrated control techniques can also be explored to adjust loop parameters across PVT corners automatically. For example, on-chip calibration of comparator offsets, ADC gain, or digital PID coefficients can further improve output accuracy and robustness without manual tuning, reducing sensitivity to process and temperature variations.
     </p>
     <p>
       In addition, more comprehensive on-chip monitoring and protection circuits can be integrated to enhance system robustness and reliability. These may include over-current protection (OCP), over-voltage protection (OVP), under-voltage lockout (UVLO), and thermal protection, enabling safe operation across a wide range of load and environmental conditions.
