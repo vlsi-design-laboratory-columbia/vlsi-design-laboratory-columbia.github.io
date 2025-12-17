@@ -456,7 +456,7 @@
 <body>
 <header>
   <div class="header-content">
-    <h1>microGPU</h1>
+    <h1>microGPU: A 3D Renderer Accelerator</h1>
     <div class="header-meta">
       <span class="header-meta-item">EE6350 Spring 2025</span>
       <span class="header-meta-item">Columbia University</span>
@@ -1161,7 +1161,7 @@
     <h2>Demonstration</h2>
     <!-- TODO -->
     <h3>Video Demonstration</h3>
-    <!-- <iframe width="100%" height="400" src="https://www.youtube.com/embed/rGpk3MRSOx4?start=1" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+    <iframe width="100%" height="400" src="https://www.youtube.com/embed/Tdu9ry3oBlo" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
   </section>
 
   <section id="specs">
@@ -1225,7 +1225,20 @@
     </p>
     
     <h3>Future Work</h3>
-    <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
+    <ol class="instruction-text">
+  <li>
+    <strong>Texture Mapping Support</strong><br>
+    Currently, each triangle is rendered using a fixed per-triangle RGB color. Future versions could incorporate UV coordinate interpolation, texture memory, and filtered texture fetches (nearest/linear). This would allow rendering more detailed models and greatly improve visual richness.
+  </li>
+  <li>
+    <strong>Basic Ray Tracing or Hybrid Rendering</strong><br>
+    Although more computationally demanding, a small fixed-function ray–triangle intersection accelerator could be integrated to explore next-generation graphics features.
+  </li>
+  <li>
+    <strong>Higher Resolution / Higher Frequency Support</strong><br>
+    The current system supports 480p (640 × 480) at 60fps. Future revisions could optimize timing and memory to support 720p (1280×720) or 1080p (1920×1080) output.
+  </li>
+</ol>
   </section>
 
   <section id="references">
@@ -1283,7 +1296,6 @@
       <div class="team-member">
         <strong>Fengze Zhong</strong>
         <span>Frontend Design, Testing</span>
-        <span>fz2393@columbia.edu</span>
       </div>
     </div>
   </section>

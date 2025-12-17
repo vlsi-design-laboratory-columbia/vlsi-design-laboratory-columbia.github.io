@@ -439,7 +439,7 @@
 <body>
 <header>
   <div class="header-content">
-    <h1>DPMIC</h1>
+    <h1>DPMIC: A Digital DC-DC Buck Converter</h1>
     <div class="header-meta">
       <span class="header-meta-item">Power Management Integrated Circuit</span>
       <span class="header-meta-item">DC-DC Buck Converter</span>
@@ -465,7 +465,7 @@
     <a href="#introduction">Introduction</a>
     <a href="#architecture">Architecture</a>
     <a href="#design-flow">Design Flow</a>
-    <a href="#software">Software & Testing</a>
+    <a href="#software">Testing & Verification</a>
     <a href="#pcb">PCB Design</a>
     <a href="#demo">Demonstration</a>
     <a href="#specs">Specifications</a>
@@ -484,11 +484,11 @@
       In modern automotive and industrial electronic systems, DC-DC converters have become increasingly important due to the rising demand for high efficiency and reliable operation across a wide load and environmental conditions. Traditional analog-controlled converters often struggle to balance fast transient response, stability, and digital integration requirements in advanced CMOS processes. These challenges motivate the design of a digitally assisted power converter that can achieve both high performance and high robustness.
     </p>
     <p>
-      This project aims to design a digital PID-controlled CMOS DC-DC buck converter featuring zero-crossing detection (ZCD) for enhanced switching efficiency (in DCM) using TSMC 65nm process. The objective is to achieve stable regulation across a wide output range while minimizing switching loss and conduction loss, and improving transient response. By leveraging a digital PID controller, the converter benefits from programmability, PVT tolerance, and predictable loop dynamics compared with traditional analog control methods.
+      This project aims to design a digital PID-controlled CMOS DC-DC buck converter featuring zero-crossing detection (ZCD) for enhanced switching efficiency (in DCM) using the TSMC 65nm process. The objective is to achieve stable regulation across a wide output range while minimizing switching loss and conduction loss, and improving transient response. By leveraging a digital PID controller, the converter benefits from programmability, PVT tolerance, and predictable loop dynamics compared with traditional analog control methods.
     </p>
     <img src="../images/dpmic/die_photo.png">
     <p>
-      The PWM voltage mode control is used for the proposed converter. The input voltage is 2.5V, and the output voltage can be regulated to 0.9~1.8V. The maximum load current is 500mA, with ~10mV expect voltage ripple and 100mA current ripple. The detailed specifications are listed in the "Specifications" section.
+      The PWM voltage mode control is used for the proposed converter. The input voltage is 2.5V, and the output voltage can be regulated to 0.9~2.0V. The maximum load current is 500mA, with ~50mV expected voltage ripple and 100mA current ripple. The detailed specifications are listed in the "Specifications" section.
     </p>
     <!-- <div class="image-placeholder">Insert chip photo or project overview image</div> -->
   </section>
@@ -520,6 +520,9 @@
       To further reduce the comparators' delay and input-referred offset, the input differential pair is upsized to improve transconductance and mitigate device mismatch. The remaining transistors in the latch are kept smaller than the input-pair to minimize parasitic capacitances, thereby lowering delay. Additionally, decoupling capacitors can be introduced to reduce clock feedthrough and kickback noise, improving overall comparator accuracy.
     </p>
     <img src="../images/dpmic/adc_cmp.png">
+    <p align="center">
+      <img src="../images/dpmic/adc_code.png" width="60%">
+    </p>
     <h4>Dead-Time Generation</h4>
     <p>
       To reduce the additional power consumption caused by shoot-through current during switching, a dead-time generation circuit is implemented to produce two non-overlapping PWM waveforms. During the designated dead time, the gate of the power PMOSFET is held high while the gate of the power NMOSFET is kept low, ensuring that both devices cannot turn on simultaneously and eliminating shoot-through current.
@@ -543,6 +546,7 @@
     <p>
       When the converter operates in DCM, the inductor current can reverse direction, which degrades efficiency. To mitigate this issue, a zero-crossing detection (ZCD) module is added. By sensing the switching node VX​ through a comparator, the ZCD logic determines whether the NMOS switch should be turned off. In addition, a freewheel switch is added to short the inductor and dissipate the residual energy stored in it.
     </p>
+    <img src="../images/dpmic/zcd.png">
     <h4>PID Controller</h4>
     <p>
       In digitally controlled DC-DC converters, a Proportional–Integral–Derivative (PID) controller is commonly employed to regulate the output voltage. The proportional term provides immediate correction based on the voltage error, the integral term removes steady-state offset by accumulating long-term error, and the derivative term enhances transient response by reacting to rapid changes in the output. In this design, the PID controller operates at 1MHz, as it is triggered by the 64MHz DPWM every 64 clock cycles, resulting in a 1MHz PWM switching frequency. All three PID coefficients are implemented as 16-bit values and are loaded into the controller through the scan chain.
@@ -551,12 +555,13 @@
     <p>
       A counter-based Digital Pulse Width Modulation (DPWM) module is used to generate the switching signal for the power stage. In this design, the DPWM used a 6-bit up-counter clocked at 64MHz. The duty cycle is determined by comparing the counter value with a 6-bit digital control word provided by the PID controller. When the counter value is lower than the control word, the output remains high; otherwise, it switches low. Because a 6-bit counter provides 64 time slots, the resulting PWM switching frequency is 64MHz/64=1MHz. This architecture offers simple implementation, linear duty-cycle resolution, and robust operation suitable for digitally controlled DC-DC converters.
     </p>
+    <img src="../images/dpmic/digital.png">
     <h4>Scan Chain & Clock Generation</h4>
     <p>
-      The scan chain is used to load the three PID coefficients (ki, kp​, and kd​) as well as other control bits into the digital controller. This serial-access mechanism enables flexible tuning, testability, and debugging during both pre-silicon verification and post-silicon evaluation without requiring additional dedicated I/O pins.
+      The scan chain is used to load the three PID coefficients (ki, kp, and kd​) as well as other control bits into the digital controller. This serial-access mechanism enables flexible tuning, testability, and debugging during both pre-silicon verification and post-silicon evaluation without requiring additional dedicated I/O pins.
     </p>
     <p>
-      The ring-oscillator–based clock generation block provides a 64MHz on-chip clock, which is distributed to both the ADC and the DPWM. The use of a ring oscillator enables fully integrated, compact, and low-power clock generation without requiring any off-chip components. The generated 64MHz clock ensures synchronized operation between the sampling process in the ADC and the switching control in the DPWM, supporting consistent timing for the entire digital control loop.
+      The ring–oscillator–based clock generation block provides a 64MHz on-chip clock, which is distributed to both the ADC and the DPWM. The use of a ring oscillator enables fully integrated, compact, and low-power clock generation without requiring any off-chip components. The generated 64MHz clock ensures synchronized operation between the sampling process in the ADC and the switching control in the DPWM, supporting consistent timing for the entire digital control loop.
     </p>
 
   </section>
@@ -580,6 +585,27 @@
     </p>
     <img src="../images/dpmic/floor_plan.png">
     <img src="../images/dpmic/chip_layout.png">
+  </section>
+  
+  <section id="software">
+    <h2>Testing & Verification</h2>
+    <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
+    <p> 
+        This section presents the overall verification and validation flow used to ensure the correct functionality of the buck converter chip. 
+        The testing process is divided into pre-silicon verification, which confirms circuit functionality before tape-out, and post-silicon validation, which evaluates the fabricated chip under real measurement conditions.
+    </p>
+
+    <h3>Pre-silicon</h3>
+    <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
+
+    <h4>Digital Blocks</h4>
+    <p> To verify the correctness of the digital control logic, comprehensive testbenches were written in Verilog for each module and for the combined digital top. Simulations were run in ModelSim, both before synthesis (RTL) and after synthesis (gate-level), to detect potential timing issues introduced by the synthesis process. In addition, Static Timing Analysis (STA) was conducted in Synopsys PrimeTime to verify that all timing constraints were met and to ensure that the design operated reliably at the target clock frequency.
+        The figure below shows the ModelSim simulation waveform alongside a snapshot of the PrimeTime timing report.
+    </p>
+    <div class="image-placeholder">Insert Simulation Results</div>
+
+    <h4>Analog Blocks</h4>
+    <h4>Post-layout Closed-loop Simulation</h4>
     <p>
       The top-level post-layout simulation results are shown as follows.
     </p>
@@ -587,39 +613,91 @@
     <p align="center">
       <img src="../images/dpmic/efficiency.png" width="60%">
     </p>
-  </section>
-  
-  <section id="software">
-    <h2>Software & Testing Flow</h2>
-    <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
-    
-    <h3>Software Development</h3>
-    <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
-    
-    <h3>Testing Methodology</h3>
-    <p class="instruction-text">[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
+    <h3>Post-silicon</h3>
+    <p>[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
+    <p align="center">
+      <img src="../images/dpmic/test_scanchain.png" width=80%>
+    </p>
+    <p align="center">
+      <img src="../images/dpmic/test_buck.png" width=80%>
+    </p>
   </section>
   
   <section id="pcb">
     <h2>PCB Design</h2>
-    <p class="instruction-text">[testing:::: Replace with PCB design description: Detail the test board architecture, power delivery, signal integrity considerations, and measurement infrastructure.]</p>
-    
-    <h3>Board Architecture</h3>
-    <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
-    
-    <h3>Power Distribution</h3>
-    <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
+    <p>
+      To demonstrate the functionality of our chip, we designed a 4-layer PCB using Altium Designer.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_view_board.png">
+    <h3>Schematic Design</h3>
+    <h4>Power Supply</h4>
+    <p>
+      The board is powered through a USB Type-C connector, which supplies 5 V from either a wall adapter or a portable power bank. Several LDOs then regulate the 5 V rail down to the voltages required by both the demo circuits and our chip.
+    <br>  Power-indicator LEDs are included to provide visual feedback of active rails.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_power_supply.png">
+
+    <h4>Buck Converter Circuit</h4>
+    <p>
+      The figure below shows the supporting circuitry for our buck converter chip. Note that a resistor divider is placed at the output of the chip, providing feedback voltage to the chip. 
+      <br>A tactile switch is included to reset the digital module, and an ESD protection diode is added to prevent static discharge from damaging the chip.
+      <br>The 100nF ceramic capacitors are added accordingly for local decoupling.
+      <br>An 8-pin header is added for scan-chain access, with two additional headers reserved for debugging.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_buck_circuit.png">
+
+    <h4>STM32 MCU</h4>
+    <p>
+      An STM32 MCU is integrated on the board to run our demos. Its support circuitry includes a 16 MHz crystal oscillator, boot-configuration components, and an ST-LINK programming connector.
+      <br>A power multiplexer allows the MCU to be powered from different voltage sources, selectable through a slide switch.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_mcu.png">
+
+    <h4>OLED Display & Buttons</h4>
+    <p>
+      An OLED screen is added to the PCB board for displaying. It communicates with the MCU through the I²C interface, with two 5.1 kΩ pull-up resistors included on the SDA and SCL lines.
+      <br>Four push buttons are included to allow users to switch modes and interact with the demo.
+    </p>
+    <p align="center">
+      <img src="../images/dpmic/pcb_design/pcb_oled.png" width=60%>
+    </p>
+    <h4>LED Array</h4>
+    <p>
+      To monitor the output current of our chip, a high-side current-sensing amplifier measures the voltage across a precision sense resistor. The amplified output is fed into the STM32 for real-time display and logging.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_led_array.png">
+
+    <h4>Current Sensing Amplifier</h4>
+    <p>
+      To demonstrate the functionality of our chip, we designed a 4-layer PCB using Altium Designer.
+    </p>
+    <p align="center">
+      <img src="../images/dpmic/pcb_design/pcb_current_sensing.png" width="60%">
+    </p>
+    <h3>Layout Design</h3>
+    <p>
+      The figure below shows our layout design for the Demo PCB. The top and bottom layers are both signal layers, and the middle layers are the power and ground plane. We mainly used 10mil traces as our application does not require high current. Both outer layers include ground pours, and stitching vias connect all ground regions together to ensure low-impedance return paths.
+      <br>Decoupling capacitors are placed as close as possible to the relevant IC pins to maximize their effectiveness.
+    </p>
+    <img src="../images/dpmic/pcb_design/pcb_layout.png">
+
+    <h3>Assembly</h3>
+    <p>We used both a reflow oven and hand-soldering for the board assembly, and the images below show the assembled board.</p>
+    <img src="../images/dpmic/pcb_design/pcb1.png">
+    <img src="../images/dpmic/pcb_design/pcb2.png">
+
   </section>
   
   <section id="demo">
     <h2>Demonstration</h2>
-    <p class="instruction-text">[Replace with demonstration description: Show working examples, test results, and real-world performance of your chip.]</p>
-    
-    <div class="image-placeholder">Insert demonstration photo or screenshot</div>
-    
+    <p>
+      The pictures below show two demonstration modes of our board: in the first, the chip supplies 1.8 V to the MCU while it runs a snake game; in the second, the chip powers the 1.8 V LED array. In both cases, the real-time output voltage and current provided by the chip are displayed on the OLED screen.
+    </p>
+    <img src="../images/dpmic/demo_photos/demo1.jpeg">
+    <img src="../images/dpmic/demo_photos/demo2.png">
     <h3>Video Demonstration</h3>
     <div class="video-container">
-      <iframe src="https://www.youtube.com/embed/yMyPtDnq-aQ" title="Project demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/iYCrBk69G7g" title="Project demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
   </section>
   
@@ -648,7 +726,7 @@
       </tr>
       <tr>
         <td>Output Voltage</td>
-        <td>0.9~1.8V</td>
+        <td>0.9~2.0V</td>
       </tr>
       <tr>
         <td>Supply Voltage</td>
@@ -660,7 +738,7 @@
       </tr>
       <tr>
         <td>Output Voltage Ripple</td>
-        <td>~10mV</td>
+        <td>~50mV</td>
       </tr>
       <tr>
         <td>Current Ripple</td>
@@ -679,32 +757,60 @@
   
   <section id="conclusions">
     <h2>Conclusions</h2>
-    <p class="instruction-text">[Replace with conclusions: Summarize achievements, lessons learned, challenges overcome, and potential future improvements.]</p>
-    
     <h3>Key Achievements</h3>
-    <p class="instruction-text">[List major accomplishments and successful design outcomes.]</p>
-    
+    <p>
+      In our first tape-out experience, we successfully designed, implemented, and validated the proposed buck converter, leveraging knowledge from prior coursework and insights from the relevant research literature.
+    </p>
+    <p>
+      Throughout this project, we developed a deeper understanding of the key design trade-offs involved in power converter design, including efficiency, stability, transient response, and area constraints. In addition, we gained extensive hands-on experience with a wide range of EDA tools spanning digital IC design, analog IC design, and PCB design, covering the complete workflow from system-level architecture, circuit design and simulation, to layout, verification, and integration.
+    </p>
+    <p>
+      This tape-out experience significantly strengthened our ability to translate theoretical concepts into a manufacturable silicon implementation and enhanced our practical engineering skills in mixed-signal power management IC design.
+    </p>
     <h3>Lessons Learned</h3>
-    <p class="instruction-text">[Discuss important insights gained during the design process.]</p>
-    
+    <p>
+      Chip design is a highly demanding and multidisciplinary process that requires designers to possess both broad knowledge and practical experience. Designers should avoid narrowing their focus to a single domain and instead learn to approach problems from multiple perspectives. For example, analog designers can significantly enhance their design capability by understanding digital circuits, while digital designers can benefit from learning analog fundamentals.
+    </p>
+    <p>
+      Chip design and tape-out extend far beyond running simulations and observing waveforms. In real industrial practice, a robust design that functions reliably across PVT corners and achieves reasonable yield is often more valuable than sophisticated or aggressive circuit topologies that are difficult to manufacture or validate.
+    </p>
+    <p>
+      Chip layout is an art, especially in analog IC design. It demands careful consideration of matching, symmetry, parasitics, routing, and layout-dependent effects. Although the analog blocks in our project are not complex, achieving a clean, well-optimized layout remains a challenging, iterative process, underscoring the critical role of layout quality in overall chip performance.
+    </p>
     <h3>Future Work</h3>
-    <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
+    <p>
+      Future work can focus on hybrid control architectures for the buck converter, inspired by hybrid-controlled LDO designs. By incorporating an analog control loop into a digitally controlled buck converter, higher output voltage accuracy and improved transient performance can be achieved, while the digital control loop continues to provide flexibility and ease of compensation tuning.
+    </p>
+    <p>
+      Adaptive or self-calibrated control techniques can also be explored to automatically adjust loop parameters across PVT corners. For example, on-chip calibration of comparator offsets, ADC gain, or digital PID coefficients can further improve output accuracy and robustness without manual tuning, reducing sensitivity to process and temperature variations.
+    </p>
+    <p>
+      In addition, more comprehensive on-chip monitoring and protection circuits can be integrated to enhance system robustness and reliability. These may include over-current protection (OCP), over-voltage protection (OVP), under-voltage lockout (UVLO), and thermal protection, enabling safe operation across a wide range of load and environmental conditions.
+    </p>
   </section>
   
   <section id="references">
     <h2>References</h2>
-    <p class="instruction-text">[Replace with references: List academic papers, technical manuals, and other resources cited in your project.]</p>
     <ol style="margin-left: 25px; color: var(--text-gray);">
-      <li style="margin-bottom: 12px;">[Reference 1: Author, Title, Publication, Year]</li>
-      <li style="margin-bottom: 12px;">[Reference 2: Author, Title, Publication, Year]</li>
-      <li style="margin-bottom: 12px;">[Reference 3: Author, Title, Publication, Year]</li>
+      <li style="margin-bottom: 12px;">Lecture Notes, EE6340 Power Management Integrated Circuits, Prof. Xin Zhang, Columbia University in the City of New York, Fall 2024.</li>
+      <li style="margin-bottom: 12px;">Lecture Notes, EE6350 VLSI Design Lab, Prof. Mingoo Seok, Columbia University in the City of New York, Spring 2025.</li>
+      <li style="margin-bottom: 12px;">X. Zhang et al., “A 0.6 V Input CCM/DCM Operating Digital Buck Converter in 40 nm CMOS,” IEEE J. Solid-State Circuits, vol. 49, no. 11, pp. 2377–2386, Nov. 2014, doi: 10.1109/JSSC.2014.2339325.</li>
+      <li style="margin-bottom: 12px;">J. Baek, H.-M. Lee, and S.-U. Shin, “Triple-Mode Switched-Inductor-Capacitor DC-DC Buck Converter with Reusable Flying Capacitor and Bang-Bang Zero-Current Detector for Wide Load Current Range,” Electronics, vol. 9, no. 8, p. 1202, July 2020, doi: 10.3390/electronics9081202.</li>
+      <li style="margin-bottom: 12px;">Xuan-Dien Do, Seok-Kyun Han, and Sang-Gug Lee, “Low power consumption for detecting current zero of synchronous DC-DC buck converter,” in 2012 International SoC Design Conference (ISOCC), Jeju Island, Korea (South): IEEE, Nov. 2012, pp. 487–490. doi: 10.1109/ISOCC.2012.6406902.</li>
+      <li style="margin-bottom: 12px;">L. Corradini, D. Maksimović, P. Mattavelli, and R. Zane, Digital Control of High‐Frequency Switched‐Mode Power Converters, 1st ed. Wiley, 2015. doi: 10.1002/9781119025498.</li>
+      <li style="margin-bottom: 12px;">R. W. Erickson and D. Maksimović, Fundamentals of Power Electronics. Cham: Springer International Publishing, 2020. doi: 10.1007/978-3-030-43881-4.</li>
+      <li style="margin-bottom: 12px;">V. Michal, “Inductor Current Zero-Crossing Detector and CCM/DCM Boundary Detector for Integrated High-Current Switched-Mode DC–DC Converters,” IEEE Trans. Power Electron., vol. 29, no. 10, pp. 5384–5391, Oct. 2014, doi: 10.1109/TPEL.2013.2292600.</li>
+      <li style="margin-bottom: 12px;">Chi-Lin Chen, Wei-Jen Lai, Ter-Hsing Liu, and Ke-Horng Chen, “Zero current detection technique for fast transient response in buck DC-DC converters,” in 2008 IEEE International Symposium on Circuits and Systems (ISCAS), Seattle, WA, USA: IEEE, May 2008, pp. 2214–2217. doi: 10.1109/ISCAS.2008.4541892.</li>
+      <li style="margin-bottom: 12px;">P. Shukla, P. Singh, T. Maheshwari, A. Grover, and V. Rana, “A 800MHz, 0.21pJ, 1.2V to 6V Level Shifter Using Thin Gate Oxide Devices in 65nm LSTP,” in 2020 27th IEEE International Conference on Electronics, Circuits and Systems (ICECS), Glasgow, UK: IEEE, Nov. 2020, pp. 1–4. doi: 10.1109/ICECS49266.2020.9294984.</li>
+      <li style="margin-bottom: 12px;">B. Razavi, “The StrongARM Latch [A Circuit for All Seasons],” IEEE Solid-State Circuits Mag., vol. 7, no. 2, pp. 12–17, 2015, doi: 10.1109/MSSC.2015.2418155.</li>
+      <li style="margin-bottom: 12px;">B. Wicht, T. Nirschl, and D. Schmitt-Landsiedel, “Yield and speed optimization of a latch-type voltage sense amplifier,” IEEE J. Solid-State Circuits, vol. 39, no. 7, pp. 1148–1158, July 2004, doi: 10.1109/JSSC.2004.829399.</li>
     </ol>
   </section>
   
   <section id="acknowledgments">
     <h2>Acknowledgments</h2>
     <p>
-      We would like to thank everyone who supported us throughout this project and made this work possible.
+      We want to thank everyone who supported us throughout this project and made this work possible.
     </p>
     <p>
       We are especially grateful to our course advisor, Prof. Mingoo Seok, for giving us the invaluable opportunity to participate in this class and experience our first-ever tape-out. He proposed the project topic, met with us weekly to review our progress, and guided us with his technical expertise and extensive experience in chip design.
@@ -723,26 +829,32 @@
       <div class="team-member">
         <strong>Hongxin Xu</strong>
         <span>Analog Blocks Design, Physical Design, PCB Design and Test</span>
+        <span>hx2389@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Andi Li</strong>
-        <span>Digial Blocks Design, Physical Design, PCB Design and Test</span>
+        <span> Digital Blocks Design, Physical Design, PCB Design and Test</span>
+        <span>al4725@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Ziyang Wang</strong>
         <span>Analog and Digital Blocks Design, Physical Design</span>
+        <span>zw3022@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Sean Chou</strong>
-        <span>Analog Blocks Design, Physical Design, PCB Design and Test</span>
+        <span>Analog Blocks Design, Physical Design, PCB Firmware Design</span>
+        <span>tc3381@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Haoran Zhao</strong>
         <span>Analog Blocks Design, Physical Design</span>
+        <span>hz2972@columbia.edu</span>
       </div>
       <div class="team-member">
         <strong>Yuxiao Ma</strong>
         <span>Analog Blocks Design, Physical Design</span>
+        <span>ym3055@columbia.edu</span>
       </div>
     </div>
   </section>

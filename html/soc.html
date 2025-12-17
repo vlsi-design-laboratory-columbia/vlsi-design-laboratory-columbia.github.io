@@ -292,8 +292,20 @@
       border-radius: 8px;
       color: #1e3a5f;
       font-size: 0.95em;
-      font-style: italic;
+      font-style: normal;
+      text-align: justify;
+      text-justify: inter-word;
+      text-align-last: left;   /* 最后一行不拉开 */
     }
+    
+    p.instruction-text > img{
+  display: block;
+  margin: 16px auto 0;   /* 你也可以改回 24px */
+}
+    .instruction-text br + *{
+  text-align: left;
+  text-align-last: left;
+}
     
     p {
       color: #4a5568;
@@ -449,12 +461,146 @@
       .nav-buttons a {font-size: 0.85em; padding: 8px 16px;}
       .image-placeholder {height: 250px; font-size: 0.95em;}
     }
+
+/* === Fix: side-by-side images bigger + captions closer === */
+.side-by-side-images figure{
+  flex: 1;            /* 让每个 figure 平分宽度 */
+  margin: 0;
+}
+
+.side-by-side-images figure img{
+  width: 100%;        /* 图片撑满 figure */
+  max-width: 100%;
+  height: auto;
+  margin: 0 !important;   /* 覆盖全局 img 的 24px margin */
+}
+
+.side-by-side-images figcaption{
+  margin-top: 10px;
+  text-align: center;
+  color: #4a5568;
+  font-size: 0.95em;
+}
+
+.memory-map-box {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+/* 蓝框里表格不要额外上下 margin */
+.memory-map-box .specs-table {
+  margin: 0 !important;
+}
+
+/* Two images side-by-side inside blue box, prevent overflow */
+.instruction-text .side-by-side-images.two-up img{
+  width: calc(50% - 10px);
+  max-width: calc(50% - 10px);
+  height: auto;
+  margin: 0 !important;      /* 覆盖全局 img margin */
+}
+
+/* Small screen: stack vertically */
+@media (max-width: 768px){
+  .instruction-text .side-by-side-images.two-up img{
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+    /* === FORCE center for figure + image + caption (put at the VERY end) === */
+.side-by-side-images{
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.side-by-side-images figure{
+  flex: 1 1 0;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;              /* 关键：让图片本身居中 */
+}
+
+.side-by-side-images figure > img{
+  display: block !important;        /* 关键：避免 inline 靠左 */
+  width: 100% !important;
+  max-width: 100% !important;       /* 关键：压掉你之前的 max-width:48% */
+  height: auto !important;
+  margin: 0 !important;             /* 压掉全局 img 的 24px margin */
+}
+
+.side-by-side-images figure > figcaption{
+  width: 100%;
+  display: block;
+  text-align: center !important;    /* 压掉 .instruction-text 的 justify */
+  margin-top: 10px;
+}
+
+/* === FIX: captions inside .instruction-text should be centered (override text-align-last:left) === */
+.instruction-text figure,
+.instruction-text figcaption{
+  text-align-last: center !important;
+}
+
+.instruction-text figcaption{
+  text-align: center !important;
+}
+
+    /* === FIX: single figure image/caption spacing inside blue box === */
+.instruction-text figure > img{
+  margin: 0 !important;          /* 干掉全局 img 的 24px 上下边距 */
+}
+
+.instruction-text figure{
+  margin: 14px 0 !important;     /* 可选：统一 figure 上下间距 */
+}
+
+.instruction-text figure > figcaption{
+  margin-top: 8px;               /* 你想更近就改成 4px */
+}
+
+/* === FIX: make h4 closer to the blue box right below === */
+.highlight-item > h4{
+  margin-bottom: 8px !important;   /* 标题下方更近 */
+}
+
+/* 如果蓝框紧跟在 h4 后面，压掉蓝框的上边距 */
+.highlight-item > h4 + .instruction-text{
+  margin-top: 8px !important;      /* 你想更近就改成 4px 或 0 */
+}
+
+/* === Tighten spacing: heading -> blue box === */
+h4{
+  margin: 18px 0 8px;      /* 控制 h4 自己上下间距：上18，下8（你可再调小） */
+  color: var(--primary-light);
+  font-weight: 600;
+}
+
+/* h3/h4 后面紧跟蓝框时，把蓝框的 top margin 压小 */
+h3 + .instruction-text,
+h4 + .instruction-text{
+  margin-top: 10px !important;   /* 原来是 20px */
+}
+
+/* Bigger h4 titles (e.g., IO Pad, DFT Module...) */
+h4{
+  font-size: 1.2em;   /* 你想更大就改成 1.3 / 1.4 */
+  line-height: 1.25;
+  margin: 18px 0 8px;
+  color: var(--primary-light);
+  font-weight: 700;
+}
+
+
+    
+    
   </style>
 </head>
 <body>
 <header>
   <div class="header-content">
-    <h1>SoC</h1>
+    <h1>SoC: RISC-V with a Custom Vector Co-Processor</h1>
     <div class="header-meta">
       <span class="header-meta-item">System On Chip</span>
       <span class="header-meta-item">Vector Processing Unit</span>
@@ -464,11 +610,11 @@
     
     <div class="author-info">
       <div class="authors-list">
-        <a href="mailto:email@columbia.edu" class="author-name">[Jiajun Jiang]</a>
+        <a href="https://www.linkedin.com/in/jiajun-jiang-83764231a/" target="_blank" class="author-name">[Jiajun Jiang]</a>
         <a href="https://www.linkedin.com/in/zhenningyang509/" target="_blank" class="author-name">[Zhenning Yang]</a>
-        <a href="mailto:email@columbia.edu" class="author-name">[Yicheng Huang]</a>
-        <a href="mailto:email@columbia.edu" class="author-name">[Zhuohao Chang]</a>
-        <a href="mailto:email@columbia.edu" class="author-name">[Yu Jia]</a>
+        <a href="mailto:yh3782@columbia.edu" class="author-name">[Yicheng Huang]</a>
+        <a href="mailto:zc2800@columbia.edu" class="author-name">[Zhuohao Chang]</a>
+        <a href="mailto:yj2839@columbia.edu" class="author-name">[Yu Jia]</a>
       </div>
     </div>
   </div>
@@ -493,24 +639,55 @@
   <a class="back" href="../index.html">Back to all projects</a>
   
   <section id="introduction">
-    <h2>Introduction</h2>
-    <p class="instruction-text">[Replace with project introduction: Describe the motivation, objectives, and overview of your chip design. Explain why this project is important and what problems it aims to solve.]</p>
+  <h2>Introduction</h2>
+
+  <p class="instruction-text">
+    Welcome to the SoC team page! We present a complete RISC-V System-on-Chip (SoC) implemented and
+    taped out in TSMC 65-nm technology. This work was developed as part of Columbia University’s
+    EE6350 VLSI Laboratory, and we gratefully acknowledge the supervision of Prof. Mingoo Seok,
+    the generous support from Apple Inc., and the support of the course TAs.
+    <br><br>
+    The chip adopts a CPU–VPU heterogeneous architecture, integrating the open-source PicoRV32 RISC-V
+    CPU and a custom-designed VPU, along with on-chip memory and essential I/O (UART, SPI), to
+    accelerate data-parallel workloads such as vector operations and convolution-like kernels used in
+    image processing and lightweight AI pipelines. The CPU provides system-level programmability and
+    orchestration, while the VPU couples a SIMD datapath with a dedicated control plane for vector
+    decode, memory sequencing, and PE scheduling. This separation enables straightforward CPU-only vs.
+    VPU-offloaded benchmarking, making acceleration benefits easy to reproduce and quantify on silicon.
+    <br><br>
+    From RTL design and verification through synthesis, place-and-route, and pad integration, we
+    completed an end-to-end ASIC flow and validated the chip via post-silicon board bring-up and
+    testing. The result is a compact, software-programmable platform that demonstrates digital system
+    integration and silicon-proven hardware/software co-design.
+  </p>
+
     <img src="../images/soc/Chip_Raw_Labelled.jpg">
     <!-- <div class="image-placeholder">Insert chip photo or project overview image</div> -->
   </section>
   
   <section id="architecture">
     <h2>System Architecture</h2>
-    <p class="instruction-text">[This diagram illustrates the architecture of our RISC-V based System-on-Chip (SoC). At its core, a RISC-V processor is paired with a dedicated Vector Processing Unit to handle accelerated parallel computations. These processing units communicate with system resources via a central AXI-Lite Interconnect. Essential external communication is handled through UART and SPI interfaces. Additionally, the design incorporates support infrastructure, including a Clock Generator, Finite State Machine (FSM), and a Scan Chain for hardware testing and debugging.]</p>
-    <img src="../images/soc/SystemArch.png">
-    <h3>Key Highlights: Component Breakdown</h3>
+    <p class="instruction-text">This diagram illustrates the architecture of our RISC-V based System-on-Chip (SoC). At its core, a RISC-V processor is paired with a dedicated Vector Processing Unit to handle accelerated parallel computations. These processing units communicate with system resources via a central AXI-Lite Interconnect. Essential external communication is handled through UART and SPI interfaces. Additionally, the design incorporates support infrastructure, including a Clock Generator, Finite State Machine (FSM), and a Scan Chain for hardware testing and debugging.
+    <img src="../images/soc/SystemArch.png"></p>
+    <h3>Key Modules</h3>
     
     <ul class="key-highlights-list">
-        <li>
+        
             <div class="highlight-item">
-                <h4>Core: <a href="https://github.com/YosysHQ/picorv32" target="_blank">RISCV</a> & Vector Processing Unit</h4>
-                <p class="instruction-text">[Vector Processing Unit.]</p>
-                <p class="instruction-text">[The system is anchored by the PicoRV32, a robust and widely adopted open-source 
+                <h4>Vector Processing Unit (VPU)</h4>
+              <p class="instruction-text">
+              This custom VPU is a PCPI-attached accelerator for PicoRV32 that delivers silicon-proven speedup on data-parallel kernels while keeping the CPU microarchitecture unchanged. It integrates a dedicated control plane (instruction decode + multi-cycle control FSM) that autonomously manages instruction sequencing, base/stride address generation, memory handshaking, and PE scheduling, so the CPU simply issues an offload and waits for completion via pcpi_wait/pcpi_ready. Vector state is maintained in small control registers (e.g., vl and vtype), from which SEW/LMUL are derived to parameterize datapath packing and memory behavior. Operands/results are stored in a 288-bit vector register file, with an unpack/pack stage feeding a 9-lane SIMD PE array for element-wise compute (e.g., vector multiply) matched to the register packing granularity. For data movement, a vector load/store subsystem converts each vector memory instruction into a tightly sequenced stream of back-to-back 32-bit DMEM transfers, moving up to nine 32-bit lanes per vector and eliminating scalar loop/address-update overhead. This hardware-sequenced, aggregated access pattern reduces per-transaction overhead and helps sustain throughput on a 32-bit, non-burst memory interface, making the design especially effective for convolution- and MAC-heavy workloads and enabling clean, reproducible CPU-only vs. CPU+VPU benchmarking under the same workload code. Across our measured demos, end-to-end speedup increases monotonically with VPU utilization (vector intensity), ranging from ~1× at low utilization up to ~6× at high utilization. As a result, the SoC is particularly well-suited for CNN-style AI kernels—where the inner loops are dominated by vectorizable multiply–accumulate (MAC) patterns and regular tensor-like memory access—so this design can be viewed as a compact, AI-oriented accelerator chip for convolutional workloads. 
+              <br>
+              For technical details on the VPU, reach out to Jiajun Jiang.
+                <img src="../images/soc/VPU_architecture.png"></p>
+                <!-- <p>The system's processing powerhouse consists of a standard **RISC-V Core** for general-purpose computing, paired with a high-performance **Vector Coprocessor**. This coprocessor enables efficient, accelerated execution of parallel operations, crucial for demanding applications like signal processing or machine learning tasks.</p> -->
+            </div>
+        
+
+
+            <div class="highlight-item">
+                <h4>CPU Core: <a href="https://github.com/YosysHQ/picorv32" target="_blank">picorv32</a></h4>
+                <p class="instruction-text">The system is anchored by the PicoRV32, a robust and widely adopted open-source 
                   RISC-V CPU core designed for high reliability and area efficiency. 
                   It implements the standard RISC-V RV32I Instruction Set Architecture (ISA), 
                   providing a comprehensive suite of base integer instructions.
@@ -520,259 +697,729 @@
                   layouts. Crucially, the core features a dedicated Pico Co-Processor Interface (PCPI). 
                   This low-latency interface serves as the bridge to our custom Vector Processing Unit (VPU), 
                   allowing the PicoRV32 to seamlessly offload complex vector instructions 
-                  while maintaining rigorous control over system flow and data consistency. Below Shows the Finite State Machine of this simple RISCV Core. ]</p>
-                <img src="../images/soc/CPU.png">
+                  while maintaining rigorous control over system flow and data consistency. Below Shows the Finite State Machine of this simple RISCV Core.
+                <img src="../images/soc/CPU.png"></p>
                 <!-- <p>The system's processing powerhouse consists of a standard **RISC-V Core** for general-purpose computing, paired with a high-performance **Vector Coprocessor**. This coprocessor enables efficient, accelerated execution of parallel operations, crucial for demanding applications like signal processing or machine learning tasks.</p> -->
             </div>
-        </li>
-        <li>
-            <div class="highlight-item">
-                <h4>Bus Interconnect: <a href="https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_interconnect.v" target="_blank">AXI-Lite Interconnect</a></h4>
-                <p class="instruction-text">[The Opensource AXI-Lite Interconnect we we adopted supports multiple masters and slaves. The maximum frequency after synthesizing is around 500MHz and the area is pretty small. It does not supports burst transactions, OoO and outstanding in AXI protocol.]</p>
-                <section id="memory-map">
-                    <h4>System Memory Map</h4>
-                    <table class="specs-table">
-                      <thead>
-                        <tr>
-                          <th>Device / Region</th>
-                          <th>Start Address</th>
-                          <th>End Address</th>
-                          <th>Size</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td><strong>Instruction Memory (IMEM)</strong></td>
-                          <td><code>0x0000_0000</code></td>
-                          <td><code>0x0000_7FFF</code></td>
-                          <td>32 KB (<code>0x8000</code>)</td>
-                        </tr>
-                        <tr>
-                          <td><strong>Data Memory (DMEM)</strong></td>
-                          <td><code>0x0000_8000</code></td>
-                          <td><code>0x0000_FFFF</code></td>
-                          <td>32 KB (<code>0x8000</code>)</td>
-                        </tr>
-                        <tr>
-                          <td><strong>UART</strong></td>
-                          <td><code>0x0010_0000</code></td>
-                          <td><code>0x0010_000F</code></td>
-                          <td>16 Bytes (<code>0x10</code>)</td>
-                        </tr>
-                        <tr>
-                          <td><strong>SPI</strong></td>
-                          <td><code>0x0010_0000</code></td>
-                          <td><code>0x0010_00A3</code></td>
-                          <td>164 Bytes (<code>0xA4</code>)</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                </section>
-                
-                <!-- <p>All major components communicate via the **AXI-Lite Interconnect**. This streamlined version of the AMBA AXI protocol ensures reliable, low-latency communication between the core, memory, and peripherals, maintaining system coherence and data integrity.</p> -->
-            </div>
-        </li>
-        <li>
+
+      
+        
+  <div class="highlight-item">
+    <h4>
+      Bus Interconnect:
+      <a href="https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_interconnect.v" target="_blank">
+        AXI-Lite Interconnect
+      </a>
+    </h4>
+
+    <!--  One single blue box: text + memory map + table -->
+    <div class="instruction-text memory-map-box">
+      <p style="margin: 0 0 14px;">
+        The open-source AXI-Lite Interconnect we adopted supports multiple masters and slaves.
+        The maximum frequency after synthesizing is around 500 MHz and the area is pretty small.
+        It does not support burst transactions, out-of-order (OoO), or outstanding transactions in the AXI protocol.
+      </p>
+
+     
+<p style="margin: 0 0 10px;">
+  <strong>System Memory Map</strong><br>
+</p>
+
+      <table class="specs-table" style="margin: 0;">
+        <thead>
+          <tr>
+            <th>Device / Region</th>
+            <th>Start Address</th>
+            <th>End Address</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Instruction Memory (IMEM)</strong></td>
+            <td><code>0x0000_0000</code></td>
+            <td><code>0x0000_7FFF</code></td>
+            <td>32 KB (<code>0x8000</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>Data Memory (DMEM)</strong></td>
+            <td><code>0x0000_8000</code></td>
+            <td><code>0x0000_FFFF</code></td>
+            <td>32 KB (<code>0x8000</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>UART</strong></td>
+            <td><code>0x0010_0000</code></td>
+            <td><code>0x0010_000F</code></td>
+            <td>16 Bytes (<code>0x10</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>SPI</strong></td>
+            <td><code>0x0010_0000</code></td>
+            <td><code>0x0010_00A3</code></td>
+            <td>164 Bytes (<code>0xA4</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+
+
+        
             <div class="highlight-item">
                 <h4>Memory Subsystem: IMEM & DMEM</h4>
-                <p class="instruction-text">[To maximize on-chip storage efficiency, the SoC integrates 64KB of SRAM, symmetrically divided into 32KB for Instruction Memory (IMEM) and 32KB for Data Memory (DMEM). We utilized the ARM Artisan Memory Compiler to generate these high-density, single-port memory macros. To ensure seamless connectivity, custom wrappers were developed to bridge the memory interface with the processor core. Furthermore, these wrappers facilitate system initialization, allowing instructions and data to be pre-loaded directly through the scan chain.]</p>
+                <p class="instruction-text">To maximize on-chip storage efficiency, the SoC integrates 64KB of SRAM, symmetrically divided into 32KB for Instruction Memory (IMEM) and 32KB for Data Memory (DMEM). We utilized the ARM Artisan Memory Compiler to generate these high-density, single-port memory macros. To ensure seamless connectivity, custom wrappers were developed to bridge the memory interface with the processor core. Furthermore, these wrappers facilitate system initialization, allowing instructions and data to be pre-loaded directly through the scan chain.</p>
                 <!-- <p>The design utilizes a Harvard-like architecture with separate memories for instructions and data. It includes a dedicated **32kB Instruction Memory (IMEM)** and a **32kB Data Memory (DMEM)**. This separation minimizes contention and allows simultaneous instruction fetches and data access, boosting performance.</p> -->
             </div>
-        </li>
-        <li>
-            <div class="highlight-item">
-                <h4>I/O Peripherals: UART & SPI</h4>
-                <!-- <p>External communication and interfacing are managed through standard peripherals: **UART (Universal Asynchronous Receiver/Transmitter)** provides a serial port for debugging and console access, while **SPI (Serial Peripheral Interface)** supports high-speed communication with external devices like flash memory or sensors.</p> -->
-            </div>
-        </li>
-        <li>
-            <div class="highlight-item">
-                <h4>System Control & Test: Clock Generator, FSM, Scan Chain</h4>
-                <!-- <p>Essential support infrastructure ensures correct operation and testability. This includes the **Clock Generator** for timing control, a **Finite State Machine (FSM)** for managing power-on-reset and system states, and a **Scan Chain** implementation for comprehensive in-field and factory testing (Design-for-Testability).</p> -->
-            </div>
-        </li>
+        
+        
+  <div class="highlight-item">
+    <h4>I/O Peripherals: UART &amp; SPI</h4>
+
+    <div class="instruction-text">
+      <p style="margin: 0 0 12px;">
+        <strong>UART (Host + Display Bridge for Demo)</strong><br>
+        The SoC provides a UART interface used as the main link for bring-up, control, and demo I/O. In the demo setup, a PC communicates with the chip through an ESP32-DevKitC-32E, which serves as a compact USB-to-UART bridge and controller. A TXS0108E 8-channel level shifter is used to translate logic levels between the chip I/O domain and the 3.3 V external hardware. Through this UART path, the host can trigger workloads, read back status/cycle counters, and stream result data. The same UART link also enables visualization on a 240×240 IPS LCD module via the external controller, allowing processed images and intermediate results to be displayed in real time during demonstrations.
+      </p>
+
+      <p style="margin: 0;">
+        <strong>SPI (External Storage / Parameter Expansion Interface)</strong><br>
+        The SoC exposes an SPI interface as an external storage expansion port, designed for use cases where model parameters, lookup tables, or large input tensors exceed on-chip memory capacity. In a typical workflow, the chip can pull blocks of data over SPI into on-chip DMEM before launching compute, enabling re-parameterization (e.g., swapping CNN weights or coefficients) without rebuilding the entire on-chip image. This is a practical and widely used design point for compact accelerators: SPI provides a simple, pin-efficient, and board-friendly path to attach off-chip memory or a storage controller. For prototyping and demos, the SPI target can be implemented flexibly—an FPGA can emulate external memory behavior, or the interface can connect to other off-chip storage solutions—providing a scalable route toward larger AI workloads while keeping the on-chip design lightweight.
+      </p>
+    </div>
+
+  </div>
+
+
+        
+  <div class="highlight-item">
+    <h4>DFT Module: Scan Chain, Clock Generator, Testing FSM</h4>
+
+    <div class="instruction-text">
+      <p style="margin: 0 0 12px;">
+        Our chip uses a custom, academic-level DFT infrastructure whose central element is a scan chain, together with the on-chip
+        clock generator and the mode-control FSM. These modules enable post-silicon functional testing by providing a unified method to
+        load programs/data into on-chip memories and configuration registers, and to read internal state back out of the fabricated chip.
+      </p>
+
+      <!-- Scan Chain -->
+      <p style="margin: 0 0 12px;">
+        <strong>Scan Chain</strong><br>
+        The scan chain contains 252 scan cells connected between the external pins <code>scan_in</code> and <code>scan_out</code>.
+        Each cell corresponds to one bit of internal state, including instruction/data memory address and data buses, as well as
+        configuration registers for the clock generator and the testing FSM. In normal operation, memories are driven by the core,
+        but in test mode the scan chain can temporarily take over—driving/sampling these ports and enabling readback of memory contents
+        to verify correct execution.
+      </p>
+
+      <img src="../images/soc/dft.png" alt="Scan chain overview"
+           style="width: 65%; max-width: 900px; display: block; margin: 0 auto 14px;">
+
+      <p style="margin: 0 0 12px;">
+        The figures below illustrate the internal structure of the scan cells and their connection in the chain. A control signal
+        <code>scan_i0o1</code> selects the operating mode. Internally, scan-in and scan-out cells use an input-select MUX and two
+        back-to-back transparent latches clocked by non-overlapping scan clocks, which helps avoid hold-time issues common in long shift registers.
+      </p>
+
+      <div class="side-by-side-images two-up" style="margin: 0 0 14px; gap: 16px;">
+        <img src="../images/soc/si.png" alt="Scan-in cell structure" style="margin: 0;">
+        <img src="../images/soc/so.png" alt="Scan-out cell structure" style="margin: 0;">
+      </div>
+
+      <p style="margin: 0 0 12px;">
+        During testing, we stream a serial bit pattern into <code>scan_in</code> while toggling the scan clock. After 252 shift cycles,
+        the pattern propagates to all cells. When <code>scan_i0o1</code> is configured for scan-in and the load signal is pulsed, the scan
+        contents are written into connected memories and control registers (e.g., instruction address/data, clock generator settings
+        <code>div</code>/<code>fc</code>/<code>en_int</code>, and FSM mode/cycle count). Some scan cells also provide “virtual” memory clocks
+        <code>imem_clk</code>/<code>dmem_clk</code>; we emulate a rising edge by re-loading the same scan pattern with that clock bit toggled from low to high.
+        <br>
+        Readback is symmetric: with <code>scan_i0o1</code> set to scan-out, selected memory/register signals feed the scan-out cells. After latching,
+        we shift out the 252-bit vector through <code>scan_out</code>, enabling inspection of internal state and dumping results from DMEM using the same interface.
+      </p>
+
+      <!-- Clock Generator -->
+      <p style="margin: 0 0 12px;">
+        <strong>Clock Generator</strong><br>
+        To support flexible post-silicon testing and controlled operating frequencies, our SoC includes a programmable on-chip clock generator.
+        Its control signals are loaded through the scan chain: <code>fc[0:4]</code> provides fine tuning by adjusting oscillator length, and
+        <code>div[0:3]</code> sets a coarse digital divide ratio. A chip I/O signal <code>en_int</code> selects between the internal clock path and an
+        external reference clock <code>clk_ext</code>. Together these controls generate the system clock <code>clk</code> with selectable frequency and source.
+      </p>
+
+      <img src="../images/soc/clk.png" alt="Clock generator"
+           style="width: 65%; max-width: 900px; display: block; margin: 0 auto 14px;">
+
+      <!-- Testing FSM -->
+      <p style="margin: 0;">
+        <strong>Testing FSM</strong><br>
+        For controlled post-silicon debugging, we added a small finite-state machine (FSM) that drives clock-gating logic. All FSM mode controls
+        are loaded through the scan chain. During scan shift operations, the FSM holds the system clock off to prevent unintended state changes.
+        In run mode, it propagates the selected clock source (internal or external) to the SoC. In countdown mode, it enables the clock for a
+        programmed number of cycles and then turns it off, allowing cycle-accurate inspection of internal state.
+      </p>
+    </div>
+  </div>
+
+
+
     </ul>
     
-
-
-
-
-    
-    <div class="image-placeholder">Insert block diagram</div>
   </section>
 
   
   
   <section id="design-flow">
     <h2>Design Flow</h2>
-    <p class="instruction-text">[The following diagram outlines the complete RTL-to-GDSII design flow implemented for this project. It highlights the transition from behavioral Verilog RTL through Synthesis and Place & Route, utilizing industry-standard tools for verification at every stage.]</p>
-    <img src="../images/soc/Design Flow.png">
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    The following diagram outlines the complete RTL-to-GDSII design flow implemented for this project.
+    It highlights the transition from behavioral Verilog RTL through Synthesis and Place &amp; Route,
+    utilizing industry-standard tools for verification at every stage.
+  </p>
+
+  <img src="../images/soc/Design Flow.png" alt="RTL-to-GDSII Design Flow"
+       style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
+</div>
+
     
+<h3>RTL Design</h3>
+
+<div class="instruction-text">
+  <p style="margin-top: 0;">
+    The RTL (Register Transfer Level) design serves as the core of our digital implementation,
+    bridging the gap between high-level algorithms and physical hardware.
+  </p>
+
+<p style="margin: 14px 0 8px;">
+  <strong>Hierarchical Design &amp; Verification</strong><br>
+</p>
+
+  <p>
+    We adopted a rigorous <strong>Bottom-Up Implementation</strong> strategy. Design work starts with coding individual,
+    low-level <strong>submodules</strong>. Once these leaf blocks are completed, they are integrated into larger parent modules,
+    eventually culminating in the <strong>Top-Level</strong> SoC.
+  </p>
+
+  <p style="margin-bottom: 10px;">
+    Verification follows a corresponding layered approach:
+  </p>
+
+  <ul style="margin-left: 20px; margin-bottom: 14px; color: #4a5568;">
+    <li><strong>Unit-Level Verification:</strong> Submodules are first verified in isolation using dedicated testbenches to ensure local correctness.</li>
+    <li><strong>Integration Verification:</strong> As blocks are assembled, verification focuses on interface protocols and data flow between modules.</li>
+    <li><strong>Full-Chip Verification:</strong> The complete design is simulated (using tools like <strong>ModelSim, VCS, and Verdi</strong>) and cross-compared against the C reference model to validate system-wide functionality.</li>
+  </ul>
+
+  <table class="specs-table" style="margin: 0;">
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Feature</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>0.0</strong></td><td>Basic Model from PicoRV32 RISCV Core</td></tr>
+      <tr><td><strong>0.1</strong></td><td>Integrated Instruction SRAM with memory wrappers</td></tr>
+      <tr><td><strong>0.2</strong></td><td>Integrated AXI-Lite Interconnect</td></tr>
+      <tr><td><strong>0.3</strong></td><td>Integrated Data SRAM with memory wrappers</td></tr>
+      <tr><td><strong>0.4</strong></td><td>Integrated Scan Chain</td></tr>
+      <tr><td><strong>0.5</strong></td><td>Integrated UART and SPI</td></tr>
+      <tr><td><strong>0.6</strong></td><td>Integrated Vector Processing Unit</td></tr>
+      <tr><td><strong>0.7</strong></td><td>Integrated Clock Generator, Scan Chain and FSM</td></tr>
+      <tr><td><strong>0.8</strong></td><td>Modified Vector Processing Unit for Smaller Size</td></tr>
+      <tr><td><strong>0.9</strong></td><td>Integrated Pad Frame and IO Cells</td></tr>
+      <tr><td><strong>1.0</strong></td><td>Verified Functionality from Chip Level and RTL Freeze</td></tr>
+    </tbody>
+  </table>
+</div>
 
 
-    <h3>RTL Design</h3>
-        <p class="instruction-text">[The RTL (Register Transfer Level) design serves as the core of our digital implementation, bridging the gap between high-level algorithms and physical hardware.]</p>
-
-
-    <h4>Hierarchical Design & Verification</h4>
-    <p>
-        We adopted a rigorous <strong>Bottom-Up Implementation</strong> strategy. Design work starts with coding individual, low-level <strong>submodules</strong>. Once these leaf blocks are completed, they are integrated into larger parent modules, eventually culminating in the <strong>Top-Level</strong> SoC.
-    </p>
-    <p>
-        Verification follows a corresponding layered approach:
-    </p>
-    <ul style="margin-left: 20px; margin-bottom: 20px; color: #4a5568;">
-        <li><strong>Unit-Level Verification:</strong> Submodules are first verified in isolation using dedicated testbenches to ensure local correctness.</li>
-        <li><strong>Integration Verification:</strong> As blocks are assembled, verification focuses on interface protocols and data flow between modules.</li>
-        <li><strong>Full-Chip Verification:</strong> The complete design is simulated (using tools like <strong>ModelSim, VCS, and Verdi</strong>) and cross-compared against the C reference model to validate system-wide functionality.</li>
-    </ul>
-
-            <table class="specs-table">
-          <thead>
-            <tr>
-              <th>Version</th>
-              <th>Feature</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>0.0</strong></td>
-              <td>Basic Model from PicoRV32 RISCV Core</td>
-            </tr>
-            <tr>
-              <td><strong>0.1</strong></td>
-              <td>Integrated Instruction SRAM with memory wrappers</td>
-            </tr>
-            <tr>
-              <td><strong>0.2</strong></td>
-              <td>Integrated AXI-Lite Interconnect</td>
-            </tr>
-            <tr>
-              <td><strong>0.3</strong></td>
-              <td>Integrated Data SRAM with memory wrappers</td>
-            </tr>
-            <tr>
-              <td><strong>0.4</strong></td>
-              <td>Integrated Scan Chain</td>
-            </tr>
-            <tr>
-              <td><strong>0.5</strong></td>
-              <td>Integrated UART and SPI</td>
-            </tr>
-            <tr>
-              <td><strong>0.6</strong></td>
-              <td>Integrated Vector Processing Unit</td>
-            </tr>
-            <tr>
-              <td><strong>0.7</strong></td>
-              <td>Integrated Clock Generator, Scan Chain and FSM</td>
-            </tr>
-            <tr>
-              <td><strong>0.8</strong></td>
-              <td>Modified Vector Processing Unit for Smaller Size</td>
-            </tr>
-            <tr>
-              <td><strong>0.9</strong></td>
-              <td>Integrated Pad Frame and IO Cells</td>
-            </tr>
-            <tr>
-              <td><strong>1.0</strong></td>
-              <td>Verified Functionality from Chip Level and RTL Freeze</td>
-            </tr>
-          </tbody>
-        </table>
     
-    <h3>Physical Design</h3>
-    <p class="instruction-text">[The physical design follows a hierarchical bottom-up strategy. Individual submodules are first hardened through a complete P&R flow. These blocks are then integrated into the Top level, followed by Chip-level assembly, which includes I/O pads and Seal Rings, culminating in the final Tapeout GDS.]</p>
-    <img src="../images/soc/chip_labelled.jpg">
+    <h3>Synthesis</h3>
+    <p class="instruction-text">We used Synopsys Design Compiler for logic synthesis. Before running synthesis, we prepared a complete SDC file that defined all necessary constraints, including clock definitions, clock constraints, drive and load constraints, operating conditions, and wire-load models. Specifically, the SDC file included parameters such as clock name, clock period, clock uncertainty, clock transition, as well as input and output delay constraints.
 
-    <h4>Physical Design Flow</h4>
-    <p class="instruction-text">[The physical design flow follows the basic ASIC semi-custom circuits design flow, and we adopted bottom-up integration methodology. A very clear and pretty picture below is showing how we do the back-end design]</p>
-    <img src="../images/soc/PhysicalFlow.png">
+Our chosen synthesis strategy followed a bottom-to-top approach. We first synthesized several major submodules independently, such as the CPU core and the VPU module. The remaining modules were synthesized together within the top-level design, while the pre-synthesized blocks were marked as don't touch to preserve their optimized structures. This process allowed us to generate the complete set of netlist files for the entire chip.</p>
+
+<h3>Physical Design</h3>
+<h4>Auto P&amp;R</h4>
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    We used Cadence Innovus for our physical design. In our place-and-route flow, the major steps included:
+    loading design files, floorplanning, power routing, cell placement, pre-CTS optimization, clock tree synthesis (CTS),
+    signal routing, RC parasitic extraction, filler cell insertion, design verification, and final GDS files output.
+    <br><br>
+    The physical hierarchy of the chip consists of submodules, the top module, the chip-level module, and the IO pads.
+    Our place-and-route strategy followed the same bottom-up approach used during synthesis. The Dmem and Imem blocks used
+    existing layout macros, while modules such as the SPI block, scan chain, test FSM, coprocessor, and CPU core were placed
+    and routed independently. The remaining modules were integrated and routed within the top-level design.
+  </p>
+
+  <img src="../images/soc/PhysicalFlow.png" alt="Physical design flow"
+       style="width: 90%; max-width: 900px; display: block; margin: 0 auto 18px;">
+
+  <p style="margin: 0 0 12px;">
+    The final result is the complete chip-level layout, as shown in the figure. The two memory blocks are placed on opposite
+    ends of the layout, while the central region contains key macros such as the CPU core and the VPU. The scan chain and clock
+    generator are positioned toward the outer region but kept as close as possible to the center to minimize clock skew.
+    Surrounding the entire design are the required IO pads that interface the chip with the external system.
+  </p>
+
+  <img src="../images/soc/chip_labelled.jpg" alt="Chip layout labeled"
+       style="width: 90%; max-width: 900px; display: block; margin: 0 auto;">
+</div>
+
+
 
     <h4>IO Pad</h4>
-    <p class="instruction-text">[Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs. And these IOs includes Input/Output Signals(SPI, UART, Scan_Chain, rst_n, clk), POC, CVDD, DVDD, VDD, VDD_TEST, GND. We tried to minimize our IO number because we need a bigger area for logic circuits.]</p>
-    <img src="../images/soc/IO.png">
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    Below shows the IO Pad integration based on LQFP64L: We have 11 + 16 + 1 = 28 IOs.
+    These IOs include input/output signals (SPI, UART, Scan_Chain, <code>rst_n</code>, <code>clk</code>), POC,
+    CVDD, DVDD, VDD, VDD_TEST, and GND. We tried to minimize our IO number because we need a bigger area for logic circuits.
+  </p>
+
+  <img src="../images/soc/IO.png" alt="IO pad integration"
+       style="width: 65%; max-width: 900px; display: block; margin: 0 auto;">
+</div>
 
     <h4>Package</h4>
-    <p class="instruction-text">[Below is the picture of our taped out chip with bonding wires and packages.]</p>
-    <div class="side-by-side-images">
-        <img src="../images/soc/P1.png" alt="Description of P1">
-        <img src="../images/soc/P2.png" alt="Description of P2">
-    </div>
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    Below is the picture of our taped out chip with bonding wires and packages.
+  </p>
+
+  <div class="side-by-side-images">
+    <img src="../images/soc/P1.png" alt="Description of P1">
+    <img src="../images/soc/P2.png" alt="Description of P2">
+  </div>
+</div>
+
+    <h4>STA &amp; Sign-off</h4>
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    During the STA phase, we used PrimeTime with a target operating frequency of 100 MHz. After place-and-route,
+    the clock uncertainty was controlled within approximately 50 ns. According to the timing reports, all critical
+    paths within the top module met their setup and hold time requirements, and no setup or hold violations were
+    observed. In addition, the asynchronous reset signals passed all recovery and removal checks without violations.
+  </p>
+
+  <img src="../images/soc/SF.png" alt="STA and sign-off summary"
+       style="width: 55%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+  <p style="margin: 0;">
+    After completing the physical design, we performed full signoff verification on each submodule and the top-level design.
+    Using Mentor Calibre, we conducted DRC, LVS, ESD, and antenna rule checks to ensure that all results were clean.
+    Only after passing all signoff criteria did we proceed with the final GDS files export of our chip.
+  </p>
+</div>
+
+
+  <h4>PPA Optimization</h4>
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    In our chip design, we placed strong emphasis on PPA (Power, Performance, Area) optimization.
+    Several low-power techniques were applied throughout the design stages:
+  </p>
+
+  <ul style="margin-left: 20px; margin-bottom: 12px; color: #4a5568;">
+    <li>
+      <strong>Fixed Voltage Domains:</strong> The chip uses fixed voltage domains, with 2.5V for IO pads and 1.0V for the core logic,
+      ensuring stable and efficient power distribution.
+    </li>
+    <li>
+      <strong>Clock Division:</strong> We applied clock division techniques. For example, the SPI module operates on a divided clock derived
+      from the main clock, reducing switching activity and lowering dynamic power consumption.
+    </li>
+    <li>
+      <strong>RTL Resource Sharing:</strong> At the RTL level, we adopted resource sharing, reusing registers and functional units whenever possible
+      to reduce redundant hardware.
+    </li>
+    <li>
+      <strong>State Encoding Optimizations:</strong> State encoding optimizations were applied, such as using Gray code instead of conventional binary
+      encoding to minimize bit toggles and reduce dynamic power.
+    </li>
+    <li>
+      <strong>Automatic Clock Gating:</strong> During synthesis, automatic clock gating was enabled to shut off clocks when modules are idle.
+      Although this increases area slightly, it significantly reduces dynamic power consumption.
+    </li>
+    <li>
+      <strong>High-Vth Cell Insertion:</strong> In the physical design stage, we selectively replaced LVT (Low-Vth) cells with HVT (High-Vth) cells,
+      which reduces leakage power at the cost of some performance and area overhead.
+    </li>
+  </ul>
+
+  <p style="margin: 0;">
+    These combined strategies allowed us to effectively manage power while maintaining overall performance and design efficiency.
+  </p>
+</div>
+
+
+    
   </section>
+
+  
   
 <section id="software">
   <h2>Software & Testing Flow</h2>
 
-  <p class="instruction-text">
-    The software and testing flow converts C-level test programs into memory-mapped
-    initialization data, generates scan sequences, and loads them onto silicon through an
-    FPGA-based scan controller. This unified environment supports both pre-silicon
-    verification and post-silicon validation of the CPU, memory system, and VPU.
-  </p>
+  <!-- Point 1: Overview (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0 0 12px;">
+      The software and testing flow converts C-level test programs into memory-mapped
+      initialization data, generates scan sequences, and loads them onto silicon through an
+      FPGA-based scan controller. This unified environment supports both pre-silicon
+      verification and post-silicon validation of the CPU, memory system, and VPU.
+    </p>
 
-  <!-- Flow Diagram -->
-  <div class="image-container">
     <img src="../images/soc/software_testing_flow.png"
-     alt="Software Testing Flow Diagram"
-     class="diagram-image">
+         alt="Software Testing Flow Diagram"
+         style="width: 100%; max-width: 900px; display: block; margin: 0 auto;">
   </div>
 
-
   <h3>Software Development</h3>
-  <p>
-    Test applications are written in C and compiled using a customized RISC-V GCC toolchain
-    aligned with the chip’s IMEM/DMEM memory map. The linker output is automatically
-    converted into <code>test.h</code>, which contains the initialization arrays for
-    instruction and data memory. These files form the common interface between software
-    and the scan-based testing environment.
-  </p>
-  <p>
-    The software framework allows different test programs to be executed on silicon,
-    including routines that stress the CPU pipeline, memory system, or vector/AI units.
-    Inline RISC-V assembly is supported for low-level testing of microarchitectural
-    features.
-  </p>
 
+  <!-- Point 2: Software Development (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0 0 10px;">
+      Test applications are written in C and compiled using a customized RISC-V GCC toolchain
+      aligned with the chip's IMEM/DMEM memory map. The linker output is automatically
+      converted into <code>test.h</code>, which contains the initialization arrays for
+      instruction and data memory. These files form the common interface between software
+      and the scan-based testing environment.
+    </p>
+
+    <p style="margin: 0;">
+      The software framework allows different test programs to be executed on silicon,
+      including routines that stress the CPU pipeline, memory system, or vector/AI units.
+      Inline RISC-V assembly is supported for low-level testing of microarchitectural
+      features.
+    </p>
+  </div>
 
   <h3>Testing Methodology</h3>
-  <p>
-    MATLAB scripts serialize the IMEM/DMEM initialization arrays into cycle-accurate
-    scan-in command sequences. These command streams are transferred to an FPGA board
-    over USB, where a Vitis-based scan controller shifts data into the chip’s scan chain.
-    After execution, the FPGA retrieves <code>scan_out</code> data for functional
-    comparison and validation.
-  </p>
 
+  <!-- Point 3: Testing Methodology (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0;">
+      MATLAB scripts serialize the IMEM/DMEM initialization arrays into cycle-accurate
+      scan-in command sequences. These command streams are transferred to an FPGA board
+      over USB, where a Vitis-based scan controller shifts data into the chip’s scan chain.
+      After execution, the FPGA retrieves <code>scan_out</code> data for functional
+      comparison and validation.
+    </p>
+  </div>
 </section>
+
+
+    
   
-  <section id="pcb">
-    <h2>PCB Design</h2>
-    <p class="instruction-text">[Replace with PCB design description: Detail the test board architecture, power delivery, signal integrity considerations, and measurement infrastructure.]</p>
-    
-    <h3>Board Architecture</h3>
-    <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
-    
-    <h3>Power Distribution</h3>
-    <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
-  </section>
+<section id="pcb">
+  <h2>PCB Design</h2>
+
+  <!-- Point 1: Overview (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0;">
+      We used a PCB board for our final demonstration. The PCB helps provide power,
+      voltage stabilization, and decoupling.
+    </p>
+  </div>
+
+  <h3>Schematic</h3>
+
+  <!-- Point 2: Schematic (one blue box: text + images) -->
+  <div class="instruction-text">
+    <p style="margin: 0 0 12px;">
+      The schematic of the PCB layouts mainly includes three parts: main circuits, power supply circuit,
+      and decoupling circuits.
+    </p>
+
+    <img src="../images/soc/schematic.png" alt="PCB schematic"
+         style="width: 85%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+    <p style="margin: 0 0 12px;">
+      In the main circuits, we created the symbol for our chip. The footprint of our chip is
+      LQFP-64 (10×10 mm, 0.5 mm pitch). Some pins are not used. Reset IO pins are connected to switches,
+      so we can control reset to VDD/GND by hand (asynchronous reset). DVDD powers IO pads, and VDD powers
+      the core. All resistors and capacitors use 1206 footprints. The PCB supports two power modes
+      (battery or FPGA), selectable by a switch.
+    </p>
+
+    <img src="../images/soc/power.png" alt="Power supply block"
+         style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+    <p style="margin: 0 0 12px;">
+      In the power supply circuit, the LDO transfers 5V to 2.5V and 1V. The resistor and capacitor
+      values for input/output filtering follow the TI reference recommendations for TPS71710CDR.
+    </p>
+
+    <!-- 如果你第二张 power.png 其实是另一张图，请把文件名换掉；否则可以删掉这一张避免重复 -->
+    <img src="../images/soc/power.png" alt="LDO and decoupling details"
+         style="width: 65%; max-width: 900px; display: block; margin: 0 auto 16px;">
+
+    <p style="margin: 0 0 12px;">
+      The decoupling circuit is designed to reduce supply noise during operation. The number of capacitors
+      is determined by the requirements of each power net.
+    </p>
+
+    <p style="margin: 0;">
+      The main circuit connects the chip to other board components. We used jumpers for debugging and left
+      pins for FPGA connections. The PCB was manufactured by JLCPCB, and soldering was performed manually.
+    </p>
+  </div>
+
+  <h3>PCB Layout</h3>
+
+  <!-- Point 3: PCB Layout (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0 0 12px;">Below shows the PCB Layout and PCB.</p>
+
+    <!-- 保持你现在 side-by-side 的大小逻辑，不额外缩小 -->
+    <div class="side-by-side-images">
+      <img src="../images/soc/PCB_Layout.png" alt="PCB layout">
+      <img src="../images/soc/PCB.png" alt="Assembled PCB">
+    </div>
+  </div>
+</section>
+
   
   <section id="demo">
     <h2>Demonstration</h2>
-    <p class="instruction-text">[Replace with demonstration description: Show working examples, test results, and real-world performance of your chip.]</p>
+
+  <p class="instruction-text">
+    <strong>Demonstration Overview</strong><br>
+  We demonstrate a <strong>silicon-proven CPU–VPU heterogeneous RISC-V SoC</strong> on fabricated silicon.
+  The <strong>CPU</strong> orchestrates program control and system flow, while a custom <strong>Vector Processing Unit (VPU)</strong>
+  accelerates data-parallel kernels. This platform enables <strong>direct, reproducible</strong> comparisons between
+  scalar execution and vector offload under the same memory map, I/O path, and workload code structure.
+</p>
+
+  <p class="instruction-text">
+    <strong>Demo Setup: PCB + FPGA Scan + MATLAB Control</strong><br>
+  The chip is mounted on a custom PCB and connected to an FPGA through a level shifter.
+  The FPGA handles low-level scan-in/scan-out pin toggling and basic control signals.
+  A MATLAB-based host script orchestrates the full loop: it streams the program and input data into on-chip memories,
+  triggers execution, then retrieves scan-out data to <strong>visualize outputs</strong> and <strong>compute performance metrics</strong>.
+</p>
+
+  <div class="instruction-text">
+  <strong>Measurement Method: CPU-only vs. CPU+VPU</strong><br>
+  Each workload is executed in two modes using the <strong>same inputs</strong>, <strong>same memory map</strong>, and
+  <strong>identical output locations</strong>:
+
+  <ul style="margin-left: 20px; margin-bottom: 20px; color: #4a5568;">
+    <li><strong>CPU-only:</strong> scalar inner loops on PicoRV32 (no vector offload).</li>
+    <li><strong>CPU+VPU:</strong> inner loops offloaded through custom PCPI vector instructions.</li>
+  </ul>
+
+  Speedup is defined as:
+  <br>
+  <strong>Speedup = Cycles(CPU-only) / Cycles(CPU+VPU)</strong>.
+</div>
+
     
-    <div class="image-placeholder">Insert demonstration photo or screenshot</div>
+    <p class="instruction-text">
+    <strong>Demo Flow</strong><br>
+    We prepared three workloads that cover high, medium, and low VPU utilization.
+    The goal is to show very clearly how VPU utilization translates into end-to-end speedup on our chip.
+  </p>
+
+<h3>Demo 1 — CNN-style 4-Channel 3×3 Convolution</h3>
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    Demo 1 is a CNN-style 4-channel 3×3 convolution. Here almost every pixel goes through two 3×3 convolutions on four feature maps,
+    so the code is very MAC-heavy. In this case, the VPU is active for around <strong>80%</strong> of the total cycles,
+    and we see a large speedup compared to the CPU-only baseline.
+  </p>
+
+  <div class="side-by-side-images">
+    <figure style="margin: 0; text-align: center;">
+      <img src="../images/soc/conv_onlyCPU.png" alt="Demo1: CPU-only Mode">
+      <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo1: 'CPU-only' Mode
+      </figcaption>
+    </figure>
+
+    <figure style="margin: 0; text-align: center;">
+      <img src="../images/soc/conv_withVPU.png" alt="Demo1: CPU+VPU Mode">
+      <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo1: 'CPU + VPU' Mode
+      </figcaption>
+    </figure>
+  </div>
+
+  <figure style="margin: 14px 0 0; text-align: center;">
+    <img src="../images/soc/conv_Speedup.png" alt="Demo1: Speedup">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      Demo1: End-to-end Speedup (CPU-only vs. CPU+VPU)
+    </figcaption>
+  </figure>
+</div>
+
+
+
+    
+  <h3>Demo 2 — Sobel Edge Detection (Full-frame vs. ROI-Sobel)</h3>
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    Demo 2 is edge detection with Sobel filters. We show two versions: full-frame Sobel, where we run VPU convolution on every pixel,
+    and ROI-Sobel, where we first do a cheap scalar pre-check and only call the VPU on high-gradient regions.
+    So full-frame Sobel uses the VPU for about <strong>60%</strong> of the time, while ROI-Sobel is lower, around <strong>45%</strong>.
+    This demo highlights how even with the same algorithm family, changing the amount of VPU work shifts the speedup.
+  </p>
+
+  <!-- ROI-Sobel -->
+  <div class="side-by-side-images">
+    <figure style="margin: 0; text-align: center;">
+      <img src="../images/soc/ROISobel_onlyCPU.png" alt="Demo2 ROI: onlyCPU Mode">
+      <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo2 ROI: 'onlyCPU' Mode
+      </figcaption>
+    </figure>
+
+    <figure style="margin: 0; text-align: center;">
+      <img src="../images/soc/ROISobel_withVPU.png" alt="Demo2 ROI: CPU+VPU Mode">
+      <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo2 ROI: 'CPU+VPU' Mode
+      </figcaption>
+    </figure>
+  </div>
+
+  <figure style="margin: 14px 0 20px; text-align: center;">
+    <img src="../images/soc/ROISobel_Speedup.png" alt="Demo2 ROI: Speedup">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      Demo2 ROI: End-to-end Speedup (CPU-only vs. CPU+VPU)
+    </figcaption>
+  </figure>
+<br><br>
+  <!-- Full-frame Sobel -->
+  <div class="side-by-side-images">
+    <figure style="margin: 0; text-align: center;">
+      <img src="../images/soc/Sobel_onlyCPU.png" alt="Demo2 Full-frame: onlyCPU Mode">
+      <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo2 Full-frame: 'onlyCPU' Mode
+      </figcaption>
+    </figure>
+
+    <figure style="margin: 0; text-align: center;">
+      <img src="../images/soc/Sobel_withVPU.png" alt="Demo2 Full-frame: CPU+VPU Mode">
+      <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo2 Full-frame: 'CPU+VPU' Mode
+      </figcaption>
+    </figure>
+  </div>
+
+  <figure style="margin: 14px 0 0; text-align: center;">
+    <img src="../images/soc/Sobel_Speedup.png" alt="Demo2 Full-frame: Speedup">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo2 Full-frame: End-to-end Speedup (CPU-only vs. CPU+VPU)
+    </figcaption>
+  </figure>
+</div>
+
+    
+  <h3>Demo 3 — 4-Level Posterize Filter</h3>
+
+<div class="instruction-text">
+  <p style="margin: 0 0 12px;">
+    Demo 3 is a 4-level posterize filter. This is mostly simple per-pixel quantization with almost no vector multiply or convolution.
+    Here the VPU utilization is only about <strong>5%</strong>, and as a result we see very little acceleration — sometimes even slower —
+    because the PCPI handshake + data movement cost dominates, and that overhead is larger than just doing the few adds/shifts directly on the CPU. As a result, end-to-end cycles are higher and the VPU appears “slower” for this posterize case.
+  </p>
+
+  <div class="side-by-side-images">
+    <figure style="margin: 0; text-align: center;">
+      <img src="../images/soc/posterize_onlyCPU_effect.png" alt="Demo3: onlyCPU Mode">
+      <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo3: 'onlyCPU' Mode
+      </figcaption>
+    </figure>
+
+    <figure style="margin: 0; text-align: center;">
+      <img src="../images/soc/posterize_withVPU_effect.png" alt="Demo3: CPU+VPU Mode">
+      <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+        Demo3: 'CPU+VPU' Mode
+      </figcaption>
+    </figure>
+  </div>
+
+  <figure style="margin: 14px 0 0; text-align: center;">
+    <img src="../images/soc/posterize_speedup.png" alt="Demo3: Speedup">
+    <figcaption style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">
+      Demo3: End-to-end Speedup (CPU-only vs. CPU+VPU)
+    </figcaption>
+  </figure>
+</div>
+
+    
+  <p class="instruction-text">
+    So, across these three workloads, we sweep from VPU-heavy to light, and you can directly see how higher VPU utilization gives better speedup on our architecture.
+  </p>
+
+  <h3>Results Summary</h3>
+
+<div class="instruction-text">
+  <p style="margin: 0 0 14px;">
+    Below summarizes our results. For the CNN-style 4-channel 3×3 convolution, the VPU is busy about <strong>80%</strong> of the time (high utilization)
+    and we see roughly <strong>6×</strong> speedup. For full-frame Sobel, VPU utilization drops to about <strong>60%</strong> (medium utilization)
+    and the speedup is around <strong>3×</strong>; with ROI Sobel, utilization is around <strong>45%</strong> and the speedup is about <strong>2×</strong>.
+    Finally, the 4-level posterize workload only uses the VPU about <strong>5%</strong> of the time (low utilization), so the speedup is basically <strong>1×</strong> — overhead dominates.
+    <br><br>
+    Overall, speedup clearly scales with vector intensity: the more time we spend in VPU-friendly vector math, the more benefit we get from our custom VPU.
+    This conclusion was also reached after processing a large amount of images and data.
+  </p>
+
+  <table class="specs-table" style="margin: 0;">
+    <thead>
+      <tr>
+        <th>Workload</th>
+        <th>VPU Utilization</th>
+        <th>Speedup</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>CNN-style 4ch 3×3 Conv</strong></td>
+        <td>~80% (High)</td>
+        <td>~6×</td>
+      </tr>
+      <tr>
+        <td><strong>Sobel (Full-frame)</strong></td>
+        <td>~60% (Medium)</td>
+        <td>~3×</td>
+      </tr>
+      <tr>
+        <td><strong>Sobel (ROI)</strong></td>
+        <td>~45% (Medium–Low)</td>
+        <td>~2×</td>
+      </tr>
+      <tr>
+        <td><strong>Posterize (4-level)</strong></td>
+        <td>~5% (Low)</td>
+        <td>~1×</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+    
     
     <h3>Video Demonstration</h3>
     <div class="video-container">
-      <iframe src="https://www.youtube.com/embed/rGpk3MRSOx4?start=1" title="Project demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/qUw_6i0oMUs" title="Project demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
   </section>
   
   <section id="specs">
     <h2>Chip Specifications</h2>
-    <p class="instruction-text">[Replace with chip specifications: Provide detailed technical specifications and measured performance metrics.]</p>
     
     <table class="specs-table">
       <tr>
@@ -781,84 +1428,411 @@
       </tr>
       <tr>
         <td>Technology</td>
-        <td>[e.g., TSMC 65nm LP]</td>
+        <td>[TSMC 65nm LP]</td>
+      </tr>
+      <tr>
+        <td>Supporting ISAs</td>
+        <td>[RISCV32I and Custom Vector ISAs]</td>
+      </tr>
+      <tr>
+        <td>Memory(SRAM)</td>
+        <td>[32KB Data and 32KB Instruction]</td>
+      </tr>
+      <tr>
+        <td>Peripherals</td>
+        <td>[SPI and Uart]</td>
+      </tr>
+      <tr>
+        <td>Programming Interface</td>
+        <td>[Scan Chain]</td>
       </tr>
       <tr>
         <td>Die Size</td>
-        <td>[e.g., 2.5mm × 2.5mm]</td>
+        <td>[2.0mm × 1.1mm]</td>
       </tr>
       <tr>
         <td>Gate Count</td>
-        <td>[e.g., ~180,000 gates]</td>
+        <td>[~766,000 gates]</td>
       </tr>
       <tr>
-        <td>Operating Frequency</td>
-        <td>[e.g., 100 MHz]</td>
+        <td>Maxinum Operating Frequency</td>
+        <td>[252.52 MHz]</td>
       </tr>
       <tr>
         <td>Supply Voltage</td>
-        <td>[e.g., 1.2V core, 2.5V I/O]</td>
+        <td>[1.0V core, 2.5V I/O]</td>
       </tr>
       <tr>
         <td>Power Consumption</td>
-        <td>[e.g., 85 mW typical]</td>
+        <td>[13 mW typical]</td>
       </tr>
       <tr>
         <td>Performance Metric</td>
-        <td>[e.g., throughput, latency]</td>
+        <td>see in 'Demo' section</td>
       </tr>
       <tr>
         <td>Package</td>
-        <td>[e.g., QFN-64]</td>
+        <td>[QFN-64]</td>
       </tr>
     </table>
   </section>
+
+<section id="clock-gen-table">
+    <h3>Internal Clock Frequency Table</h3>
+    
+    <table class="specs-table">
+      <thead>
+        <tr>
+          <th>div[0:3]</th>
+          <th>fc[0:4]</th>
+          <th>Frequency (Hz)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1111</td>
+          <td>11111</td>
+          <td>9.77k</td>
+        </tr>
+        <tr>
+          <td>1111</td>
+          <td>01010</td>
+          <td>21.12k</td>
+        </tr>
+        <tr>
+          <td>1111</td>
+          <td>00101</td>
+          <td>30.21k</td>
+        </tr>
+        <tr>
+          <td>1110</td>
+          <td>01010</td>
+          <td>42.33k</td>
+        </tr>
+        <tr>
+          <td>1110</td>
+          <td>00101</td>
+          <td>59.89k</td>
+        </tr>
+        <tr>
+          <td>1101</td>
+          <td>01010</td>
+          <td>83.92k</td>
+        </tr>
+        <tr>
+          <td>1101</td>
+          <td>00101</td>
+          <td>119.22k</td>
+        </tr>
+        <tr>
+          <td>1100</td>
+          <td>01010</td>
+          <td>167.63k</td>
+        </tr>
+        <tr>
+          <td>1100</td>
+          <td>00101</td>
+          <td>237.11k</td>
+        </tr>
+        <tr>
+          <td>1011</td>
+          <td>01010</td>
+          <td>333.46k</td>
+        </tr>
+        <tr>
+          <td>1011</td>
+          <td>00101</td>
+          <td>471.12k</td>
+        </tr>
+        <tr>
+          <td>1010</td>
+          <td>01010</td>
+          <td>665.49k</td>
+        </tr>
+        <tr>
+          <td>1010</td>
+          <td>00101</td>
+          <td>943.08k</td>
+        </tr>
+        <tr>
+          <td>1001</td>
+          <td>01010</td>
+          <td>1.32M</td>
+        </tr>
+        <tr>
+          <td>1001</td>
+          <td>00101</td>
+          <td>1.89M</td>
+        </tr>
+        <tr>
+          <td>1000</td>
+          <td>01010</td>
+          <td>2.64M</td>
+        </tr>
+        <tr>
+          <td>1000</td>
+          <td>00101</td>
+          <td>3.80M</td>
+        </tr>
+        <tr>
+          <td>0111</td>
+          <td>01010</td>
+          <td>5.29M</td>
+        </tr>
+        <tr>
+          <td>0111</td>
+          <td>00101</td>
+          <td>7.55M</td>
+        </tr>
+        <tr>
+          <td>0110</td>
+          <td>01010</td>
+          <td>10.64M</td>
+        </tr>
+        <tr>
+          <td>0110</td>
+          <td>00101</td>
+          <td>15.09M</td>
+        </tr>
+        <tr>
+          <td>0101</td>
+          <td>01010</td>
+          <td>21.67M</td>
+        </tr>
+        <tr>
+          <td>0101</td>
+          <td>00101</td>
+          <td>31.21M</td>
+        </tr>
+        <tr>
+          <td>0100</td>
+          <td>01010</td>
+          <td>44.50M</td>
+        </tr>
+        <tr>
+          <td>0100</td>
+          <td>00101</td>
+          <td>64.12M</td>
+        </tr>
+        <tr>
+          <td>0011</td>
+          <td>01010</td>
+          <td>90.78M</td>
+        </tr>
+        <tr>
+          <td>0011</td>
+          <td>00101</td>
+          <td>118.57M</td>
+        </tr>
+        <tr>
+          <td>0010</td>
+          <td>01010</td>
+          <td>178.23M</td>
+        </tr>
+        <tr>
+          <td>0010</td>
+          <td>00101</td>
+          <td>252.52M</td>
+        </tr>
+        <tr>
+          <td>0001</td>
+          <td>01010</td>
+          <td>349.75M</td>
+        </tr>
+        <tr>
+          <td>0001</td>
+          <td>00101</td>
+          <td>493.33M</td>
+        </tr>
+        <tr>
+          <td>0000</td>
+          <td>01010</td>
+          <td>680.21M</td>
+        </tr>
+        <tr>
+          <td>0000</td>
+          <td>00101</td>
+          <td>950.88M</td>
+        </tr>
+        <tr>
+          <td>0000</td>
+          <td>00000</td>
+          <td>1.52G</td>
+        </tr>
+      </tbody>
+    </table>
+</section>
+  
   
   <section id="conclusions">
-    <h2>Conclusions</h2>
-    <p class="instruction-text">[Replace with conclusions: Summarize achievements, lessons learned, challenges overcome, and potential future improvements.]</p>
-    
-    <h3>Key Achievements</h3>
-    <p class="instruction-text">[List major accomplishments and successful design outcomes.]</p>
-    
-    <h3>Lessons Learned</h3>
-    <p class="instruction-text">[Discuss important insights gained during the design process.]</p>
-    
-    <h3>Future Work</h3>
-    <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
-  </section>
+  <h2>Conclusions</h2>
+
+  <!-- Conclusions (one blue box) -->
+  <div class="instruction-text">
+    <p style="margin: 0;">
+      We taped out and demonstrated a silicon-proven CPU–VPU heterogeneous RISC-V SoC in TSMC 65 nm, featuring an
+      <strong>in-house, custom-designed VPU</strong> attached to PicoRV32 via PCPI, along with on-chip IMEM/DMEM SRAM,
+      essential I/O, and a scan-based bring-up/measurement flow. Live demos on fabricated silicon validate end-to-end
+      hardware/software co-design and reveal a clear trend: <strong>end-to-end speedup increases monotonically with VPU
+      utilization (vector intensity)</strong>—from ~1× on vector-light workloads to ~6× on convolution/MAC-heavy workloads.
+      This behavior matches our architectural intent: the CPU orchestrates control flow while the VPU accelerates regular,
+      data-parallel inner loops.
+    </p>
+  </div>
+
+  <h3>Key Achievements</h3>
+
+  <!-- Key Achievements (one blue box) -->
+  <div class="instruction-text">
+    <ul style="margin: 0 0 0 20px; color: #4a5568;">
+      <li>
+        <strong>In-house custom VPU microarchitecture:</strong>
+        Designed and implemented the VPU datapath and controller from scratch, including dedicated decode and multi-cycle control FSMs
+        that manage instruction sequencing, base/stride address generation, memory handshaking, and PE scheduling—reducing CPU-side loop and
+        address-update overhead.
+      </li>
+      <li>
+        <strong>Custom Vector ISA + PCPI offload path:</strong>
+        Created a <strong>custom vector ISA</strong> and integrated it through PicoRV32’s <strong>PCPI</strong> interface, enabling seamless CPU-issued
+        vector offloads and clean, reproducible <strong>CPU-only vs. CPU+VPU</strong> benchmarking under the same workload structure and memory map.
+      </li>
+      <li>
+        <strong>Silicon-proven SoC integration:</strong>
+        PicoRV32 + custom VPU + on-chip IMEM/DMEM + peripherals were fully integrated and validated on fabricated silicon.
+      </li>
+      <li>
+        <strong>Demo-ready post-silicon infrastructure:</strong>
+        A repeatable MATLAB(PC) ⇄ FPGA(PMOD) ⇄ level shifter ⇄ PCB ⇄ chip pipeline supports scan-in / run / scan-out, automated visualization,
+        and cycle-accurate performance measurement.
+      </li>
+      <li>
+  <strong>Measured end-to-end scaling:</strong>
+  CNN-style multi-channel convolution achieves the highest utilization and the largest speedup, while ROI-based and vector-light workloads
+  show proportionally smaller gains as fixed offload and data-movement overhead becomes visible. As a result, our architecture is
+  <strong>particularly well-suited for CNN-style AI kernels</strong> where computation is dominated by regular, vectorizable MAC patterns,
+  making this SoC a compact <strong>AI-acceleration chip</strong> for convolution-heavy workloads.
+</li>
+    </ul>
+  </div>
+
+  <h3>Lessons Learned</h3>
+
+  <!-- Lessons Learned (one blue box) -->
+  <div class="instruction-text">
+    <ul style="margin: 0 0 0 20px; color: #4a5568;">
+      <li>
+        <strong>Acceleration is workload-dependent:</strong>
+        The VPU delivers the biggest benefit when kernels are dominated by regular MAC/vector inner loops; when vector intensity is low,
+        fixed PCPI and memory-transaction overhead can dominate and reduce (or negate) speedup.
+      </li>
+      <li>
+        <strong>Co-design is essential:</strong>
+        ISA design, memory layout, and measurement methodology must be aligned with the datapath and controller to obtain silicon-reproducible gains,
+        not just isolated micro-benchmark wins.
+      </li>
+      <li>
+        <strong>Bring-up infrastructure is first-class:</strong>
+        A robust scan-based flow plus MATLAB/FPGA control significantly improves iteration speed and debugging confidence during post-silicon validation.
+      </li>
+    </ul>
+  </div>
+
+  <h3>Future Work</h3>
+
+  <!-- Future Work (one blue box) -->
+  <div class="instruction-text">
+    <ul style="margin: 0 0 0 20px; color: #4a5568;">
+      <li>
+        <strong>Reduce demo latency:</strong>
+        Speed up scan-in/scan-out using higher scan clock, more efficient scan framing, or a higher-throughput debug interface to improve live-demo responsiveness.
+      </li>
+      <li>
+        <strong>Scale beyond on-chip SRAM:</strong>
+        Use SPI as a practical path to attach external storage (or an FPGA-based memory model) for larger tensors/weights and rapid re-parameterization of AI workloads.
+      </li>
+      <li>
+        <strong>Increase VPU capability and observability:</strong>
+        Extend the custom vector ISA (more ops, better reduction support, improved load/store patterns) and add lightweight performance counters to attribute cycles
+        spent in CPU vs. VPU more precisely.
+      </li>
+      <li>
+        <strong>Richer I/O demonstrations:</strong>
+        Stream intermediate results and processed images more directly (e.g., UART-driven display pipeline) for more interactive, real-time demos.
+      </li>
+    </ul>
+  </div>
+</section>
+
   
   <section id="references">
-    <h2>References</h2>
-    <p class="instruction-text">[Replace with references: List academic papers, technical manuals, and other resources cited in your project.]</p>
-    <ol style="margin-left: 25px; color: var(--text-gray);">
-      <li style="margin-bottom: 12px;">[Reference 1: Author, Title, Publication, Year]</li>
-      <li style="margin-bottom: 12px;">[Reference 2: Author, Title, Publication, Year]</li>
-      <li style="margin-bottom: 12px;">[Reference 3: Author, Title, Publication, Year]</li>
-    </ol>
-  </section>
+  <h2>References</h2>
+  <p class="instruction-text">
+    Key open-source resources leveraged in our SoC design and verification workflow:
+  </p>
+
+  <ol style="margin-left: 25px; color: var(--text-gray);">
+    <li style="margin-bottom: 12px;">
+      Clifford Wolf. <em>PicoRV32 — A Size-Optimized RISC-V CPU</em>. YosysHQ (GitHub repository).
+      <a href="https://github.com/YosysHQ/picorv32" target="_blank" rel="noopener noreferrer">https://github.com/YosysHQ/picorv32</a>
+    </li>
+
+    <li style="margin-bottom: 12px;">
+      Alex Forencich. <em>verilog-axi — AXI and AXI-Stream Components for Verilog</em>. (GitHub repository).
+      <a href="https://github.com/alexforencich/verilog-axi" target="_blank" rel="noopener noreferrer">https://github.com/alexforencich/verilog-axi</a>
+    </li>
+
+    <li style="margin-bottom: 12px;">
+      Alex Forencich. <em>verilog-axi: Tree / master</em> (source code reference used for AXI modules/integration).
+      <a href="https://github.com/alexforencich/verilog-axi/tree/master" target="_blank" rel="noopener noreferrer">https://github.com/alexforencich/verilog-axi/tree/master</a>
+    </li>
+  </ol>
+</section>
+
   
   <section id="acknowledgments">
     <h2>Acknowledgments</h2>
-    <p class="instruction-text">[Replace with acknowledgments: Thank advisors, sponsors, lab staff, and others who contributed to the project.]</p>
+<p class="instruction-text">
+  We want to sincerely thank everyone who supported us throughout this project and made our first tape-out and post-silicon bring-up possible.
+  <br><br>
+
+  First and foremost, we are deeply grateful to <strong>Prof. Mingoo Seok</strong> for his supervision and guidance throughout the project.
+  His technical expertise and hands-on feedback were invaluable at every stage, from architecture decisions to post-silicon validation.
+  <br><br>
+
+  Special thanks to our Teaching Assistants — <strong>Chuan-Tung Lin</strong>, <strong>Da Won Kim</strong>, and <strong>Mosom Jana</strong> — for their constant support.
+  They were always available to answer questions, troubleshoot issues, and help us overcome critical obstacles during design, integration, and bring-up.
+  <br><br>
+
+  We also thank <strong>Richard T. Lee</strong> for his help with the practical logistics of post-silicon testing, especially for supporting the purchase and preparation of the materials
+  needed for chip evaluation and measurement.
+  <br><br>
+
+  Finally, we gratefully acknowledge <strong>Apple Inc.</strong> for generous sponsorship and support. Without this sponsorship and the associated design review feedback,
+  this project would not have been possible.
+</p>
+
     
     <h3>Team Members</h3>
     <div class="team-grid">
       <div class="team-member">
-        <strong>[Name]</strong>
-        <span>[Role/Contribution]</span>
+        <strong>Jiajun Jiang</strong>
+        <span>VPU Development, Frontend Design, Software Testing, Post-silicon Testing</span>
       </div>
       <div class="team-member">
-        <strong>[Name]</strong>
-        <span>[Role/Contribution]</span>
+        <strong>Zhenning Yang</strong>
+        <span>Frontend Design, Backend Design, Soldering</span>
       </div>
       <div class="team-member">
-        <strong>[Name]</strong>
-        <span>[Role/Contribution]</span>
+        <strong>Yicheng Huang</strong>
+        <span>Frontend Design, Backend Design, PCB Design</span>
       </div>
       <div class="team-member">
-        <strong>[Name]</strong>
-        <span>[Role/Contribution]</span>
+        <strong>Zhuohao Chang</strong>
+        <span>Frontend Design, DFT</span>
+      </div>
+      <div class="team-member">
+        <strong>Yu Jia</strong>
+        <span>Frontend Design, Software Testing</span>
       </div>
     </div>
   </section>
