@@ -650,6 +650,12 @@ header{
 .instruction-text > p{ margin: 0 0 14px !important; }
 .instruction-text > p:last-child{ margin-bottom: 0 !important; }
 
+/* ✅ 让 instruction-text 里的图片强制另起一行
+   -> 这样图片前面那句会变成“最后一行”，不会被 justify 拉伸 */
+.instruction-text img{
+  display: block !important;
+  margin-top: 12px; /* 可选：给文字和图一点间距 */
+}
 
     
   </style>
