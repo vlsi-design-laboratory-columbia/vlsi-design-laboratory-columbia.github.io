@@ -708,13 +708,17 @@
 
       <h3>System Modules</h3>
         <h4>Scan Chain</h4> 
-	    <p> The scan chain provides the external access point to the on-chip memories and configuration registers. 
+	    <p style="text-align: justify;"> The scan chain provides the external access point to the on-chip memories and configuration registers. 
 			It is used to load model information before the processor starts, and to configure modules such as the Clock Generator and Test FSM. 
-			The chain consists of 78 cells, each mapped to a specific memory identifier, address pins, data pins, control signal or register bits, and uses mem_clk to shift data without timing violations safely. 
-            The memories that the scan chain can configure are Vertex Memory, Index Memory and Colour Memory.
-		    The IO signals that are provided are scan_in: serially shifts data into the scan chain (write path). scan_out: serially shifts data out of the scan chain (read path).
-		    scan_i0o1: selects direction: 0 = scan-in, 1 = scan-out. phi / phib: two non-overlapping clocks used to safely shift scan cells. load: loads all scan-cell latch values into the actual memory/register ports.
-		</p>
+			The chain consists of 78 cells, each mapped to a specific memory identifier, address pins, data pins, control signal or register bits, and uses <code>mem_clk</code> to shift data without timing violations safely. The memories that the scan chain can configure are Vertex Memory, Index Memory and Color Memory.<br>
+		  The I/O signals provided are: </p>
+      <ul class="list">
+        <li><code>scan_in</code>: serially shifts data into the scan chain (write path).</li>
+        <li><code>scan_out</code>: serially shifts data out of the scan chain (read path).</li>
+        <li><code>scan_i0o1</code>: selects direction — 0 = <code>scan_in</code>, 1 = <code>scan_out</code>.</li>
+        <li><code>phi</code> / <code>phib</code>: two non-overlapping clocks used to safely shift scan cells.</li>
+        <li><code>load</code>: loads all scan-cell latch values into the actual memory/register ports.</li>
+      </ul>
         <h4>Test FSM</h4> 
 		    <p style="text-align: justify;"> This module is used to clock gate the core while external transfers data to memory through scan chain and the core is at reset state. Regarding the implementation, here are two modes: 1) Idle mode where scan chain sends data to memory or core is in the reset state 2) Normal mode where scan chain sends data to the core.</p>
         <h4>Clock Generators</h4> 
@@ -1229,7 +1233,6 @@
     <ol style="margin-left: 25px; color: var(--text-gray);">
       <li style="margin-bottom: 12px;">[Reference 1: Matt Pongsagon, Tiniest GPU, https://github.com/pongsagon/tt07-tiniest-gpu/tree/main, 2024]</li>
       <li style="margin-bottom: 12px;">[Reference 2: CSEE4840 by Prof. Stephen Edwards, https://www.cs.columbia.edu/~sedwards/classes/2025/4840-spring/index.html, 2025]</li>
-      <li style="margin-bottom: 12px;">[Reference 3: Author, Title, Publication, Year]</li>
     </ol>
   </section>
 
