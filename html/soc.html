@@ -632,7 +632,115 @@ header{
 :root{ --text-muted:#000; }
 p{ color:#000 !important; }
 .instruction-text{ color:#000 !important; }
-    
+
+/* ===== Team Members: Apple-like glass cards (CSS only) ===== */
+.team-grid{
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(260px, 1fr)) !important;
+  gap: 22px !important;
+  justify-items: center !important;
+  align-items: stretch !important;
+  margin-top: 18px !important;
+}
+
+.team-member{
+  width: 100% !important;
+  max-width: 420px !important;
+  min-height: 140px !important;     /* 每张卡片等高（可调 130~170） */
+
+  /* 玻璃：半透明 + 渐变 */
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.70),
+    rgba(255,255,255,0.42)
+  ) !important;
+
+  /* 玻璃边框：外圈 + 内圈高光 */
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  box-shadow:
+    0 16px 46px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.75),
+    inset 0 0 0 1px rgba(255,255,255,0.25) !important;
+
+  border-radius: 22px !important;
+  padding: 22px 22px !important;
+  text-align: center !important;
+
+  /* 关键：背景模糊（玻璃质感核心） */
+  backdrop-filter: blur(18px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+
+  /* 排版更整齐 */
+  display: grid !important;
+  grid-template-rows: 36px 1fr !important;
+  row-gap: 10px !important;
+  place-items: center !important;
+
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease !important;
+}
+
+/* 顶部高光“玻璃反射” */
+.team-member::before{
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 22px !important;
+  pointer-events: none !important;
+  background: radial-gradient(
+    900px 220px at 20% 0%,
+    rgba(255,255,255,0.55),
+    transparent 55%
+  ) !important;
+  opacity: .9 !important;
+}
+
+/* 让 ::before 生效 */
+.team-member{ position: relative !important; }
+
+/* Hover：轻微抬起 + 更清晰的边框高光 */
+.team-member:hover{
+  transform: translateY(-3px) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  box-shadow:
+    0 22px 64px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.85),
+    inset 0 0 0 1px rgba(255,255,255,0.35) !important;
+}
+
+/* 标题与正文：更“Apple”对比 */
+.team-member strong{
+  margin: 0 !important;
+  font-size: 1.12rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.012em !important;
+  color: rgba(0,0,0,0.92) !important;
+}
+
+.team-member span{
+  margin: 0 !important;
+  max-width: 40ch !important;
+  font-size: .96rem !important;
+  line-height: 1.55 !important;
+  color: rgba(0,0,0,0.68) !important;
+}
+
+/* 兼容：不支持 backdrop-filter 时仍然好看 */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))){
+  .team-member{
+    background: rgba(255,255,255,0.92) !important;
+  }
+}
+
+/* 响应式：两列 / 一列 */
+@media (max-width: 980px){
+  .team-grid{ grid-template-columns: repeat(2, minmax(240px, 1fr)) !important; }
+}
+@media (max-width: 640px){
+  .team-grid{ grid-template-columns: 1fr !important; }
+  .team-member{ max-width: 520px !important; }
+}
+
+
   </style>
 </head>
 <body>
