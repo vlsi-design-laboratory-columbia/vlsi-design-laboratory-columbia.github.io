@@ -7,7 +7,7 @@
   <link rel="icon" type="image/jpeg" href="../images/nanologic/icon.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
   <style>
     * {margin: 0; padding: 0; box-sizing: border-box;}
     
@@ -782,7 +782,8 @@
     }
 
     .references {
-      margin-left: 22px;
+      margin: 10px 0 0;
+      padding-left: 1.4em;
       color: var(--text-gray);
       line-height: 1.7;
     }
@@ -930,16 +931,23 @@ h4 {
     .code-string { color: #a5e38e; }
     .code-number { color: #fbbf24; }
     .code-comment { color: #94a3b8; font-style: italic; }
+
+    /* Lists */
+    section ul,
+    section ol {
+      margin: 10px 0 14px;
+      padding-left: 1.4em;
+      color: var(--text-gray);
+      line-height: 1.75;
+      font-size: 1.02em;
+      list-style-position: outside;
     }
 
+    section ul { list-style-type: disc; }
+    section ol { list-style-type: decimal; }
 
-    /*bullet points*/
-    ul {
-    margin: 6px 0 12px 0;
-    padding-left: 26px;
-    color: var(--text-gray);
-    line-height: 1.75;
-    font-size: 1.02em;
+    section li {
+      margin: 6px 0;
     }
 
 
@@ -1259,13 +1267,13 @@ h4 {
         <span class="muted">4-stage pipeline with PULP extensions and gated domains.</span>
       </div>
       <div class="hero-card">
-        <span class="label">Memory & Bus</span>
+        <span class="label">Memory &amp; Bus</span>
         <span class="value">16 KB IMEM + 16 KB DMEM</span>
         <span class="muted">Harvard architecture on AHB with an APB bridge.</span>
       </div>
       <div class="hero-card">
         <span class="label">Peripherals</span>
-        <span class="value">SPI · UART · I2C · GPIO · Timers</span>
+        <span class="value">SPI · UART · I²C · GPIO · Timers</span>
         <span class="muted">Memory-mapped APB peripherals for LCD, IO, and timing.</span>
       </div>
     </div>
@@ -1287,9 +1295,9 @@ h4 {
 <div class="container">
   <section id="introduction">
     <h2>Introduction</h2>
-    <p class="instruction-text">Our project is a fully integrated RISC-V based SoC chip fabricated in TSMC 65 nm CMOS technology. The system is built around the OpenHW Group’s CORE-V CV32E40P RISC-V CPU core, connected through an AHB-based system bus with AHB-to-APB bridges to access a rich set of on-chip peripherals.
+    <p class="instruction-text">Our project is a fully integrated RISC-V-based SoC fabricated in TSMC 65 nm CMOS technology. The system is built around the OpenHW Group’s CORE-V CV32E40P RISC-V CPU core, connected through an AHB-based system bus with an AHB-to-APB bridge to access a rich set of on-chip peripherals.
 </p>
-    <p>The SoC integrates Instruction Memory, Data Memory, SPI, UART, 8 GPIOs, and two programmable timers, along with an on-chip clock generator, a debug finite-state machine, and a scan chain for DFT. The complete flow, from project proposal, architecture design, RTL implementation, verification, synthesis, physical design, signoff, and STA, all the way to PCB design, bring-up, and system-level validation, was carried out by our team. The final chip successfully runs on hardware and passes our functional demo.
+    <p>The SoC integrates instruction memory, data memory, SPI, UART, eight GPIOs, and two programmable timers, along with an on-chip clock generator, a debug finite-state machine, and a scan chain for DFT. We carried the project end-to-end: proposal, architecture design, RTL implementation and verification, synthesis, physical design and signoff (including STA), and finally PCB design, bring-up, and system-level validation. The final chip runs on hardware and passes our functional demo.
 </p>
 
     <div class="highlight-grid">
@@ -1338,241 +1346,178 @@ h4 {
 
     
     <h3>Main Components</h3>
- 
-     <h4>CPU</h4>
-     <p>At the heart of the chip is our RISC-V CPU core, which executes all application and control software and serves as the sole bus master in the system. The core interfaces with the on-chip interconnect through a lightweight AHB master port, giving it unified access to data storage and all memory-mapped peripherals.
-    Importantly, instruction memory (IMEM) is not accessed through the AHB bus. Instead, it is directly connected to the CPU core, enabling a dedicated and deterministic instruction fetch path that simplifies timing and reduces bus traffic.
-  </p>
-  <p>
-The CPU used in this project is version 1.8.3 of the OpenHW Group's RISC-V Core CV32E40P [1]. This core has been previously taped out as part of OpenHW's CORE-V MCU Development Kit; version 1.8.3 has undergone both formal verification and synthesis-based verification across multiple configurations, making it a mature and reliable open-source processor choice.
-  <p>
-The CV32E40P is a 32-bit, in-order, 4-stage pipeline processor implementing RV32I, RV32M, RV32C, and either RV32F or RV32Zfinx instruction sets. It also supports the PULP custom extensions for enhanced performance.
-  </p>
-  <p>
-For our project, we selected the RV32Zfinx variant, which reuses the general-purpose register file for floating-point operations instead of requiring a dedicated floating-point register file, making it significantly more area-efficient than RV32F.
-During the early front-end architecture planning, we initially enabled floating-point support and intended to include the FPU. However, during the physical design phase, we identified significant challenges with timing closure and area overhead introduced by the FPU. Since floating-point computation was not essential to our intended functionality or demo, we ultimately disabled floating-point hardware support to ensure a more robust, compact, and timing-clean implementation.
-  </p>
+	 
+	     <h4>CPU</h4>
+	     <p>At the heart of the chip is our RISC-V CPU core, which executes all application and control software and serves as the sole bus master in the system. The core interfaces with the on-chip interconnect through a lightweight AHB master port, giving it unified access to data storage and all memory-mapped peripherals. Importantly, instruction memory (IMEM) is not accessed through the AHB bus; instead, it is directly connected to the CPU core. This dedicated instruction-fetch path simplifies timing and reduces bus traffic.</p>
+	     <p>The CPU used in this project is version 1.8.3 of the OpenHW Group's RISC-V Core CV32E40P [1]. This core has been previously taped out as part of OpenHW's CORE-V MCU Development Kit; version 1.8.3 has undergone both formal verification and synthesis-based verification across multiple configurations, making it a mature and reliable open-source processor choice.</p>
+	     <p>The CV32E40P is a 32-bit, in-order, 4-stage pipeline processor implementing RV32I, RV32M, RV32C, and either the RV32F or RV32Zfinx instruction set. It also supports the PULP custom extensions for enhanced performance.</p>
+	     <p>For our project, we selected the RV32Zfinx variant, which reuses the general-purpose register file for floating-point operations instead of requiring a dedicated floating-point register file, making it significantly more area-efficient than RV32F. During early front-end architecture planning, we initially enabled floating-point support and intended to include the FPU. However, during the physical design phase, we identified significant challenges with timing closure and area overhead introduced by the FPU. Since floating-point computation was not essential to our intended functionality or demo, we ultimately disabled floating-point hardware support to ensure a more robust, compact, and timing-clean implementation.</p>
 
-   <p>
-      <em>CV32E40P Core</em><br>
-The CPU shown in the diagram is based on the CV32E40P core, a 4-stage, in-order RISC-V processor optimized for embedded and low-power applications. Its microarchitecture consists of the classic IF, ID, EX, and WB pipeline stages, with tightly integrated control logic to manage instruction flow, hazard resolution, and power-saving modes. The front end includes a prefetch buffer, instruction aligner, and compressed instruction decoder to improve instruction delivery efficiency. The register file and decoder feed multiple execution units, including an ALU, multiplier/divider, CSR unit, and an optional floating-point unit, enabling a wide range of integer and arithmetic operations. A dedicated Load-Store Unit (LSU) handles memory accesses and interacts with the external data interface. The core also integrates specialized units such as hardware loop registers, debug interface, interrupt controller, and a sleep unit for fine-grained power management. Overall, the design delivers a compact, configurable, and energy-efficient RISC-V processing solution suitable for microcontroller-class systems.
-   
-  <img src="../images/nanologic/CV32E40P_Block_Diagram.jpg" alt="System block diagram">
-        <p class="caption">CV32E40P CPU Core</p>
-</p>
+	     <p><em>CV32E40P Core</em></p>
+	     <p>The CPU shown in the diagram is based on the CV32E40P core, a 4-stage, in-order RISC-V processor optimized for embedded and low-power applications. Its microarchitecture consists of the classic IF, ID, EX, and WB pipeline stages, with tightly integrated control logic to manage instruction flow, hazard resolution, and power-saving modes. The front end includes a prefetch buffer, instruction aligner, and compressed instruction decoder to improve instruction delivery efficiency. The register file and decoder feed multiple execution units, including an ALU, multiplier/divider, CSR unit, and an optional floating-point unit, enabling a wide range of integer and arithmetic operations. A dedicated Load-Store Unit (LSU) handles memory accesses and interacts with the external data interface. The core also integrates specialized units such as hardware loop registers, a debug interface, an interrupt controller, and a sleep unit for fine-grained power management. Overall, the design delivers a compact, configurable, and energy-efficient RISC-V processing solution suitable for microcontroller-class systems.</p>
+	     <img src="../images/nanologic/CV32E40P_Block_Diagram.jpg" alt="CV32E40P CPU core block diagram">
+	     <p class="caption">CV32E40P CPU Core</p>
 
-   <p>
-       <em>Clock Gating</em><br>
-CV32E40P uses a clock-gating strategy at the top level to reduce dynamic power consumption. It is left up to the implementers to define the specifics of the clock gates for synthesis, and instead of implementing custom gating logic, we directly used the Clock Gating cells provided by TSMC.
-   </p>
-   <p>
-    At the top level, the clock network is divided into several functional domains. Each domain receives a gated clock through an ICG cell, and the enable signal is generated based on the activity of the corresponding module. When a module is idle, its clock is disabled, effectively reducing unnecessary switching activity.
-   </p>
-   <p>
-    ICG cell integrates a latch and gating logic to ensure glitch-free clock gating, and also includes a test-enable input for scan and DFT support. Using this standard, fully characterized cell guarantees safe operation and seamless integration with synthesis, CTS, and STA.
-   </p>
-   <img src="../images/nanologic/icg.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
-          <p class="caption">Clock Gating Cell</p>
-   <br><br>
-      <p>
-      <em>FPU</em><br>
-We originally planned to integrate an FPU into the SoC and successfully completed the compiler and linker configuration required to support floating-point operations. The FPU passed our initial functional simulations and worked correctly at the RTL level. However, after synthesis, physical design, and timing analysis, the FPU ran into timing issues which were not easily solved. To maintain overall system stability and achieve a much higher operating frequency, we ultimately decided to remove the FPU. Without the FPU's long combinational paths, the SoC's maximum clock period improved from 15 ns to 5 ns, resulting in substantially better performance and a more reliable design.
-  <img src="../images/nanologic/FPU.jpg" alt="FPU">
-            <p class="caption">Floating Point Operations</p>
-   </p>
-   <h4>Memory</h4>
-<p>
-The SoC adopts a Harvard memory architecture, featuring fully separated instruction and data memories to maximize throughput and simplify timing. The memory subsystem consists of two on-chip SRAM blocks:<br>
-  <br> 
-  <strong>Instruction Memory (IMEM):</strong> Directly connected to CPU fetch interface.<br>
-  <strong>Data Memory (DMEM):</strong> AHB slave accessed by CPU load/store instructions.<br>
+	     <p><em>Clock Gating</em></p>
+	     <p>CV32E40P uses a clock-gating strategy at the top level to reduce dynamic power consumption. Implementers define the specifics of clock gating for synthesis; rather than implementing custom gating logic, we used the clock-gating cells provided by TSMC.</p>
+	     <p>At the top level, the clock network is divided into several functional domains. Each domain receives a gated clock through an ICG cell, and the enable signal is generated based on the activity of the corresponding module. When a module is idle, its clock is disabled, effectively reducing unnecessary switching activity.</p>
+	     <p>The ICG cell integrates a latch and gating logic to ensure glitch-free clock gating and includes a test-enable input for scan and DFT support. Using this standard, fully characterized cell guarantees safe operation and seamless integration with synthesis, CTS, and STA.</p>
+	     <img src="../images/nanologic/icg.jpg" alt="Clock gating cell" style="display:block; margin:0 auto; width:60%; height:auto;">
+	     <p class="caption">Clock Gating Cell</p>
 
-  <br>
-  The instruction memory provides a dedicated, point-to-point connection to the CPU's instruction fetch interface. By avoiding the system bus entirely, IMEM enables deterministic instruction delivery, lower latency, and reduced bus contention.
-Originally, the design targeted 32 KB of instruction storage, but due to strict die-area constraints during physical design, the IMEM size was adjusted to 16 KB, which still meets the needs of our target workloads and demo applications.
-  <br>
-  <br>
-  The data memory is implemented as an AHB slave and connected to the CPU via the shared bus. All load/store instructions are routed through this bus interface, maintaining a clean separation between instruction fetch and data access. Similar to IMEM, DMEM was initially planned as 32 KB, but was downsized to 16 KB to fit within the allowable silicon footprint.
-  <br>
-  <br>
-  <strong>Addressing and byte enables</strong><br>
-  An important thing to note about both IMEM and DMEM is that at the memory level, each address corresponds to a 32-bit data cell, which means for 16KiB of capacity, we have a 12-bit wide address bus. However, the RISC-V ISA expects to be able to access the memory byte-wise, so we have a 4-bit wide BEN (or WEN as the generated memory calls it) bus which controls which bytes of the 32-bit word at a given memory address are actually written to.
-  <br><br>
-  This system is easy to integrate with the CPU, since it natively expects this sort of setup and so outputs the size of the data it is writing in bytes, which can be fed into the BEN bus. It still, however, treats each address as a single byte, and so does our AHB bus, so to deal with this, we do two things. For the scan chain, in the memory wrappers, we simply shift the incoming address right by 2 to forcibly word-align it. For the data coming from the AHB bus, for IMEM, the wrapper also shifts that incoming address right by 2; for DMEM, that shift is instead done in the DMEM AHB slave.
-  <br><br>
-  Our peripherals, with the exception of UART, also treat memory addresses as byte-aligned and do the shifting internally to treat it as word-aligned for their internal registers. For UART, which does not do this internal shifting and expects world-aligned addresses, we simply shift the address going into the UART peripheral right by two.
-  <br><br>
-  The key takeaway from all this is that from the perspective of the CPU, the AHB bus, and the software, the memory addresses are byte-wise, and we enforce a 32-bit word alignment in the compiler. From the perspective of the memory cells, memory addresses are word-wise, and the CPU can specify which bytes in the word to write to.
-  <br><br>
+	     <p><em>FPU</em></p>
+	     <p>We originally planned to integrate an FPU into the SoC and successfully completed the compiler and linker configuration required to support floating-point operations. The FPU passed our initial functional simulations and worked correctly at the RTL level. However, after synthesis, physical design, and timing analysis, the FPU ran into timing issues that were not easily resolved. To maintain overall system stability and achieve a higher operating frequency, we ultimately decided to remove the FPU. Without the FPU's long combinational paths, the SoC's minimum achievable clock period improved from 15 ns to 5 ns, resulting in substantially better performance and a more reliable design.</p>
+	     <img src="../images/nanologic/FPU.jpg" alt="Floating-point unit (FPU) diagram">
+	     <p class="caption">Floating-point Unit (FPU)</p>
+	   <h4>Memory</h4>
+	<p>The SoC adopts a Harvard memory architecture, with fully separated instruction and data memories to maximize throughput and simplify timing. The memory subsystem consists of two on-chip SRAM blocks:</p>
+	<ul>
+	  <li><strong>Instruction Memory (IMEM):</strong> Directly connected to the CPU instruction-fetch interface.</li>
+	  <li><strong>Data Memory (DMEM):</strong> Exposed as an AHB slave and accessed by CPU load/store instructions.</li>
+	</ul>
+	<p>The instruction memory provides a dedicated, point-to-point connection to the CPU's instruction-fetch interface. By avoiding the system bus entirely, IMEM enables deterministic instruction delivery, lower latency, and reduced bus contention. Originally, the design targeted 32 KB of instruction storage, but due to strict die-area constraints during physical design, the IMEM size was adjusted to 16 KB, which still meets the needs of our target workloads and demo applications.</p>
+	<p>The data memory is implemented as an AHB slave and connected to the CPU via the shared bus. All load/store instructions are routed through this bus interface, maintaining a clean separation between instruction fetch and data access. Similar to IMEM, DMEM was initially planned as 32 KB, but was downsized to 16 KB to fit within the allowable silicon footprint.</p>
 
-  <strong>SRAM Implementation and Memory Wrapper</strong><br>
-  Both IMEM and DMEM are implemented as SRAM hard macros generated with the ARM memory compiler. Since these macros are technology-specific and lack native support for system-level protocols or scan operations, we designed custom memory wrapper modules to ensure clean integration into the SoC.<br>
-  <br>
-  The memory wrappers provide several key functions:<br>
-<ul>
-  <li>Adapt the SRAM macro interfaces to the CPU and AHB protocol requirements. Manage functional control signals including read/write enables, chip-select, and byte enables.</li>
-  <li>Implement a dedicated mode-switching mechanism that supports both normal run mode and DFT scan mode.</li>
-  <li>Adding delay cells to avoid hold violation.Provide a clean, synthesizable interface for RTL simulation while isolating technology-specific macro details.</li>
-</ul>
-</p>
-<p>
-  <strong>Run Mode</strong><br>
-In run mode, the wrapper exposes the memory as part of the functional SoC:
-<ul>
-<li>IMEM connects directly to the CPU's instruction-fetch interface.</li>
-<li>DMEM operates as an AHB slave, servicing all CPU load/store requests via the system bus.</li>
-<li>All functional address, control, and data signals drive the SRAM in this mode.</li>
-</ul>
-</p>
+	<p><strong>Addressing and byte enables</strong></p>
+	<p>One important detail about both IMEM and DMEM is that, at the memory-macro level, each address corresponds to a 32-bit word. For 16 KiB of capacity, this yields a 12-bit word address bus. However, the RISC-V ISA is byte-addressed, so we provide a 4-bit byte-enable (BEN) bus (called WEN by the memory macro) that controls which bytes of the 32-bit word at a given address are actually written.</p>
+	<p>This integrates cleanly with the CPU, since it naturally provides the write size in bytes, which maps directly to the BEN bus. However, both the CPU and the AHB bus still generate byte addresses. To reconcile this with the word-addressed SRAM macros, we shift addresses right by 2 in two places: (1) for the scan chain, the memory wrappers shift the incoming address to force word alignment; and (2) for functional accesses, the IMEM wrapper shifts the AHB address, while for DMEM the shift is handled in the DMEM AHB slave.</p>
+	<p>Our peripherals, with the exception of UART, also treat memory addresses as byte-addressed and shift internally to reach word-aligned register addresses. The UART peripheral expects word-aligned addresses, so we shift its incoming address right by 2.</p>
+	<p>The key takeaway is that from the perspective of the CPU, the AHB bus, and the software, addresses are byte-based (with 32-bit alignment enforced by the compiler). From the perspective of the SRAM macros, addresses are word-based, and byte enables select which bytes within a word are updated.</p>
 
-<p>
-  <strong>Scan Mode</strong><br>
-To enable complete chip-level scan coverage, the wrappers include logic that reconfigures the memory into scan mode during DFT operation:
-<ul>
-<li>The memory wrapper becomes part of the SoC's continuous scan chain, enabling scan vector to scan-in / scan-out. </li>
-</ul>
-</p>
-   <img src="../images/nanologic/sram_wrapper.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
-          <p class="caption">DMEM Wrapper</p>
+	<p><strong>SRAM Implementation and Memory Wrapper</strong></p>
+	<p>Both IMEM and DMEM are implemented as SRAM hard macros generated with the ARM memory compiler. Since these macros are technology-specific and lack native support for system-level protocols or scan operations, we designed custom memory wrapper modules to ensure clean integration into the SoC.</p>
+	<p>The memory wrappers provide several key functions:</p>
+	<ul>
+	  <li>Adapt the SRAM macro interfaces to the CPU and AHB protocol requirements, including read/write enables, chip select, and byte enables.</li>
+	  <li>Implement a dedicated mode-switching mechanism that supports both run mode and DFT scan mode.</li>
+	  <li>Add delay cells as needed to prevent hold-time violations.</li>
+	  <li>Provide a clean, synthesizable interface for RTL simulation while isolating technology-specific macro details.</li>
+	</ul>
+
+	<p><strong>Run Mode</strong></p>
+	<p>In run mode, the wrapper exposes the memory as part of the functional SoC:</p>
+	<ul>
+	  <li>IMEM connects directly to the CPU's instruction-fetch interface.</li>
+	  <li>DMEM operates as an AHB slave, servicing all CPU load/store requests via the system bus.</li>
+	  <li>All functional address, control, and data signals drive the SRAM in this mode.</li>
+	</ul>
+
+	<p><strong>Scan Mode</strong></p>
+	<p>To enable complete chip-level scan coverage, the wrappers include logic that reconfigures the memory into scan mode during DFT operation:</p>
+	<ul>
+	  <li>The memory wrapper becomes part of the SoC's continuous scan chain, enabling scan vectors to be shifted in and out.</li>
+	</ul>
+		<img src="../images/nanologic/sram_wrapper.jpg" alt="DMEM wrapper diagram" style="display:block; margin:0 auto; width:80%; height:auto;">
+		<p class="caption">DMEM Wrapper</p>
+
+		<h4>On-Chip Interconnect and Bus Architecture</h4>
+		<p>A central AMBA AHB system bus forms the primary communication backbone of the SoC. The bus is organized in a 1-master/6-slave (M16S) topology, with the RISC-V CPU core acting as the only AHB master. This keeps the interconnect simple, low-latency, and area-efficient.</p>
+		<img src="../images/nanologic/ahb_picture.jpg" alt="AHB interconnection diagram">
+		<p class="caption">AHB Interconnection</p>
+		<p>Among the AHB slaves, the data memory (DMEM) is connected directly to the AHB bus as an AHB slave. All load/store instructions issued by the CPU are translated into AHB transactions through the LSU module, providing a straightforward path for data accesses.</p>
+		<p>All other low-bandwidth, register-mapped peripherals are accessed indirectly through an AHB-to-APB bridge, which itself appears as an AHB slave on the system bus. Behind this bridge, a set of APB peripherals is instantiated, including:</p>
+		<ul>
+		  <li>GPIO</li>
+		  <li>SPI</li>
+		  <li>UART</li>
+		  <li>I²C</li>
+		  <li>Two general-purpose timers</li>
+		</ul>
+		<p>The AHB-to-APB bridge decouples the higher-speed AHB domain from the simpler APB domain by:</p>
+		<ul>
+		  <li>Translating AHB read/write transactions into APB transfers</li>
+		  <li>Generating APB select, enable, and write control signals for each peripheral</li>
+		  <li>Isolating the timing and fan-out of the peripheral bus from the main system bus</li>
+		</ul>
+		<img src="../images/nanologic/apb.jpg" alt="APB bridge finite state machine diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
+		<p class="caption">APB FSM Diagram</p>
+	    
 
 
+		<h4>Peripherals</h4>
+	<p>
+	<strong>SPI</strong><br>
+	The first peripheral is SPI (Serial Peripheral Interface). SPI is a high-speed, full-duplex, synchronous serial communication protocol commonly used for data transmission between microcontrollers and peripherals. In our design, we use the open-source SPI from the PULP-Platform group to connect to the display.
+	</p>
 
-<h4>On-Chip Interconnect and Bus Architecture</h4>
-<p>
-A central AMBA AHB system bus forms the primary communication backbone of the SoC. The bus is organized in a 1-master / 6-slave (M16S) topology, with the RISC-V CPU core acting as the only AHB master. It helps keep the interconnect simple, low-latency, and area-efficient.
-<br>
-<br>
-   <img src="../images/nanologic/ahb_picture.jpg" alt="System block diagram">
-   <p class="caption">AHB Interconnection</p>
-Among the AHB slaves, the data memory (DMEM) is connected directly to the AHB bus as an AHB slave. All load/store instructions issued by the CPU are translated into AHB transactions through the LSU module, providing a straightforward path for data accesses.
-<br>
-<br>
-All other low-bandwidth, register-mapped peripherals are accessed indirectly through an AHB-to-APB bridge, which itself appears as an AHB slave on the system bus. Behind this bridge, a set of APB peripherals is instantiated, including:
-<ul>
-<li>GPIO</li>
-<li>SPI</li>
-<li>UART</li>
-<li>I²C</li>
-<li>Two general-purpose Timers</li>
-</ul>
-</p>
-<p>
-The AHB-to-APB bridge decouples the higher-speed AHB domain from the simpler APB domain by:
-<ul>
-<li>Translating AHB read/write transactions into APB transfers</li>
-<li>Generating APB select, enable, and write control signals for each peripheral</li>
-<li>Isolating the timing and fan-out of the peripheral bus from the main system bus</li>
-</ul>
-</p>
-<img src="../images/nanologic/apb.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br><br>
-            <p class="caption">APB FSM Diagram</p>
-    
+	<p>
+	<strong>UART</strong><br>
+	The second peripheral is UART (Universal Asynchronous Receiver/Transmitter). UART is an asynchronous serial communication protocol used for data transmission between devices. UART enables communication without a clock signal: the transmitter and receiver synchronize data transmission based on a predefined baud rate. It uses separate transmit (TX) and receive (RX) signals, allowing simultaneous data transmission and reception. The data format is start bit, data bits, optional parity bit, and stop bit.
+	</p>
 
+	<p>
+	<strong>GPIO</strong><br>
+	The third peripheral is GPIO (General-Purpose Input/Output). The GPIO module is designed to facilitate basic communication with external devices through eight GPIO pins. On the output path, each pin is controlled by a simple register that is updated whenever a write request is received from the bus. On the input path, a synchronizer composed of two back-to-back registers is implemented to prevent metastability. This ensures reliable input capture even under asynchronous conditions. When the processor issues a read request, the synchronizer's output value for the relevant pin is sent to the bus. This streamlined GPIO module balances simplicity and functionality, making it suitable for the proposed chip’s requirements.
+	</p>
 
-<h4>Peripherals</h4>
-<p>
-<strong>SPI</strong><br>
-The first of the peripherals is SPI (Serial Peripheral Interface). SPI is a high-speed, full-duplex, synchronous serial communication protocol commonly used for data transmission between microcontrollers and peripherals. In our design, we use the open-source SPI from Pulp-Platform Group to connect with the display.
-</p>
+	<p>
+	  <strong>I²C</strong><br>
+	The fourth peripheral is I²C (Inter-Integrated Circuit). Our design integrates an open-source I²C master controller to enable communication between devices using just two lines: SDA (data) and SCL (clock). The master handles operations like start, stop, read, and write while also monitoring bus status and managing multi-master arbitration. I²C offers efficient pin usage, the ability to support multiple peripherals through unique addresses, and compatibility with a wide range of low-speed devices such as sensors and EEPROMs.
+	</p>
 
-<p>
-<strong>UART</strong><br>
-The second of the peripherals is UART (Universal Asynchronous Receiver/Transmitter). UART is an asynchronous serial communication protocol used for data transmission between devices. UART enables communication without a clock signal, where the transmitter and receiver synchronize data transmission based on a predefined baud rate. It uses separate transmit (TX) and receive (RX) signals, allowing simultaneous data transmission and reception. The data follows the Start bit - Data bits - Parity bit - Stop bit format.
-</p>
+	<p>
+	  <strong>Timer</strong><br>
+	The final peripherals are a pair of timers. The timer module is a versatile block designed to manage timing operations, generate events, and control pulse-width modulation (PWM). It supports both count-up and count-down modes and can operate with sawtooth or triangle-wave counting patterns. Timers synchronize events based on internal or external clock signals, making them suitable for various system control tasks such as delays, periodic interrupts, and signal generation. The timer configuration includes start and end counters, prescaler settings, and multiple compare channels. It generates interrupt or event signals upon matching the configured thresholds, enabling seamless integration into time-sensitive applications.
+	</p>
 
-<p>
-<strong>GPIO</strong><br>
-The third of the peripherals is GPIO (General-Purpose Input/Output). The GPIO module is designed to facilitate basic communication with external devices through 8 GPIO pins. On the output path, each pin is controlled by a simple register, which is updated whenever a write request is received from the bus. On the input path, a synchronizer composed of two back-to-back registers is implemented to prevent metastability. This ensures reliable input capture even under asynchronous conditions. When the processor issues a read request, the synchronizer's output value for the relevant pin is sent to the bus. This streamlined GPIO module balances simplicity and functionality, making it suitable for the proposed chip’s requirements.
-</p>
+	    <h4>DFT Components</h4>
+	    <p><strong>Scan Chain</strong></p>
+	    <p>The chip integrates a unified scan chain consisting of 248 scan cells, enabling full controllability and observability of key internal signals during DFT (Design-for-Test) and silicon bring-up. The scan chain forms a single linear shift register that spans modules including the instruction memory interface, data memory interface, clock generator, and the debug FSM.</p>
+	    <p>The 248 scan cells connect a wide range of internal signals, including:</p>
+	    <ul>
+	      <li>IMEM signals: IMEM control, address, write enable, read and write data.</li>
+	      <li>DMEM signals: DMEM control, address, write enable, read and write data.</li>
+	      <li>Clock generator control signals.</li>
+	      <li>Debug FSM control and status signals.</li>
+	    </ul>
+	    <p>These signals are flattened into a single contiguous scan path:</p>
+	    <img src="../images/nanologic/scanchain.jpg" alt="Scan chain diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
+	    <p class="caption">Scan Chain</p>
 
-<p>
-  <strong>I2C</strong><br>
-The fourth peripheral is I2C (Inter-Integrated Circuit). Our design integrates an open-source I2C master controller to enable communication between devices using just two lines: SDA (data) and SCL (clock). The master handles operations like start, stop, read, and write, while also monitoring the bus status and managing multi-master arbitration. I2C has efficient pin usage, ability to support multiple peripherals through unique addresses, and compatibility with a wide range of low-speed devices like sensors and EEPROMs.
-</p>
+	    <p>This structure allows external test equipment or debugging software to shift in arbitrary patterns and read out internal states at any point.</p>
 
-<p>
-  <strong>Timer</strong><br>
-The last peripheral is a set of timers. The timer is a versatile module designed to manage timing operations, generate events, and control pulse-width modulation (PWM). It supports both count-up and count-down modes and can operate with sawtooth or triangle wave counting patterns. Timers synchronize events based on internal or external clock signals, making them suitable for various system control tasks such as delays, periodic interrupts, and signal generation. The timer configuration includes start and end counters, prescaler settings, and multiple compare channels. It generates interrupt or event signals upon matching the configured thresholds, enabling seamless integration into time-sensitive applications.
-</p>
+	    <p><em>Scan Mode Operation</em></p>
+	    <p>In scan mode, the SoC suspends normal functional dataflow and all memory wrapper modules switch into test configuration:</p>
+	    <ul>
+	      <li>Functional read/write ports of IMEM and DMEM are disabled.</li>
+	      <li>Scan-in (SI) and scan-out (SO) signals propagate through the entire chain.</li>
+	      <li>All control signals connected to the scan chain are driven purely by the shifted scan data.</li>
+	      <li>The scan chain scans instructions into IMEM and data into DMEM for initialization.</li>
+	      <li>The scan chain can also read out the content of DMEM after program execution, enabling full post-silicon inspection of computation results.</li>
+	    </ul>
 
-    <h4>DFT Components</h4>
-<p>
-  <strong>Scan Chain</strong><br>
-  The chip integrates a unified scan chain consisting of 248 scan cells, enabling full controllability and observability of key internal signals during DFT (Design-for-Test) and silicon bring-up. The scan chain forms a single linear shift register that spans across modules including the instruction memory interface, data memory interface, clock generator, and the debug FSM.
-  <br>
-  <br>
-  The 248 scan cells connect a wide range of internal signals, including:
-  <ul>
-<li>IMEM signals: IMEM control, address, write enable, read and write data.</li>
-<li>DMEM signals: DMEM control, address, write enable, read and write data.</li>
-<li>Clock generator control signals.</li>
-<li>Debug FSM control and status signals.</li>
-</ul>
-</p>
-<p>
-These signals are flattened into a single contiguous scan path:<br>
-   <img src="../images/nanologic/scanchain.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;">
-   <p class="caption">Scan Chain</p>
-</p>
+	    <p><em>Run Mode Operation</em></p>
+	    <p>When scan mode is deactivated, the memory wrappers and control signals reconnect to their functional sources:</p>
+	    <ul>
+	      <li>The CPU fetches instructions directly from IMEM.</li>
+	      <li>The CPU accesses DMEM via the AHB bus.</li>
+	      <li>The clock generator operates according to the programmed settings.</li>
+	      <li>No scan traffic influences the functional logic.</li>
+	    </ul>
+	    <p>The transition between scan mode and run mode is cleanly controlled to ensure no metastability or unintended corruption of memory or control registers.</p>
+	    <img src="../images/nanologic/scan_in.jpg" alt="Scan-in cell diagram" style="display:block; margin:0 auto; width:80%; height:auto;">
+	    <p class="caption">Scan In Cell</p>
+	    <img src="../images/nanologic/scan_out.jpg" alt="Scan-out cell diagram" style="display:block; margin:0 auto; width:80%; height:auto;">
+	    <p class="caption">Scan Out Cell</p>
 
+	    <p><strong>Clock Generator</strong></p>
+	    <p>The clock generator is based on a ring oscillator whose output frequency can be configured at runtime through two control registers:</p>
+	    <ul>
+	      <li><strong>fc</strong> (frequency control): selects the effective length of the ring oscillator, thereby adjusting the base oscillation frequency. Different fc settings correspond to different numbers of delay stages in the ring.</li>
+	      <li><strong>div</strong> (divider): applies a programmable integer divide ratio to the ring oscillator output, generating a lower-frequency system clock when needed.</li>
+	    </ul>
+	    <p>By combining the fc and div settings, the SoC can trade off performance, power consumption, and timing margin. These control bits are loaded via the scan chain, allowing the clock configuration to be changed even when no firmware is running yet. The final clock output of the generator is routed to the CPU core, AHB bus, memories, and peripherals, forming the primary system clock domain.</p>
 
-
-
-
-<p>
-This structure allows external test equipment or debugging software to shift in arbitrary patterns and read out internal states at any point.<br>
-<br>
-<em>Scan Mode Operation</em><br>
-In scan mode, the SoC suspends normal functional dataflow and all memory wrapper modules switch into test configuration:
-<ul>
-  <li>Functional read/write ports of IMEM and DMEM are disabled.</li>
-  <li>Scan-in (SI) and scan-out (SO) signals propagate through the entire chain.</li>
-  <li>All control signals connected to the scan chain are driven purely by the shifted scan data.</li>
-  <li>The scan chain scan in instructions into IMEM and data into DMEM, for initialization.</li>
-  <li>The scan chain can also read out the content of DMEM after program execution, enabling full post-silicon inspection of computation results.</li>
-  </ul>
-</p>
-<p>
-<em>Run Mode Operation</em><br>
-When scan mode is deactivated, the memory wrappers and control signals reconnect to their functional sources:
-<ul>
-  <li>The CPU fetches instructions directly from IMEM.</li>
-  <li>The CPU accesses DMEM via the AHB bus.</li>
-  <li>Clock generator works under setting.</li>
-  <li>No scan traffic influences the logic.</li>
-  </ul>
-</p>
-<p>The transition between scan mode and run mode is cleanly controlled to ensure no metastability or unintended corruption of memory or control registers.</p>
-  <img src="../images/nanologic/scan_in.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
-   <p class="caption">Scan In Cell</p>
-   <br>
-    <img src="../images/nanologic/scan_out.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:80%; height:auto;"><br>
-   <p class="caption">Scan Out Cell</p>
-   <br>
-
-
-
-<br>
-<strong>Clock Generator</strong><br>
-The clock generator is based on a ring oscillator whose output frequency can be configured at runtime through two control registers:
-<ul>
-  <li>fc (frequency control) - selects the effective length of the ring oscillator, thereby adjusting the base oscillation frequency. Different fc settings correspond to different numbers of delay stages in the ring.</li>
-  <li>div (divider) - applies a programmable integer divide ratio to the ring oscillator output, generating a lower-frequency system clock when needed.</li>
-</ul>
-<p>By combining the fc and div settings, the SoC can trade off performance, power consumption, and timing margin. These control bits are loaded via the scan chain, allowing the clock configuration to be changed even when no firmware is running yet.
-The final clock output of the generator is routed to the CPU core, AHB bus, memories, and peripherals, forming the primary system clock domain.</p>
-
-<br>
-<strong>Debug FSM</strong>
-<p>A debug FSM orchestrates how the generated clock is delivered to the rest of the chip. The FSM supports three operating modes:<br>
-<em>Scan Mode: </em>The system clock isn't launched, and no clock edges are propagated to the CPU or peripherals. In this mode the scan chain can working, as the IMEM and DEME's clock will be depend on outside scan-in clock signal.<br>
-<em>Running Mode: </em>The clock generator output is continuously forwarded through the scan-controlled clock gating logic to the system clock tree. The SoC operates normally in this mode: the CPU executes instructions from IMEM, accesses DMEM over AHB, and interacts with APB peripherals.<br>
-<em>Debug Mode: </em>The FSM enables the clock for a programmable number of cycles and then automatically returns to a paused state. It allows engineers to advance the system by a controlled number of clock edges, then inspect internal state or memory contents via the scan chain.<br>
-<br>
-Mode selection, as well as auxiliary control signals (such as step length in debug mode), are themselves loaded through the scan chain. This allows complete control of clock behavior from external test equipment without relying on software.
-</p>
-   <img src="../images/nanologic/fsm.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:50%; height:auto;"><br>
-   <p class="caption">Debug FSM</p>
+	    <p><strong>Debug FSM</strong></p>
+	    <p>A debug FSM orchestrates how the generated clock is delivered to the rest of the chip. The FSM supports three operating modes:</p>
+	    <ul>
+	      <li><strong>Scan Mode:</strong> The system clock is not launched, and no clock edges are propagated to the CPU or peripherals. In this mode, the scan chain operates using the external scan clock; IMEM and DMEM clocks are driven by the scan clock.</li>
+	      <li><strong>Run Mode:</strong> The clock generator output is continuously forwarded through the scan-controlled clock gating logic to the system clock tree. The SoC operates normally in this mode: the CPU executes instructions from IMEM, accesses DMEM over AHB, and interacts with APB peripherals.</li>
+	      <li><strong>Debug Mode:</strong> The FSM enables the clock for a programmable number of cycles and then automatically returns to a paused state. This allows engineers to advance the system by a controlled number of clock edges and then inspect internal state or memory contents via the scan chain.</li>
+	    </ul>
+	    <p>Mode selection, as well as auxiliary control signals (such as step length in debug mode), are loaded through the scan chain. This allows complete control of clock behavior from external test equipment without relying on software.</p>
+	    <img src="../images/nanologic/fsm.jpg" alt="Debug FSM diagram" style="display:block; margin:0 auto; width:50%; height:auto;">
+	    <p class="caption">Debug FSM</p>
 
 
   </section>
@@ -1582,7 +1527,7 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
    <p>This tape-out project follows a complete ASIC development flow that spans front-end design, back-end physical implementation, and post-silicon validation. The process begins with the system specification and microarchitecture design, where the functional requirements and architectural structure of the chip are defined. Based on this specification, the RTL is implemented in Verilog/SystemVerilog.
     </p>
     <p>
-    During the functional verification phase, both hardware testbenches and software programs are used. We developed a full RISC-V software toolchain and compiler to generate C-based testcases, allowing us to verify the CPU core using real workloads and instruction sequences. This hardware–software co-verification ensures correctness at both the microarchitectural and ISA levels before synthesis.
+    During the functional verification phase, both hardware testbenches and software programs are used. We developed a full RISC-V software toolchain and compiler to generate C-based test cases, allowing us to verify the CPU core using real workloads and instruction sequences. This hardware–software co-verification ensures correctness at both the microarchitectural and ISA levels before synthesis.
        </p><p>
     After verification, the RTL is synthesized into a gate-level netlist, followed by post-synthesis timing and functional checks. The design then enters the physical design flow, including floorplanning, power planning, placement, routing, and clock tree synthesis. I/O pad integration and layout optimization are performed prior to signoff verification, which includes STA, DRC, LVS, and ERC. Once the design passes all signoff checks, the final GDSII is generated and sent for tape-out.
     </p>
@@ -1618,7 +1563,7 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>The verification of the SoC followed a directed-test methodology using a custom SystemVerilog testbench together with C-based test programs compiled for the RISC-V architecture. Instead of building a full UVM environment, we adopted a focused, system-driven verification approach that closely matches the behavior of the real chip during board-level bring-up. This allowed us to validate both the functional design and the DFT infrastructure under realistic operating conditions.</p>
     <p>All test cases were written as C programs, compiled using the RISC-V GCC toolchain, and executed directly on the embedded CV32E40P CPU core. These tests exercise the RTL in the same way real firmware will, enabling software-driven verification of processor execution, memory behavior, bus transactions, and peripheral functionality. A variety of targeted test programs were developed to isolate and validate individual modules—including DMEM read/write patterns, SPI transfers, UART transmission, GPIO toggling, I²C transactions, and timer interrupts. In addition to unit-level tests, we also created integrated programs that combine multiple peripherals and CPU-bus interactions to ensure correct end-to-end system behavior. More details of the test program structure and software toolchain will be described in the Software section.</p>
     <p>The SystemVerilog testbench models the full bring-up sequence of the physical chip. Before each run, the testbench assembles the 248-bit scan-in vector by organizing the scan chain fields according to their functional purposes, including IMEM contents, DMEM initialization, clock generator configuration, and FSM mode bits. Verification begins with a global reset, followed by placing the internal FSM into scan mode so that the testbench can shift instructions and configuration data into the scan chain. Once the scan load is complete, the FSM transitions into run mode, enabling the CPU to fetch instructions from IMEM and execute the compiled C program. Waveforms are monitored during execution to observe CPU behavior, AHB and APB transactions, peripheral activity, and memory accesses, ensuring architectural and protocol correctness.</p>
-    <p>After program execution finishes, the FSM is switched back into scan mode to shift out DMEM data. By comparing the scanned-out results against the expected outputs generated by the C testcase, we verify the correctness of program execution, the integrity of the scan chain, and the functionality of the memory wrappers. This verification flow—reset → scan-in → run → scan-out—exactly mirrors the operational steps used during post-silicon bring-up, ensuring a high degree of consistency between pre-silicon simulation and hardware validation.
+    <p>After program execution finishes, the FSM is switched back into scan mode to shift out DMEM data. By comparing the scanned-out results against the expected outputs generated by the C test case, we verify the correctness of program execution, the integrity of the scan chain, and the functionality of the memory wrappers. This verification flow—reset → scan-in → run → scan-out—exactly mirrors the operational steps used during post-silicon bring-up, ensuring a high degree of consistency between pre-silicon simulation and hardware validation.
 </p>
       <img src="../images/nanologic/dv1.jpg" alt="hierarchy">
       <p class="caption">GPIO Write Test Case</p>
@@ -1633,9 +1578,9 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
     <p>The synthesis stage translated the RTL design into a gate-level netlist using the TSMC 65 nm standard-cell library. Before synthesis, the RTL underwent linting and cleanup to ensure complete synthesizability and consistent signal definitions across modules. We constructed a comprehensive set of timing and design constraints, including the system clock specification, input and output delays, false-path and multicycle-path declarations, and mode-specific constraints for both functional and scan operation. These constraints ensured that the synthesis tool accurately captured the intended timing behavior of the SoC across all subsystems.
 </p>
     <p>During synthesis, the memory wrappers were configured to replace their behavioral models with the actual SRAM hard macros generated by the memory compiler. The wrappers provided the necessary functional and scan-mode interfaces so that the macros could be seamlessly integrated into both the RTL and gate-level flows.</p>
-    <p>In our synthesis flow, we follow a hierarchical methodology aligned with the RTL file organization. All IP modules—such as the CPU core, SPI, UART, I2C, GPIO, timer, scan chain, and various FSMs—are synthesized individually to ensure modularity and ease of debugging. When synthesizing the SoC-level design, we include the previously generated netlists for these IP blocks and then proceed with synthesizing the SoC bus, SoC memory subsystem, and SoC top, together with the SRAM integration files.</p>
+    <p>In our synthesis flow, we follow a hierarchical methodology aligned with the RTL file organization. All IP modules—such as the CPU core, SPI, UART, I²C, GPIO, timer, scan chain, and various FSMs—are synthesized individually to ensure modularity and ease of debugging. When synthesizing the SoC-level design, we include the previously generated netlists for these IP blocks and then proceed with synthesizing the SoC bus, SoC memory subsystem, and SoC top, together with the SRAM integration files.</p>
     <p>For each test case, we perform post-synthesis gate-level simulation to validate functional correctness. Due to several modules exhibiting hold-time violations, not all test cases pass at this stage. These hold issues are expected and will be resolved during the physical design (PD) stage through proper buffering and timing refinement. Importantly, we ensure that there are no setup-time violations after synthesis, providing a solid timing foundation for the subsequent place-and-route process.</p>
-    <p>Following synthesis, we generated reports for area utilization, hierarchical timing, constraint coverage, and scan connectivity. The final synthesized netlist, along with the macro placement constraints and clock definitions, was handed off to the physical design stage for floorplanning and place-and-route. This marked the transition from RTL-level development to backend implementation.</p>
+    <p>Following synthesis, we generated reports for area utilization, hierarchical timing, constraint coverage, and scan connectivity. The final synthesized netlist, along with the macro placement constraints and clock definitions, was handed off to the physical design stage for floorplanning and place-and-route. This marked the transition from RTL-level development to back-end implementation.</p>
       <img src="../images/nanologic/dc1.jpg" alt="System block diagram" style="display:block; margin:0 auto; width:60%; height:auto;"><br>
       <p class="caption">Timing and Area Summary</p>
       <br><br>
@@ -1679,7 +1624,7 @@ Mode selection, as well as auxiliary control signals (such as step length in deb
   </section>
   
   <section id="software">
-    <h2>Software & Testing Flow</h2>
+	    <h2>Software &amp; Testing Flow</h2>
      <p class="instruction-text"> 
 The software development and testing workflow begins with writing programs in C, which serve as test cases for validating the functionality of our SoC. To support this, we built a complete RISC-V toolchain, including a customized linker script and memory configuration. Since our design follows a Harvard architecture with separate instruction memory (IMEM) and data memory (DMEM), the toolchain is configured to correctly place code sections into IMEM and data sections into DMEM. The RISC-V compiler translates C programs into machine code, while also generating assembly output to assist with debugging and instruction-level verification.
       Once the C programs are compiled, the resulting machine code is loaded into the chip through the scan chain. During scan mode, the scan chain shifts the instructions directly into the IMEM and DMEM. After switching to run mode, the CPU begins fetching instructions from IMEM and executing them, allowing us to verify full-system behavior.
@@ -1692,7 +1637,7 @@ The software development and testing workflow begins with writing programs in C,
         <p>Custom linker script respects the Harvard split and AHB/APB address map.</p>
       </div>
       <div class="highlight-card">
-        <span class="label">Startup & Drivers</span>
+        <span class="label">Startup &amp; Drivers</span>
         <div class="value">crt0.S + nano_logic_utils.c</div>
         <p>Boot code, register aliases, and peripheral helpers reused across demos.</p>
       </div>
@@ -3338,7 +3283,7 @@ static void print_pi_uart(int digits) {
   </tr>
 
   <tr>
-    <td>I2C</td>
+	    <td>I²C</td>
     <td>0x40000000</td>
     <td>0x40000FFF</td>
     <td>4KiB</td>
@@ -3448,8 +3393,8 @@ static void print_pi_uart(int digits) {
     <h2>Conclusions</h2>
 
     <h3>Key Achievements</h3>
-     <p>Our team successfully designed and verified a fully functional RISC-V based System-on-Chip (SoC) integrating a custom CPU core, AHB/APB bus interconnect, instruction and data memories, and a rich set of peripheral modules including UART, SPI, I²C, GPIO, LCD, timers, finite-state machines, and a full scan chain architecture. We implemented a complete end-to-end ASIC design flow, from architectural design, RTL implementation, and verification to synthesis, physical design, and tape-out, resolving all timing violations and achieving clean DRC/LVS signoff. To support software development, we built a customized RISC-V toolchain, linker script, and utilities tailored for a Harvard memory architecture. A comprehensive test suite, covering arithmetic kernels, peripheral interactions, metastability tests, and multiple demonstration programs, was developed and validated across both RTL and post-synthesis gate-level simulations. We also integrated deterministic scan-chain–based loading and run-mode execution for robust software-driven testing. Full post-route timing analysis and signoff were completed using Innovus, Virtuoso, and PrimeTime, culminating in the generation of the final GDSII and all required collateral for fabrication. After silicon returned, we performed post-silicon validation, designed a custom PCB for bring-up, and developed multiple demo applications to showcase the chip’s full functionality running on real hardware.
-    </p>
+	     <p>Our team successfully designed and verified a fully functional RISC-V-based System-on-Chip (SoC) integrating a custom CPU core, AHB/APB bus interconnect, instruction and data memories, and a rich set of peripheral modules including UART, SPI, I²C, GPIO, LCD, timers, finite-state machines, and a full scan chain architecture. We implemented a complete end-to-end ASIC design flow, from architectural design, RTL implementation, and verification to synthesis, physical design, and tape-out, resolving all timing violations and achieving clean DRC/LVS signoff. To support software development, we built a customized RISC-V toolchain, linker script, and utilities tailored for a Harvard memory architecture. A comprehensive test suite, covering arithmetic kernels, peripheral interactions, metastability tests, and multiple demonstration programs, was developed and validated across both RTL and post-synthesis gate-level simulations. We also integrated deterministic scan-chain–based loading and run-mode execution for robust software-driven testing. Full post-route timing analysis and signoff were completed using Innovus, Virtuoso, and PrimeTime, culminating in the generation of the final GDSII and all required collateral for fabrication. After silicon returned, we performed post-silicon validation, designed a custom PCB for bring-up, and developed multiple demo applications to showcase the chip’s full functionality running on real hardware.
+	    </p>
 
     <h3>Lessons Learned</h3>
     <p>Throughout the design and implementation of the SoC, we gained several important insights that shaped our engineering workflow. Managing a hierarchical SoC design requires careful planning of module interfaces, timing constraints, and verification strategies to ensure smooth integration and to prevent late-stage system-level issues. We found that addressing toolchain setup, linker configuration, and memory mapping early in the project greatly simplified software debugging and hardware bring-up. From a physical design standpoint, we learned that hold-time violations frequently emerge after synthesis and must be handled systematically during place-and-route through delay insertion and routing optimization. Additionally, macro placement, power grid design, and clock tree architecture proved to have substantial impact on timing closure, congestion, and overall chip robustness. Building a comprehensive testing framework—including both RTL and gate-level simulations—was essential to uncovering subtle timing and functional issues long before tape-out.</p>
@@ -3502,7 +3447,7 @@ static void print_pi_uart(int digits) {
   <section id="acknowledgments">
     <h2>Acknowledgments</h2>
     <p>We would like to express our deepest gratitude to Professor Mingoo Seok, whose weekly meetings, technical guidance, and continuous encouragement were fundamental to the success of this tape-out project. His insights into this area helped shape our SoC from concept to working silicon, and his support throughout each milestone kept our team moving forward.</p>
-    <p>We would also like to thank our teaching assistants for their invaluable contributions. Da Won Kim’s lessons provided essential foundational knowledge that directly strengthened our design flow work. Mosom Jana’s office hours were instrumental in helping us resolve numerous technical challenges, from RTL implementation to back-end design issues. We are grateful to Chuan-Tung Lin for his extensive support during silicon validation, PCB development and final Demo; his guidance played a critical role in enabling our successful bring-up and demonstration of the fabricated chip.</p>
+    <p>We would also like to thank our teaching assistants for their invaluable contributions. Da Won Kim’s lessons provided essential foundational knowledge that directly strengthened our design flow work. Mosom Jana’s office hours were instrumental in helping us resolve numerous technical challenges, from RTL implementation to back-end design issues. We are grateful to Chuan-Tung Lin for his extensive support during silicon validation, PCB development, and the final demo; his guidance played a critical role in enabling our successful bring-up and demonstration of the fabricated chip.</p>
     <p>We further acknowledge the EE6350 VLSI Design Lab 2024 RISC-V Processor Team, whose previous work served as an important reference as we built our own system. We extend our appreciation to James Tian, whose timely assistance and practical advice helped us overcome difficulties throughout the project. We are also thankful for the collaboration and discussions with students from other fellow groups, the shared problem-solving environment in the lab greatly enriched our learning experience and contributed to the overall success of the project.</p>
     <p>Finally, we would like to extend our sincere appreciation to Apple Inc. for sponsoring this tape-out project. We are especially grateful to the Apple engineers whose guidance, technical insights, and continuous support played an essential role in helping us improve our design and better understand real-world ASIC development practices. Their contributions greatly enriched our learning experience and enabled us to complete this project successfully from design through silicon validation.</p>
     
