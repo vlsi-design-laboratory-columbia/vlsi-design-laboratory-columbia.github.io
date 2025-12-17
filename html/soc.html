@@ -573,18 +573,31 @@
   flex: 0 0 6px;
 }
 
-/* ===== Remove the card-like container (no HTML changes) ===== */
+/* ✅ 推荐改法：让正文更窄，两侧留白更宽，阅读更干净 */
 .container{
-  max-width: min(1100px, calc(100vw - 72px)) !important; /* 像截图一样更“文章页” */
+  max-width: min(920px, calc(100vw - 160px)) !important; /* 左右各约 80px 空白 */
   margin: 28px auto 70px !important;
-
+  padding: 0 !important;
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-
-  padding: 0 !important;  /* 让内容不再被卡片内边距包住 */
 }
+
+/* 中屏幕（笔记本宽度）时略微收一点空白 */
+@media (max-width: 1200px){
+  .container{
+    max-width: min(920px, calc(100vw - 96px)) !important; /* 左右各约 48px */
+  }
+}
+
+/* 小屏手机时自动贴边，不挤 */
+@media (max-width: 900px){
+  .container{
+    max-width: calc(100vw - 32px) !important; /* 左右各 16px */
+  }
+}
+
 
 /* 给“正文”自己留白（替代原 container padding） */
 section{
