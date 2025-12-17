@@ -598,23 +598,28 @@
   
   <section id="software">
     <h2>Testing & Verification</h2>
-    <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p>
+    <!-- <p class="instruction-text">[Replace with software and testing description: Explain the software stack, test programs, simulation methodology, and post-silicon validation approach.]</p> -->
     <p> 
         This section presents the overall verification and validation flow used to ensure the correct functionality of the buck converter chip. 
         The testing process is divided into pre-silicon verification, which confirms circuit functionality before tape-out, and post-silicon validation, which evaluates the fabricated chip under real measurement conditions.
     </p>
 
     <h3>Pre-silicon</h3>
-    <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p>
+    <!-- <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p> -->
 
     <h4>Digital Blocks</h4>
     <p> To verify the correctness of the digital control logic, comprehensive testbenches were written in Verilog for each module and for the combined digital top. Simulations were run in ModelSim, both before synthesis (RTL) and after synthesis (gate-level), to detect potential timing issues introduced by the synthesis process. In addition, Static Timing Analysis (STA) was conducted in Synopsys PrimeTime to verify that all timing constraints were met and to ensure that the design operated reliably at the target clock frequency.
         The figure below shows the ModelSim simulation waveform alongside a snapshot of the PrimeTime timing report.
     </p>
-    <div class="image-placeholder">Insert Simulation Results</div>
+    <img src="../images/dpmic/modelsim_waveform.png">
 
     <h4>Analog Blocks</h4>
     <h4>Post-layout Closed-loop Simulation</h4>
+    <p>
+    To verify the design after the place-and-route (PnR) and I/O pad integration stages, static timing analysis (STA) was performed using PrimeTime, and the digital functionality was verified in ModelSim using dedicated testbenches. Since the integrated design includes analog blocks that cannot be meaningfully analyzed using digital static timing analysis or simulated using standard digital HDL simulators such as PrimeTime and ModelSim, a behavioral Verilog model was created to replace the analog top during post-PnR digital verification. This model serves as an interface bridge between the digital blocks, enabling post-PnR timing verification and functional simulation to be carried out using standard digital design tools. The waveform below shows the verified result. 
+    </p>
+    <img src="../images/dpmic/post_apr_waveform.png">
+
     <p>
       The top-level post-layout simulation results are shown as follows.
     </p>
@@ -624,7 +629,10 @@
       <img src="../images/dpmic/efficiency.png" width="60%">
     </p>
     <h3>Post-silicon</h3>
-    <p>[Explain pre-silicon verification, post-silicon testing procedures, and measurement techniques.]</p>
+    <p>After fabrication, the initial bring-up of the chip was performed using a breadboard-based test setup. The chip was mounted in a QFN-64 socket and connected to the breadboard via jumper wires, enabling basic functionality checks and early debugging.
+
+    <br>A custom PCB was subsequently designed to provide a stable testing environment. The PCB interfaces the chip with an Xilinx FPGA, which programs the digital control parameters and clock configuration through the on-chip scan chain. The PID coefficients and clock settings are set in MATLAB and serialized into the chip via the FPGA. Supply and reference voltages are verified using a digital multimeter before operation. Key signals, including the non-overlapping scan-chain clock(phi and phi_b), the clock, the switching node voltage (Vx), and the output voltage (Vout), are probed with an oscilloscope to evaluate timing, switching behavior, and closed-loop regulation, as shown in the following figures.
+    </p>
     <p align="center">
       <img src="../images/dpmic/test_scanchain.png" width=80%>
     </p>
