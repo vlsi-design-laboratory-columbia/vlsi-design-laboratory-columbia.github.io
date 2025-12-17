@@ -638,10 +638,24 @@ p{ color:#000 !important; }
 }
 
 .team-member{
-  height: 140px;            
+  min-height: 160px;           
   display: flex;
   flex-direction: column;
-  justify-content: center;  
+  justify-content: flex-start; 
+}
+
+.team-email{
+  margin-top: auto;            
+  padding-top: 10px;
+  font-size: .92rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.team-email:hover{
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 #demo .instruction-text figcaption{
@@ -1863,6 +1877,7 @@ Our chosen synthesis strategy followed a bottom-to-top approach. We first synthe
       <div class="team-member">
         <strong>Jiajun Jiang</strong>
         <span>VPU Development, Frontend Design, Software Testing, Post&#8209;silicon Testing</span>
+        <a class="team-email" href="mailto:jj3457@columbia.edu">jj3457@columbia.edu</a>
       </div>
       <div class="team-member">
         <strong>Zhenning Yang</strong>
