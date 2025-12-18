@@ -633,7 +633,7 @@
       After fabrication, the initial bring-up of the chip was performed using a breadboard-based test setup. The chip was mounted in a QFN-64 socket and connected to the breadboard via jumper wires, enabling basic functionality checks and early debugging.
     </p>
     <p align="center">
-      <img src="../images/dpmic/package.png" width="70%">
+      <img src="../images/dpmic/package.png" width="60%">
     </p>  
     <p>
       A custom PCB was subsequently designed to provide a stable testing environment. The PCB interfaces the chip with an Xilinx FPGA, which programs the digital control parameters and clock configuration through the on-chip scan chain. The PID coefficients and clock settings are set in MATLAB and serialized into the chip via the FPGA. Supply and reference voltages are verified using a digital multimeter before operation. Key signals, including the non-overlapping scan-chain clock(phi and phi_b), the clock, the switching node voltage (Vx), and the output voltage (Vout), are probed with an oscilloscope to evaluate timing, switching behavior, and closed-loop regulation, as shown in the following figures.
