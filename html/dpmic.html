@@ -605,7 +605,7 @@
         The testing process is divided into pre-silicon verification, which confirms circuit functionality before tape-out, and post-silicon validation, which evaluates the fabricated chip under real measurement conditions.
     </p>
 
-    <h3>Post-Layout Simulation>Post
+    <h3>Post-Layout Simulation
     <!-- <p class="instruction-text">[Describe software tools, programming interface, test applications, and benchmarks used.]</p> -->
 
     <h4>Digital Blocks</h4>
@@ -621,19 +621,13 @@
     <img src="../images/dpmic/adc_layout_sim.png">
     <h4>Top-Level</h4>
     <p>
-    To verify the design after the place-and-route (PnR) and I/O pad integration stages, static timing analysis (STA) was performed using PrimeTime, and the digital functionality was verified in ModelSim using dedicated testbenches. Since the integrated design includes analog blocks that cannot be meaningfully analyzed using digital static timing analysis or simulated using standard digital HDL simulators such as PrimeTime and ModelSim, a behavioral Verilog model was created to replace the analog top during post-PnR digital verification. This model serves as an interface bridge between the digital blocks, enabling post-PnR timing verification and functional simulation to be carried out using standard digital design tools. 
+      To verify the design after the place-and-route (PnR) and I/O pad integration stages, static timing analysis (STA) was performed using PrimeTime, and the digital functionality was verified in ModelSim using dedicated testbenches. Since the integrated design includes analog blocks that cannot be meaningfully analyzed using digital static timing analysis or simulated using standard digital HDL simulators such as PrimeTime and ModelSim, a behavioral Verilog model was created to replace the analog top during post-PnR digital verification. This model serves as an interface bridge between the digital blocks, enabling post-PnR timing verification and functional simulation to be carried out using standard digital design tools. 
     </p>  
     <p>
-      The top-level post-layout simulation results are shown as follows.
+      The top-level post-layout simulation is also based on HSPICE, and the results are presented below.
     </p>
     <img src="../images/dpmic/post_layout_start.png">
     <img src="../images/dpmic/post_layout_sim.png">
-    <P>
-      The efficiency results (both CCM and DCM) when the VOUT is 0.9V and 1.5V are shown as follows. The peak efficiency is 98%, and the DCM efficiency is always above 92%.
-    </P>
-    <p align="center">
-      <img src="../images/dpmic/efficiency.png" width="60%">
-    </p>
     <h3>Post-Silicon Validation</h3>
     <p>
       After fabrication, the initial bring-up of the chip was performed using a breadboard-based test setup. The chip was mounted in a QFN-64 socket and connected to the breadboard via jumper wires, enabling basic functionality checks and early debugging.
@@ -642,6 +636,12 @@
       A custom PCB was subsequently designed to provide a stable testing environment. The PCB interfaces the chip with an Xilinx FPGA, which programs the digital control parameters and clock configuration through the on-chip scan chain. The PID coefficients and clock settings are set in MATLAB and serialized into the chip via the FPGA. Supply and reference voltages are verified using a digital multimeter before operation. Key signals, including the non-overlapping scan-chain clock(phi and phi_b), the clock, the switching node voltage (Vx), and the output voltage (Vout), are probed with an oscilloscope to evaluate timing, switching behavior, and closed-loop regulation, as shown in the following figures.
     </p>
     <img src="../images/dpmic/test_post_silicon.png">
+    <P>
+      The efficiency results (both CCM and DCM) when the VOUT is 0.9V， 1.5V, and 2.0V are shown as follows. The peak efficiency is nearly 98%, and the DCM efficiency is always above 91%.
+    </P>
+    <p align="center">
+      <img src="../images/dpmic/efficiency.png" width="60%">
+    </p>
   </section>
   
   <section id="pcb">
@@ -712,10 +712,16 @@
   <section id="demo">
     <h2>Demonstration</h2>
     <p>
-      The pictures below show two demonstration modes of our board: in the first, the chip supplies 1.8 V to the MCU while it runs a snake game; in the second, the chip powers the 1.8 V LED array. In both cases, the real-time output voltage and current provided by the chip are displayed on the OLED screen.
+      The pictures below show two demonstration modes of our board: first, the chip supplies 1.8 V to the MCU while it runs a snake game; second, the chip powers the 1.8 V LED array. In both cases, the real-time output voltage and current provided by the chip are displayed on the OLED screen.
     </p>
     <img src="../images/dpmic/demo_photos/demo1.jpeg">
+    <p>
+      The basic idea of using a buck converter to power the LED array is to vary the load current by changing the number of LEDs that are turned on, while keeping the output voltage approximately constant. This is also a kind of load regulation.
+    </p>
     <img src="../images/dpmic/demo_photos/demo2.png">
+    <p>
+      The details are introduced in the following demo video.
+    </p>
     <h3>Video Demonstration</h3>
     <div class="video-container">
       <iframe src="https://www.youtube.com/embed/iYCrBk69G7g" title="Project demonstration video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
