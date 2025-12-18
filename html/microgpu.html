@@ -1081,7 +1081,7 @@ The core clock is enabled. SRAM clock is the OR of scan memory clock and core cl
 
       <h3>Frontend Design</h3>
       <p style="text-align: justify;">
-      The front design process focused on RTL designs and verifications. We started from using the open source project Tiniest-GPU <sup>[1]</sup> to estimate the area and timing, and shifted to design our own versions with the new architecture that supports up to 2560 vertices and 1280 triangles. As described in the system architecture, IA, VS, RA, BF and Pixel modules are implemented from scratch and VGA controller is being modified so that it oeprates correctly with 250 MHz target clock frequency.
+      The frontend design process focused on RTL designs and verifications. We started from using the open source project Tiniest-GPU <sup>[1]</sup> to estimate the area and timing, and shifted to design our own versions with the new architecture that supports up to 2560 triangles and 1280 vertices. As described in the system architecture, IA, VS, RA, BF and Pixel modules are implemented from scratch and VGA controller is being modified so that it oeprates correctly with 250 MHz target clock frequency.
       </p>
         <table class="specs-table">
           <caption style="caption-side: bottom; text-align: center; font-style: italic;">
@@ -1101,7 +1101,7 @@ The core clock is enabled. SRAM clock is the OR of scan memory clock and core cl
           </tr>
           <tr>
             <td>2.0 (Engine HW Design)</td>
-            <td>Multi-cycle version with pipelines with full functionalities</td>
+            <td>Multi-cycle pipelined version with full functionalities</td>
           </tr>
           <tr>
             <td>2.1</td>
@@ -1290,9 +1290,10 @@ The core clock is enabled. SRAM clock is the OR of scan memory clock and core cl
             <li> USB Driver: This is obtained from [2] which is used to handle the USB communication with the keyboard.</li>
             <li> Main Application:
                 <ul>
-                    <li>Starts from loading the 3D model file using methods shared across the software reference model and the testbench driver.</li>
+                    <li>Starts from loading the 3D model file using methods shared across the software reference model and the testbench driver</li>
                     <li>Completes the scan chain loading sequence using the ioctl control functions</li>
                     <li>Initializes the USB keyboard context and listens for keypress events in the main loop. After the user issues a command, it invokes corresponding UART transmitter configuration functions</li>
+                    <li>Retrieves hand detection information from another PC through TCP if gesture control is enabled</li>
                 </ul>
         </ol>
         <h4>Hardware</h4>
@@ -1305,7 +1306,7 @@ The core clock is enabled. SRAM clock is the OR of scan memory clock and core cl
           <figcaption>Scan Chain Wave Form</figcaption>
         </figure>
         <p style="text-align: justify;">
-        For the UART transmitter, there are 43 resigters as described in the IA module. After the write received to the address indicating a start, the UART <code>tx</code> will drive the signals following the protocol with 11520 bit/s baud rate which aligns with the chip <code>rx</code>.<br>
+        For the UART transmitter, there are 43 resigters as described in the IA module. After a write received points to the address indicating a start, the UART <code>tx</code> will drive the signals following the protocol with 115200 bit/s baud rate which aligns with the chip <code>rx</code>.<br>
         All the FPGA hardware runs at 50 MHz.
         </p>
       <h3>FPGA VGA DAC</h3>
@@ -1315,12 +1316,12 @@ The core clock is enabled. SRAM clock is the OR of scan memory clock and core cl
       <h3>Testing Methodology</h3>
         <h4>Pre-silicon</h4>
 		    <p style="text-align: justify;"> 
-          Pre-silicon verification focuses on the validation of the hardware generated outputs in RTL/Netlist simulation. The verification processes consistes of two parts: block-level testing and end-to-end testing. For each of the blocks in the engine core, the team developed correspoding testbenches and generated random data as inputs. The output is cross-checked with the C-Model result feeding the same configuration and input stimulus. For example, a series of 3D vertices will be sent to VS and we compare the transformed 2D vertices with the C-Model result. After each individual block has been verified and the top level properly constructed, we developed the end-to-end testbench.
+          Pre-silicon verification focuses on the validation of the hardware generated outputs in RTL/Netlist simulation. The verification processes consistes of two parts: block-level testing and end-to-end testing. For each of the blocks in the engine core, the team developed correspoding testbenches and generated random data as inputs. The output is cross-checked with the C-Model result feeding the same configuration and input stimuli. For example, a series of 3D vertices were sent to VS and we compared the transformed 2D vertices with the C-Model result. After each individual block were verified and the top level properly constructed, we developed the end-to-end testbench.
         </p> 
 		<p>The testbench includes two components: </p>
 		<ol class="list">
 		  <li>C++ Driver: For reusability, we started with developing this driver to process model file, preparing UART config data based on input control. This part of the codes are reused in the silicon driver. For testing purposes, this driver is also responsible for constructing and saving the output frame images so that we could use it to compare with C-Model generared frames. </li>
-		  <li>SystemVerilog Testbench: The testbench generates clocks for the core (for RTL sim where we don't have the clock generator), and the scan chain trasmitter logic. The testbench communicates with the the C++ driver through SystemVerilog DPI, where we imported functions so that the testbench can read new models, get commands, and accesses the memory inside the C++ driver where the 3D model and UART commands are temporarily stored.<br>
+		  <li>SystemVerilog Testbench: The testbench generates clocks for the core (for RTL sim where we did not include the clock generator), and the scan chain trasmitter logic. The testbench communicates with the the C++ driver through SystemVerilog DPI, where we imported functions so that the testbench can read new models, get commands, and access the memory inside the C++ driver where the 3D model and UART commands are temporarily stored.<br>
 		  The testbench sequences are: <br>
 		    <ul class="list">
 		  	  <li> model reading with C++ initilization </li>
