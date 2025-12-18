@@ -1279,6 +1279,11 @@ The core clock is enabled. SRAM clock is the OR of scan memory clock and core cl
 
   <section id="software">
     <h2>Software & Testing Flow</h2>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/demo_diagram.png" alt="Demo diagram" style="margin-bottom: 0;">
+          <figcaption>Demo diagram</figcaption>
+        </figure>
+
       <h3>FPGA Transmitter</h3>
       <p style="text-align: justify;">
       As the testing flow requires a lot of data transmision from 3D obejct model files, and real-time configuration of the rendering, we built a full SoC on FPGA. One part is the ARM Cortex A9 core on the FPGA and we used it to run a Linux OS that we can communicate with the hardware through kernel modules and read USB keyboard input for our application. The other part is the FPGA fabric, which implments the transmitters.
