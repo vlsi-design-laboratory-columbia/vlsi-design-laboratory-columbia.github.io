@@ -25,6 +25,7 @@
       background: #f7f9fc;
       color: var(--text-dark);
       line-height: 1.7;
+      counter-reset: figure-counter table-counter;
     }
     
     /* Header with gradient and modern design */
@@ -285,6 +286,8 @@
       margin-left: 0;
       padding-left: 0;
       list-style-position: inside;
+      margin-bottom: 1.2em; 
+      text-align: justify;
     }
 
     .matrix {
@@ -436,6 +439,22 @@
       color: rgba(255,255,255,0.95);
       margin-bottom: 8px;
     }
+
+    figure {
+      counter-increment: figure-counter;
+    }
+
+    figure figcaption::before {
+      content: "Figure " counter(figure-counter) ": ";
+    }
+
+    table {
+      counter-increment: table-counter;
+    }
+
+    table caption::before {
+      content: "Table " counter(table-counter) ": ";
+    }
     
     /* Responsive */
     @media (max-width: 768px) {
@@ -463,13 +482,13 @@
     
     <div class="author-info">
       <div class="authors-list">
-        <a href="mailto:email@columbia.edu" class="author-name">Yangfan Wang</a>
-        <a href="mailto:email@columbia.edu" class="author-name">Yun-Rong (Alice) Du</a>
-        <a href="mailto:email@columbia.edu" class="author-name">Yuntian Hu</a>
-		<a href="mailto:email@columbia.edu" class="author-name">Tianyun Huang</a>
-		<a href="mailto:email@columbia.edu" class="author-name">Zhelin Su</a>
-		<a href="mailto:email@columbia.edu" class="author-name">Yuxi Zhang</a>
-		<a href="mailto:email@columbia.edu" class="author-name">Fengze Zhong</a>
+        <a href="mailto:yw4415@columbia.edu" class="author-name">Yangfan Wang</a>
+        <a href="mailto:yd2770@columbia.edu" class="author-name">Yun-Rong (Alice) Du</a>
+        <a href="mailto:yh3751@columbia.edu" class="author-name">Yuntian Hu</a>
+        <a href="mailto:th3116@columbia.edu" class="author-name">Tianyun Huang</a>
+        <a href="mailto:zs2709@columbia.edu" class="author-name">Zhelin Su</a>
+        <a href="mailto:yz4935@columbia.edu" class="author-name">Yuxi Zhang</a>
+        <a href="mailto:fz2393@columbia.edu" class="author-name">Fengze Zhong</a>
       </div>
     </div>
   </div>
@@ -495,70 +514,111 @@
   
   <section id="introduction">
     <h2>Project Overview</h2>
-    <p class="instruction-text">The project implements a compact 3D rendering pipepine that supports geomtry transformations, basic lighting effects, and triangle rasterizations. The chip is capable of generating 480p@60 fps VGA output and processing real-time UART input commands. Fabricated in TSMC 65 nm CMOS technology, the design represents a full end-to-end development effort, from defining the algorithms, architecture design, RTL implementation, testbench and driver development, synthesis and physiscal design to chip bring-up, PCV design and demo system integration.</p>
-    <img src="../images/microgpu/02chip_TMUU65_annotated.png" alt="microGPU die photo">
+    <p>The project implements a compact 3D rendering pipepine that supports geomtric transformations, basic lighting effects, 
+       and triangle rasterizations. The chip is capable of generating 480p @60 fps VGA output and processing real-time commands via a UART interface. 
+       Fabricated in TSMC 65 nm CMOS technology, the design represents a complete end-to-end development effort, from algorithms definition,
+       architecture design, RTL implementation, testbench and driver development, synthesis and physiscal design to chip bring-up, PCB design and full demo system integration.</p>
+    <figure style="text-align: center; margin-bottom: 0;">
+      <img src="../images/microgpu/02chip_TMUU65_annotated.png" alt="microGPU die photo" style="margin-bottom: 0;">
+      <figcaption>microGPU die photo</figcaption>
+    </figure>
+    <figure style="text-align: center; margin-bottom: 0;">
+      <img src="../images/microgpu/microgpu.JPG" alt="microGPU" style="margin-bottom: 0;">
+      <figcaption>microGPU</figcaption>
+    </figure>
   </section>
   
   <section id="architecture">
     <h2>System Architecture</h2>
-    <img src="../images/microgpu/block_diagram.png" alt="microGPU block diagram">
-    <p class="instruction-text">[Replace with system architecture description: Explain the overall architecture, main functional blocks, and how they interact. Include block diagrams and architectural decisions.]</p>
-      <!-- TODO -->
+    <figure style="text-align: center; margin-bottom: 0;">
+      <img src="../images/microgpu/block_diagram.png" alt="microGPU block diagram" style="margin-bottom: 0;">
+      <figcaption>microGPU block diagram</figcaption>
+    </figure>
       <h3>Rendering Engine</h3>
-        <h4>Input Assembler</h4> 
-		<p> The Input Assembler (IA) is the first stage of the graphics pipeline and is responsible for reliably receiving, framing, and packaging raw configuration and vertex-related data streamed over the UART interface into fixed-width packets for downstream processing. </p>
-		<p> It begins by interfacing with the system’s UART receiver, which outputs each validated byte together with a strobe signal; the IA remains idle until detecting a start tag that marks the beginning of a new configuration sequence, ensuring alignment and preventing corrupted data from entering the pipeline. After this start tag, the IA enters a capture phase in which every received byte is shifted into a 48-bit register, and a 6-byte counter tracks alignment so that each group of six bytes forms one complete 48-bit packet. </p>
-		<p> Every such packet is pushed into a small synchronous FIFO buffer that decouples the asynchronous UART domain from the synchronous, high-throughput graphics pipeline. The FIFO provides flow-control signals that throttle the IA when nearing capacity and allow the Vertex Shader (VS) to pull parameter packets on demand without stalling rendering. </p>
-		<p> The IA is designed to handle 42 bytes per sequence, producing seven 48-bit packets typically representing transformation parameters, viewport configuration, or other pipeline control values. The VS reads these packets during VGA blanking intervals so that new configuration data does not interfere with ongoing rasterization. The IA itself performs no interpretation of packet contents; instead, its purpose is to guarantee correct byte framing, alignment, buffering, and safe delivery of structured parameter words into the pipeline, providing a clean and timing-stable interface between the external UART input stream and the internally clocked 3D graphics processing stages. </p>
-        <h4>Vertex Shader</h4>
-			<p> The vertex shader is responsible for the all 3D-2D vertex transformations. VS operates in the region that VGA is blank so it won't interferece with the current triangle rasterization process. It starts from the poping FIFO inside IA to read the new configuration parameters if any, and then constructs the transformation matrix using algorithms described in the Software & Testing section. After the 3D viewpoint correction matrix and overall 2D transformation matrix are constructed and stored, it will start to read loaded vertices from memory and completes the matrix-vector multiplication. To expidate the process, we instantiated 4 of the 4-pair-input fully combinational MAC, so that each 4x4 by 4x1 multiplcation can be computed in 1 cycle. The VS also includes 3 DW_div_seq modules to normalize the correct 3D vertices with respected to the W coordinate. The pipeline starts from 3D view point correction, and while it's sent to the normalization stage, the MAC modules are used by the 2D transformation. A LUT is also constructed for providing the sin function output for angles ranges from \(0-90^{\circ}\). After all the triangles are being processed and sent to memory, it asserts a valid signal to start off BF work.</p>
-        <h4>Backface Culling & Lighting Module</h4> 
-	        <p> Once the vertex shader asserts a valid signal, the BF block starts to iterate over all triangles. For each triangle, it first reads the three vertex indices from the triangle index buffer and then fetches the corresponding 3D vertex coordinates from the vertex buffer.
-Using these three vertices, the module reconstructs two edge vectors and computes their cross product to obtain an unnormalized face normal. A signed dot product between this normal and one of the triangle’s vertices is then used to determine the triangle orientation. If the dot product is non-negative, the triangle is classified as a backface, and the module immediately marks it as invalid and writes a zero intensity without performing any further computation.
-For front-facing triangles (negative dot product), the module normalizes the face normal by using DW_sqrt_seq and DW_div_seq. The lighting stage computes a simple Lambertian diffuse intensity by taking the dot product between this normalized normal and a pre-normalized light direction vector. The intensity is clamped to non-negative values and stored as a per-triangle (flat) lighting value. In parallel, a 1-bit validity flag is written for each triangle to indicate whether it survived the backface culling. After all triangles have been processed, the BF module deasserts its busy signal and raises a valid signal to notify the following pipeline stages that culling and lighting are complete.
- </p>
+        <h4>Input Assembler (IA)</h4> 
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/ia.png" alt="microGPU IA" width="80%" style="margin-bottom: 0;">
+          <figcaption>IA block diagram</figcaption>
+        </figure>
+		    <p style="text-align: justify;"> 
+          The Input Assembler is the first stage of the graphics pipeline and is responsible for reliably receiving, 
+          framing, and packaging raw configuration and vertex-related data streamed over the UART interface into fixed-width packets
+          for downstream processing. <br>
+          It begins by interfacing with the system’s UART receiver, which outputs each validated byte together with a strobe signal; 
+          the IA remains idle until detecting a start tag that marks the beginning of a new configuration sequence, ensuring alignment 
+          and preventing corrupted data from entering the pipeline. After this start tag, the IA enters a capture phase in which 
+          every received byte is shifted into a 48-bit register, and a 6-byte counter tracks alignment so that each group of six bytes 
+          forms one complete 48-bit packet. <br>
+          Every packet is pushed into a small synchronous FIFO buffer that decouples the asynchronous UART domain from the 
+          synchronous, high-throughput graphics pipeline. The FIFO provides flow-control signals that throttle the IA 
+          when nearing capacity and allow the Vertex Shader (VS) to pull parameter packets on demand without stalling rendering. <br>
+          The IA is designed to handle 42 bytes per sequence, producing seven 48-bit packets typically representing transformation parameters, 
+          viewport configuration, or other pipeline control values. The Vertex Shader reads these packets during VGA blanking intervals 
+          so that new configuration data does not interfere with ongoing rasterization. The IA itself performs no interpretation of packet contents; 
+          instead, its purpose is to guarantee correct byte framing, alignment, buffering, and safe delivery of structured parameter words into the pipeline, 
+          providing a clean and timing-stable interface between the external UART input stream and the internally clocked 3D graphics processing stages. <br>
+        </p>
+        <h4>Vertex Shader (VS)</h4>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/vs.png" alt="microGPU VS" style="margin-bottom: 0;">
+          <figcaption>VS block diagram</figcaption>
+        </figure>
+			  <p style="text-align: justify;"> The vertex shader is responsible for the all 3D-to-2D vertex transformations. VS operates exclusively during the VGA blanking interval, ensuring it does not interferece with the ongoing triangle rasterization process. It starts from the poping FIFO inside IA to read the new configuration parameters if any, and then constructs the transformation matrix using algorithms described in the Software & Testing section. After the 3D viewpoint correction matrix and 2D projection matrix are constructed and stored internally, it starts to read loaded vertices from memory and performs the matrix-vector multiplication. To accelerate the process, 4 of the 4-pair-input fully combinational MAC are instantiated, allowing each 4x4 by 4x1 multiplcation to be computed in a single cycle. The VS also integrates 3 <code>DW_div_seq</code> modules to normalize the transformed 3D vertices with respect to the W coordinate. The pipeline begins with 3D view point correction, and while the results are forwarted to the normalization stage, the MAC modules are reused by the 2D projection transformation. A LUT is additionally constructed to provide sine function output for rotation angles ranges from \(0-90^{\circ}\). After all the vertices are being processed and written back to memory, the VS asserts a valid signal to trigger the subsequent BF stage.</p>
+        <h4>Backface Culling & Lighting Module (BF)</h4> 
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/bf.png" alt="microGPU BF" style="margin-bottom: 0;">
+          <figcaption>BF block diagram</figcaption>
+        </figure>
+	        <p style="text-align: justify;">
+            Once the vertex shader asserts a valid signal, the BF block starts to iterate over all triangles. For each triangle, it first reads the three vertex indices from the triangle index buffer and then fetches the corresponding 3D vertex coordinates from the vertex buffer. <br>
+            Using these three vertices, the module reconstructs two edge vectors and computes their cross product to obtain an unnormalized face normal. A signed dot product between this normal and one of the triangle’s vertices is then used to determine the triangle orientation. If the dot product is non-negative, the triangle is classified as a backface, and the module immediately marks it as invalid and writes a zero intensity without performing any further computation. <br>
+            For front-facing triangles (negative dot product), the module normalizes the face normal by using <code>DW_sqrt_seq</code> and <code>DW_div_seq</code>. The lighting stage computes a simple Lambertian diffuse intensity by taking the dot product between this normalized normal and a pre-normalized light direction vector. The intensity is clamped to non-negative values and stored as a per-triangle (flat) lighting value. In parallel, a 1-bit validity flag is written for each triangle to indicate whether it survived the backface culling. After all triangles have been processed, the BF module deasserts its busy signal and raises a valid signal to notify the following pipeline stages that culling and lighting are complete.
+          </p>
         <h4>Rasterizer</h4>
-    <p>
-  The rasterizer operates on 2D screen-space vertices and triangle indices to determine, for each pixel, which triangle is visible at that location. It first reads the triangle index and the three corresponding vertices from the 2D vertex buffer, then computes the axis-aligned bounding box of the triangle in screen coordinates. To improve throughput, the module works on tiles of
-  <code>TILE_HEIGHT = 4</code> pixels in the vertical direction and scans horizontally across the screen.
-</p>
-    <p>
-  The rasterizer scans horizontally across the triangle’s bounding box. For each column, the<code>TILE_HEIGHT</code> pixels are tested in parallel. A pixel is considered inside the triangle if all edge functions are non-positive. In parallel, a 12-bit depth test is performed; only if the incoming
-  depth is smaller will the triangle ID and the depth buffer be updated.
-</p>
-<p>
-  Depth memory is initialized once per frame. Successful hits write the triangle index and updated depth
-  only to the affected pixels within the tile. This tile-based, incremental rasterization design achieves
-  real-time performance and meets the 250&nbsp;MHz frequency target.
-</p>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/ra.png" alt="microGPU RA" style="margin-bottom: 0;">
+          <figcaption>RA block diagram</figcaption>
+        </figure>
 
-        <h4>VGA Controller</h4> <p> Yangfan Wang </p>
-		  <p> The VGA controller is responsible for generating VGA related signals based on the protocol. They include the vga clk (25 MHz), vga vsync, vga_hsync, and vga_blank, which all those are used to control the DAC for monitor synchronization. Meanwhile, it outputs the current col and row that the monitor is scanning, which controls the state of all the engine blocks. Also since the core runs on 250 MHz, there will be 10 cycles for each pixel. The VGA controller asserts a signal that indicates the beginning of a new pixel and that is where the color change can occur. </p>
+        <p style="text-align: justify;">
+          The rasterizer operates on 2D screen-space vertices and triangle indices to determine, for each pixel, which triangle is visible at that location. It first reads the triangle index and the three corresponding vertices from the 2D vertex buffer, then computes the axis-aligned bounding box of the triangle in screen coordinates. To improve throughput, the module works on tiles of
+          <code>TILE_HEIGHT = 4</code> pixels in the vertical direction and scans horizontally across the screen. <br>
+          The rasterizer scans horizontally across the triangle’s bounding box. For each column, <code>TILE_HEIGHT</code> pixels are tested in parallel. A pixel is considered inside the triangle if all edge functions are non-positive. In parallel, a 12-bit depth test is performed; only if the incoming
+          depth is smaller will the triangle ID and the depth buffer be updated. <br>
+          Depth memory is initialized once per frame. Successful hits write the triangle index and updated depth
+          only to the affected pixels within the tile. This tile-based, incremental rasterization design achieves
+          real-time performance and meets the 250&nbsp;MHz frequency target.
+        </p>
+        <h4>VGA Controller</h4>
+		    <p style="text-align: justify;"> The VGA controller is responsible for generating VGA related signals based on the protocol. They include the <code>vga_clk</code> (25 MHz), <code>vga_vsync</code>, <code>vga_hsync</code>, and <code>vga_blank</code>, which all those are directly used to control the DAC for monitor synchronization. Meanwhile, it outputs the current column and row that the monitor is scanning, which controls the state of all the engine blocks. Also since the core runs on 250 MHz, there will be 10 cycles for each pixel. The VGA controller asserts a signal that indicates the beginning of a new pixel and that is where the color change can occur. </p>
         <h4>Pixel Module</h4>
-    <p>
-  The Pixel module converts triangle IDs and lighting information into the final 24-bit VGA color. For each new pixel position <code>(x, y)</code> provided by the VGA controller, the module checks that the coordinate is within the visible 640×480 region and then reads the corresponding packed triangle index from the tile buffer. Each entry in the tile buffer stores <code>TILE_HEIGHT = 4</code> triangle IDs, so the row within the tile is selected using <code>y[1:0]</code>.
-</p>
-<p>
-  Once the triangle index is known, the module uses it to access the per-triangle lighting value from the light-intensity memory and the base color from the color memory. A small FSM sequences the operations through four states: reading the tile buffer, reading color and light data, computing the RGB value, and periodically flushing the tile buffer when the bottom row of a tile has been scanned. During the flush phase, the entire row of tile entries is overwritten with an invalid triangle ID, so that the next frame can reuse the same on-chip memory.
-</p>
-<p>
-  The color generation path supports several configurable shading modes, selected by
-  <code>color_config_i[15:14]</code>:
-</p>
-<ul class="list">
-  <li><b>00 – Indexed color:</b> use the 3-bit per-channel color stored in the color memory.</li>
-  <li><b>01 – Indexed color × light:</b> modulate the base color by the per-triangle light value.</li>
-  <li><b>10 – Solid color:</b> use a 12-bit solid RGB value encoded in <code>color_config_i</code>.</li>
-  <li><b>11 – Solid color × light:</b> modulate the solid color by the lighting value.</li>
-</ul>
-<p>
-  The intermediate results are kept in a Q9.9 fixed-point format and then truncated to 8-bit<code>R,G,B</code>. A one-stage register (<code>rgb_delay</code>) aligns the color with the<code>new_pixel</code> handshake, and the output is blanked during the VGA blanking interval. The module therefore produces a continuous 24-bit RGB stream at the VGA pixel rate while the core itself runs at 250&nbsp;MHz.
-</p>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/pc.png" alt="microGPU PC" width="60%" style="margin-bottom: 0;">
+          <figcaption>PC block diagram</figcaption>
+        </figure>
+
+        <p style="text-align: justify;">
+          The Pixel module converts triangle IDs and lighting information into the final 24-bit VGA color. For each new pixel position <code>(x, y)</code> provided by the VGA controller, the module checks that the coordinate is within the visible 640×480 region and then reads the corresponding packed triangle index from the tile buffer. Each entry in the tile buffer stores <code>TILE_HEIGHT = 4</code> triangle IDs, so the row within the tile is selected using <code>y[1:0]</code>. <br>
+          Once the triangle index is known, the module uses it to access the per-triangle lighting value from the light-intensity memory and the base color from the color memory. A small FSM sequences the operations through four states: reading the tile buffer, reading color and light data, computing the RGB value, and periodically flushing the tile buffer when the bottom row of a tile has been scanned. During the flush phase, the entire row of tile entries is overwritten with an invalid triangle ID, so that the next tile can reuse the same on-chip memory. <br>
+          The color generation path supports several configurable shading modes, selected by <code>color_config_i[15:14]</code>: 
+        </p>
+        <ul class="list">
+          <li><b>00 – Indexed color:</b> use the 3-bit per-channel color stored in the color memory.</li>
+          <li><b>01 – Indexed color × light:</b> modulate the base color by the per-triangle light value.</li>
+          <li><b>10 – Solid color:</b> use a 12-bit solid RGB value encoded in <code>color_config_i</code>.</li>
+          <li><b>11 – Solid color × light:</b> modulate the solid color by the lighting value.</li>
+        </ul>
+        <p style="text-align: justify;">
+          The intermediate results with lighting intensity computation are kept in a Q9.9 fixed-point format and then truncated to 8-bit <code>R,G,B</code>. A one-stage register (<code>rgb_delay</code>) aligns the color with the <code>new_pixel</code> handshake, and the output is blanked during the VGA blanking interval. The module therefore produces a continuous 24-bit RGB stream at the VGA pixel rate while the core itself runs at 250&nbsp;MHz.
+        </p>
 
       <h3>Memory</h3>
         <h4>Memory Controller</h4>
-        The below table shows the usage of our SRAMs.
+        <p  style="text-align: justify;">The below table shows the usage of our SRAMs. </p>
         <table border="1" cellspacing="0" cellpadding="8" style="width: 100%; border-collapse: collapse;">
+          <caption style="caption-side: bottom; text-align: center; font-style: italic;">
+            SRAM Usage
+          </caption>
         <thead>
           <tr>
             <th></th>
@@ -568,25 +628,25 @@ For front-facing triangles (negative dot product), the module normalizes the fac
           </tr>
         </thead>
         <tbody>
-          <tr><td>index_memory</td><td>1</td><td>Scan Chain</td><td>Vertex Shader</td></tr>
+          <tr><td>index_memory</td><td>1</td><td>Scan Chain</td><td>Backface, Rasterizer</td></tr>
           <tr><td>vertex_memory</td><td>1</td><td>Scan Chain</td><td>Vertex Shader</td></tr>
           <tr><td>vertex_3d_memory</td><td>1</td><td>Vertex Shader</td><td>Backface</td></tr>
           <tr><td>vertex_2d_memory</td><td>1</td><td>Vertex Shader</td><td>Rasterizer</td></tr>
-          <tr><td>light_intensity</td><td>1</td><td>Backface</td><td>Pixel Color</td></tr>
+          <tr><td>light_intensity_memory</td><td>1</td><td>Backface</td><td>Pixel Color</td></tr>
           <tr><td>tri_valid_memory</td><td>1</td><td>Backface</td><td>Rasterizer</td></tr>
           <tr><td>color_memory</td><td>1</td><td>Scan Chain</td><td>Pixel Color</td></tr>
           <tr><td>depth_buffer</td><td>1</td><td>Rasterizer</td><td>Rasterizer</td></tr>
           <tr><td>tile_buffer</td><td>2</td><td>Rasterizer</td><td>Pixel Color</td></tr>
         </tbody>
         </table>
-        <p>
+        <p style="text-align: justify;">
           An SRAM controller is needed to switch between the two tile buffers, so that when one is read from the pixel color 
-          module for the output, the rasterizer can still work in parallel and write to another one. 
+          module for the output, the rasterizer can still work in parallel and write to another one. Also the SRAM controller arbitrates accesses from scan chain and the core engines, making sure that the model file remains intact after the rendering starts for one frame.
         </p>
         <h4>SRAM Macros</h4>
-        <p>
+        <p style="text-align: justify;">
           We generated the SRAM macros using the generator. The number of ports, size (width & words) are determined by 
-          the chip functionality. The mux value changes the shape of the SRAM, and is set to fit in the chip area better. 
+          the chip functionality. The mux value changes the shape of the SRAM, and is selected to fit in the chip area better. 
           We made the two buffers be able to do partial write so that it doesn't have to modify the entire line every time.
           The table shows the spec of SRAMs we used in our design. <br>
         </p>
@@ -601,8 +661,12 @@ For front-facing triangles (negative dot product), the module normalizes the fac
         </style>
 
         <table border="1">
+          <caption style="caption-side: bottom; text-align: center; font-style: italic;">
+            SRAM Spec
+          </caption>
         <thead>
           <tr>
+            <th>ID</th>
             <th>Name</th>
             <th>Port</th>
             <th>Width</th>
@@ -614,6 +678,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
         </thead>
         <tbody>
           <tr>
+            <td>0</td>
             <td>index_memory</td>
             <td>sp</td>
             <td>33</td>
@@ -623,6 +688,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
             <td>8</td>
           </tr>
           <tr>
+            <td>1</td>
             <td>vertex_memory</td>
             <td>sp</td>
             <td>48</td>
@@ -632,6 +698,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
             <td>8</td>
           </tr>
           <tr>
+            <td>2</td>
             <td>vertex_3d_memory</td>
             <td>sp</td>
             <td>48</td>
@@ -641,6 +708,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
             <td>8</td>
           </tr>
           <tr>
+            <td>3</td>
             <td>vertex_2d_memory</td>
             <td>sp</td>
             <td>29</td>
@@ -650,6 +718,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
             <td>8</td>
           </tr>
           <tr>
+            <td>4</td>
             <td>light_intensity</td>
             <td>sp</td>
             <td>10</td>
@@ -659,6 +728,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
             <td>8</td>
           </tr>
           <tr>
+            <td>5</td>
             <td>tri_valid_memory</td>
             <td>sp</td>
             <td>2</td>
@@ -668,6 +738,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
             <td>8</td>
           </tr>
           <tr>
+            <td>6</td>
             <td>color_memory</td>
             <td>sp</td>
             <td>9</td>
@@ -677,6 +748,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
             <td>8</td>
           </tr>
           <tr>
+            <td>9</td>
             <td>tile_buffer</td>
             <td>sp</td>
             <td>48</td>
@@ -686,6 +758,7 @@ For front-facing triangles (negative dot product), the module normalizes the fac
             <td>12</td>
           </tr>
           <tr>
+            <td>10</td>
             <td>depth_buffer</td>
             <td>dp</td>
             <td>48</td>
@@ -699,50 +772,113 @@ For front-facing triangles (negative dot product), the module normalizes the fac
 
 
       <h3>System Modules</h3>
-        <h4>Scan Chain</h4>
-	    <p> The scan chain provides the external access point to the on-chip memories and configuration registers. 
+        <h4>Scan Chain</h4> 
+	    <p style="text-align: justify;"> The scan chain provides the external access point to the on-chip memories and configuration registers. 
 			It is used to load model information before the processor starts, and to configure modules such as the Clock Generator and Test FSM. 
-			The chain consists of 78 cells, each mapped to a specific memory identifier, address pins, data pins, control signal or register bits, and uses mem_clk to shift data without timing violations safely. 
-            The memories that the scan chain can configure are Vertex Memory, Index Memory and Colour Memory.
-		    The IO signals that are provided are scan_in: serially shifts data into the scan chain (write path). scan_out: serially shifts data out of the scan chain (read path).
-		    scan_i0o1: selects direction: 0 = scan-in, 1 = scan-out. phi / phib: two non-overlapping clocks used to safely shift scan cells. load: loads all scan-cell latch values into the actual memory/register ports.
+			The chain consists of 78 cells, each mapped to a specific memory identifier, address pins, data pins, control signal or register bits. 
+        </p>
+        <table border="1" cellspacing="0" cellpadding="8" style="width: 100%; border-collapse: collapse;">
+          <caption style="caption-side: bottom; text-align: center; font-style: italic;">
+            Scan Chain Spec
+          </caption>
+          <thead>
+          <tr>
+            <th> identifier </th>
+            <th> address </th>
+            <th> data </th>
+            <th> en_cnt </th>
+            <th> en_int </th>
+            <th> fc </th>
+            <th> div </th>
+            <th> mem_ctrl </th>
+            <th> mem_wr </th>
+            <th> mem_clk </th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr><td>4 bits</td><td>12 bits</td><td>48 bits</td><td>1 bit</td><td>1 bit</td><td>5 bits</td><td>4 bits</td><td>1 bit</td><td>1 bit</td><td>1 bit</td></tr>
+        </tbody>
+        </table>
+          </br>
+        Corresponding software programming addresses for the customized FPGA transmitter.
+        <table border="1" cellspacing="0" cellpadding="8" style="width: 100%; border-collapse: collapse;">
+        <caption style="caption-side: bottom; text-align: center; font-style: italic;">
+            Software programming addresses spec
+          </caption>
+          <thead>
+          <tr>
+            <th></th>
+            <th> identifier </th>
+            <th> address </th>
+            <th> data [47:32] </th>
+            <th> data [31:16] </th>
+            <th> data [15:0] </th>
+            <th> en_cnt </th>
+            <th> en_int </th>
+            <th> fc </th>
+            <th> div </th>
+            <th> mem_ctrl </th>
+            <th> mem_wr </th>
+            <th> mem_clk </th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr><td>addr</td><td>11</td><td>10</td><td>9</td><td>8</td><td>7</td><td>6</td><td>5</td><td>4</td><td>3</td><td>2</td><td>1</td><td>0</td></tr>
+        </tbody>
+        </table>
+
+        <p>
+            The last three bits are allocated for memory control. <code>mem_ctrl</code> signals that the scan chain is working on a memory access, <code>mem_wr</code> is for distinguishing reads and writes, and <code>mem_clk</code> is the bit acting as an external clock source for all the memories, so while the core is idle, the scan chain can pre-load all the necessary model information to the memories. ID 7 is for setting the number of triangles and number of vertices. ID 8 is for programming the Test FSM.
+        </p>
+
+        <p>
+		    The IO signals that are provided are 
+          <ul class="list">
+            <li><code>scan_in</code>: serially shifts data into the scan chain (write path).</li>
+            <li><code>scan_out</code>: serially shifts data out of the scan chain (read path).</li>
+            <li><code>scan_i0o1</code>: selects direction — 0 = <code>scan_in</code>, 1 = <code>scan_out</code>.</li>
+            <li><code>phi</code> & <code>phib</code>: two non-overlapping clocks used to safely shift scan cells.</li>
+            <li><code>load</code>: loads all scan-cell latch values into the actual memory/register ports.</li>
+          </ul>
 		</p>
+
+
         <h4>Test FSM</h4> 
-
-		<p> This module arbitrates between scan-chain based external access and normal core execution by: 1) Gating the core clock so the core can be held idle while an external agent uses the scan chain. 2) Providing an SRAM clock that allows SRAM to be clocked either by the scan memory clock or by the core clock. 3) Providing a scan-controlled core reset request for keeping the core in reset when desired. </p>
-
-		<p> IDLE mode:
-The core clock is gated off (core_clk = 0), so the core does not run. SRAM can still be driven by the scan-chain memory clock. </p>
-
-		<p> NORMAL mode:
-The core clock is enabled. SRAM clock is the OR of scan memory clock and core clock, allowing SRAM activity from either source. </p>
+		    <p style="text-align: justify;"> This module is used to clock gate the core while external transfers data to memory through scan chain and the core is at reset state. Regarding the implementation, here are two modes:
+            <ol class="list">
+                <li>Idle mode where scan chain sends data to memory or core does not have a running clock.</li>
+                <li>Normal mode where the core clock is active and the pipeline starts.</li>
+            </ol>
+            </p>
         <h4>Clock Generators</h4> 
-	        <p> We use this module to generate the internal clocks required by the system by configuring two parameters, fc and div. 
-The fc parameter is used to control the length of the inverter chain. Each time you increase fc, you’re effectively adding another pair of inverters into the clock path, which increases the clock delay and thus slows down the clock. Additionally, the div parameter divides the clock frequency by 2^"div" .
-The resulting clock frequency is divided by 1024 and output for oscilloscope measurement.
- </p>
+	      <p style="text-align: justify;"> We use this module to generate the internal clocks required by the system by configuring two parameters, <code>fc</code> and <code>div</code>. 
+            The <code>fc</code> parameter is used to control the length of the inverter chain. Each time you increase <code>fc</code>, you’re effectively adding another pair of inverters into the clock path, which increases the clock delay and thus slows down the clock. Additionally, the <code>div</code> parameter divides the clock frequency by 2<sup><code>div</code></sup>.
+            The resulting clock frequency is divided by 1024 and output for oscilloscope measurement, and this is enabled by default using <code>en_cnt</code>.
+        </p>
   </section>
   
   <section id="design-flow">
     <h2>Design Flow</h2>
-    <p class="instruction-text">[Replace with design flow description: Detail the steps from RTL design to tape-out, including synthesis, place-and-route, verification, and signoff processes.]</p>
-    <!-- TODO: design flow pic-->
       <h3>Software Golden Model</h3>
-      The project commenced from defining the relevant algorithms and implementing a reference software model. The model serves as the foundation of the project, proving the feasbility of the overall system architecture and validating the correctness of RTL designs. The key algorithms include 3D-2D transformation, backface culling and lighting intensity computation, and rasterization with actual pixel color computation. Implemented in C++, the Golden Model consists of three major components, model file processing, computation, and output storage.<br>
-      The application reads three files that construct a 3D model:<br>
+      <p style="text-align: justify;">
+        The project commenced from defining the core algorithms and implementing a reference software model. The model serves as the foundation of the project, proving the feasbility of the overall system architecture and validating the functional correctness of RTL designs. The key algorithms include 3D-to-2D transformation, backface culling and lighting intensity computation, as well as triangle rasterization with per-pixel color computation. Implemented in C++, the Golden Model consists of three major stages, model file processing, computation, and output storage.
+        The application reads three files that construct a 3D model:
+      </p>
       <ol class="list">
-        <li>Vertex List: Defines 3D coordinates for all the vertices.</li>
-        <li>Surface List: Describes all the surfaces using the indeces of three vertices in the counterclockwise order.</li>
-        <li>Color List: Specifies the color value for each individual triangle. (For models that have a single color, this file will be skipped)</li>
+        <li>Vertex List: Defines the 3D coordinates of all vertices.</li>
+        <li>Surface List: Describes all the triangle surfaces using the indeces of three vertices listed in counterclockwise order.</li>
+        <li>Color List: Specifies the color value for each individual triangle. (For models that have a single color, this file is omitted)</li>
       </ol>
-      <br>
-      Algorithm Details:
-      <ol class="list">
-		<li>3D-2D Transformation</li>
-        The following matrices are constructed first
-		<br><br>
+      <h4>Algorithm Details</h4>
+      <br>  
+      <p style="text-align: justify;">
+      <b>3D-2D Transformation</b>
+      <br>  
+      The following matrices are constructed first.
+		    <br><br>
         Object Rotation is with respect to its center.
         <br>
+      </p>
         Rotation Z =
         <span class="matrix">
           <span class="matrix-cell">\( \cos(\text{rot}_z) \)</span>
@@ -835,8 +971,10 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
           <span class="matrix-cell">\( 1 \)</span>
         </span>
         <br><br>
+      <p style="text-align: justify;">
         Camera Rotation uses the three orthogonal vectors to defined the viewpoint diection.
         <br>
+      </p>
         Camera Rotation = 
         <span class="matrix">
           <span class="matrix-cell">\( \text{camera_right}_x \)</span>
@@ -883,8 +1021,9 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
           <span class="matrix-cell">\( 1 \)</span>
         </span>
         <br><br>
-		After the rotational and translational adjustmens are completed, the 3D-2D transformation is conducted by remapping the scene to a canonical view using a perspective projection matrix. Near plane and far plane is predefined to be 1 and 50. The bounding box \(\{r, l, t, b\}\) can be computed with a Field of View value and the display aspect ratio (640/480).
-        <br>
+		    <p style="text-align: justify;">
+          After the rotational and translational adjustmens are completed, the 3D-2D transformation is conducted by remapping the scene to a canonical view using a perspective projection matrix. Near plane and far plane is predefined to be 1 and 50. The bounding box \(\{r, l, t, b\}\) can be computed with a Field of View value and the display aspect ratio (640/480).
+        </p>
         Perspective = 
         <span class="matrix">
           <span class="matrix-cell">\( \frac{2n}{r - l} \)</span>
@@ -908,35 +1047,40 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
           <span class="matrix-cell">\( 0 \)</span>
         </span>
         <br><br>
-		At the transformation stage, two sets of new coordinates will be computed. One is the 3D coordinate in the World Space with view point corrected to the origin and facing to \(-z\), which will be used for backface culling and light intensity. The other is the 2D coordinate in the Screen Space which will be consumed by the Rasterizer. To reduce repetitive computations, the above matrices will be multiplied first and the overall transformation matrix will be applied to each of the vertices.
-		<br><br>
-		<li>Backface Culling and Light Intensity</li>
-		Norm vector for each of the sufaces are computed first by \(n = v_1 \times v_2 \quad v_1=p_1-p_0 \quad v_2=p_2-p_0\)
-		<br>
-		Backface is checked by \((n \cdot p_0) > 0\)
-		<br>
-        Light intensity is computed by first normalizing the norm vector and then perform the dot product \(n \cdot \text{light_dir}\), where the light is a directional light source and the direction is a normalized vector.
-		<br><br>
-		<li> Rasterization</li>
-		The key process in the rasterization is to determine whether a pixel locates inside a triangle. This is done by evaluating cross products from the point with the three edges.
-		<br>
-        \(w_0 = (p - p_0) \times \text{edge}_0\)
-		<br>
-        \(w_1 = (p - p_1) \times \text{edge}_1\)
-		<br>
-        \(w_2 = (p - p_2) \times \text{edge}_2\)
-		<br>
-		A pixel is considered inside the triangle if all three edge functions have the same sign.
-		<br>
-		To efficiently evalutate these functions for every pixel, we precompute the partial derivatives with respect to the x and y directions. This allows us to incrementally update the edge values across the screen using only additions. Also for each triangle, we identify its bounding box first and start from the leftmost pixel for each row. 
-		<br>
-		Meanwhile, the rasterizer is responsible for depth check, ensuring that closer pixels are the ones being visible. A depth buffer is allocated for storing the current depth if a pixel is occupied.
-	  </ol>
+		    <p style="text-align: justify;">
+          At the transformation stage, two sets of new coordinates will be computed. One is the 3D coordinate in the World Space with view point corrected to the origin and facing to \(-z\), which will be used for backface culling and light intensity. The other is the 2D coordinate in the Screen Space which will be consumed by the Rasterizer. To reduce repetitive computations, the above matrices will be multiplied first and the overall transformation matrix will be applied to each of the vertices.
+        </p>
+        <b>Backface Culling and Light Intensity</b>
+    <p style="text-align: justify;">
+      Norm vector for each of the sufaces are computed first by \(n = v_1 \times v_2 \quad v_1=p_1-p_0 \quad v_2=p_2-p_0\)<br>
+		  Backface is checked by \((n \cdot p_0) > 0\)<br>
+      Light intensity is computed by first normalizing the norm vector and then perform the dot product \(n \cdot \text{light_dir}\), where the light is a directional light source and the direction is a normalized vector.
+    </p>
+
+    <b>Rasterization</b>
+    <p style="text-align: justify;">
+      The key process in the rasterization is to determine whether a pixel locates inside a triangle. This is done by evaluating cross products from the point with the three edges.
+      <br>
+          \(w_0 = (p - p_0) \times \text{edge}_0\)
+      <br>
+          \(w_1 = (p - p_1) \times \text{edge}_1\)
+      <br>
+          \(w_2 = (p - p_2) \times \text{edge}_2\)
+      <br>
+      A pixel is considered inside the triangle if all three edge functions return values with the same sign.<br>
+      To efficiently evalutate these functions for every pixel, we precompute the partial derivatives with respect to the x and y directions. This allows us to incrementally update the edge values across the screen using only additions. Also for each triangle, we identify its bounding box first and start from the leftmost pixel for each row. <br>
+      Meanwhile, the rasterizer is responsible for depth check, ensuring that closer pixels are the ones being visible. A depth buffer is allocated for storing the current depth if a pixel is occupied.
+    </p>
+  </ol>
 
       <h3>Frontend Design</h3>
-      The front design process focused on RTL designs and verifications. We started from using the open source project Tiniest-GPU [1] to estimate the area and timing, and shifted to design our own versions with the new architecture that supports up to 2560 vertices and 1280 triangles. As described in the system architecture, IA, VS, RA, BF and Pixel modules are implemented from scratch and VGA controller is being modified so that it oeprates correctly with 250 MHz target clock frequency. Throughout the iterations, we have encounterd several timing issues at Post-APR stage, which enforced us to revisit the RTL. These modifications included replacing square root and division modules with DW library, adding synchronization logic for the output VGA control signals and color buses and breaking long stages so that setup timing can all be met.
-
+      <p style="text-align: justify;">
+      The front design process focused on RTL designs and verifications. We started from using the open source project Tiniest-GPU <sup>[1]</sup> to estimate the area and timing, and shifted to design our own versions with the new architecture that supports up to 2560 vertices and 1280 triangles. As described in the system architecture, IA, VS, RA, BF and Pixel modules are implemented from scratch and VGA controller is being modified so that it oeprates correctly with 250 MHz target clock frequency.
+      </p>
         <table class="specs-table">
+          <caption style="caption-side: bottom; text-align: center; font-style: italic;">
+            Frontend Versions
+          </caption>
           <tr>
             <th>Version</th>
             <th>Features</th>
@@ -981,8 +1125,8 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
         </table>
       <h3>Backend Design</h3>
         <h4>Automatic Place & Route</h4>
-        The automatic place & route stage is where we spent most of our time due to the area limitation. <br>
-        <p>
+        <p style="text-align: justify;">
+          The automatic place & route stage is where we spent most of our time due to the area limitation. <br>
           In the initial approach, we ran place & route for each submodule, but later found that it was wasting too much 
           area since all the submodules have to be in the shape of rectangle. Thus, we ran all our code as a single module 
           and let the APR tool do optimization on the whole design. <br>
@@ -997,37 +1141,103 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
           which is to put inputs on the left and outputs on the top-right and bottom-right. <br>
           Here are the several improvements we did to reduce the area and solve the timing and DRC issues.
         </p>
-        <ol>
-          <li> Modify the precision of calculation <br>
+        <ol class="list">
+          <li> Modify the precision of calculation: 
             SRAMs are account of more than 80% of the area of the entire design. Thus, the first improvement is to reduce the 
             precision of the numbers we stored in order to cut down on the size of SRAMs.
           </li>
-          <li> Use standard library for arithmetic operation <br>
+          <li> Use standard library for arithmetic operation: 
             Instead of writing division or other opearions on your own, import the function from the standard library directly, 
             which would give you better area and timing.
           </li>
-          <li> Reduce the layer for power stripes <br>
+          <li> Reduce the layer for power stripes: 
             Since our design is too complex to route, we made the bottom layer of power stripes less dense and allow some routing 
             on that layer of metal. However, it might sometimes be problematic to mix the power and logical signals. 
           </li>
-          <li> Add blockage or halo around SRAM cells <br>
+          <li> Add blockage or halo around SRAM cells: 
             Routing too close to an SRAM might cause DRC errors, and it could be prevented by adding blockage or halo to stop the 
             tool from placing components there. 
           </li>
-          <li> Tune the Place & Route parameters <br>
+          <li> Tune the Place & Route parameters: 
             There are several effor or density configurations you can play with to reach better performance.
           </li>
-          <li> Give tighter condition in early design stage <br>
+          <li> Give tighter condition in early design stage: 
             Set the constraints, e.g., density, to lower in early design stage to allow more space for optimization in 
             the later stages. 
           </li>
         </ol>
-        <p>
+        <p style="text-align: justify;">
           We applied the same techniques on our DUT, the test FSM, scan chain, and the clock generator. 
-          Below is the APR results for our modules and top. <br>
+          Below is the APR results for our modules and top. 
         </p>
+        <style>
+          .image-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+          }
+
+          .image-row figure {
+            width: 33.33%;
+            margin: 0;
+            text-align: center;
+          }
+
+          .image-row img {
+            max-width: 100%;   /* important */
+            height: auto;
+            display: block;
+            margin: 0 auto;
+          }
+
+          .image-row figcaption {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #444;
+          }
+        </style>
+
+        <div class="image-row">
+          <figure>
+            <img src="../images/microgpu/fsm_layout.jpg" alt="FSM layout">
+            <figcaption>FSM layout</figcaption>
+          </figure>
+          <figure>
+            <img src="../images/microgpu/clkgen_layout.jpg" alt="Clock generator layout">
+            <figcaption>Clock generator layout</figcaption>
+          </figure>
+          <figure>
+            <img src="../images/microgpu/scan_chain_layout.jpg" alt="Scan chain layout">
+            <figcaption>Scan chain layout</figcaption>
+          </figure>
+        </div>
+
+        <script>
+          window.addEventListener('load', () => {
+            const images = document.querySelectorAll('.image-row img');
+
+            // get rendered heights (after CSS scaling)
+            const heights = Array.from(images).map(img => img.getBoundingClientRect().height);
+            const minHeight = Math.min(...heights);
+
+            images.forEach(img => {
+              img.style.height = minHeight + 'px';
+              img.style.width = 'auto';
+            });
+          });
+        </script>
+
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/gpu_core_layout.jpg" alt="GPU core layout" style="margin-bottom: 0;">
+          <figcaption>GPU core layout</figcaption>
+        </figure>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/top_layout.jpg" alt="Top layout (including all the modules above)" style="margin-bottom: 0;">
+          <figcaption>Top layout (including all the modules above)</figcaption>
+        </figure>
+
         <h4> I/O and Power Pads Integration </h4>
-        <p>
+        <p style="text-align: justify;">
           After finishing all the submodules, we put them all together and integrated with the pads. <br> 
           Our strategy on the power pads is to equally distributed to CVDD, DVDD, VDD, and GND at first. 
           Worried about the large number of output ports we have and the large driving force we need, 
@@ -1035,27 +1245,40 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
           When it comes to the placement of the pads, in order to make sure all the I/O pads get enough 
           current, we put the power pads between sets of I/O ports. The power pads also act as the wall 
           for signals, which could probably enhance signal integrity. <br>
-          Below is our final pad placement and the APR results after pad placement.
+          Below is our final pad placement and the APR results after pad placement. 
         </p>
+        
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/iopad.png" alt="I/O pads placement" style="margin-bottom: 0;">
+          <figcaption>I/O pads placement</figcaption>
+        </figure>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/chip_io_layout.jpg" alt="Chip layout with I/O pads placement" style="margin-bottom: 0;">
+          <figcaption>Chip layout with I/O pads placement</figcaption>
+        </figure>
+        
         <h4>Sealring & Dummy</h4>
-        <p>
+        <p style="text-align: justify;">
           This part is relatively easy, where we put our top module inside the seal ring provided by the TA. 
           After placement, we exported the design and ran the dummy-filling process. 
           However, due to the limitation in the script and the filling direction, 
           our module didn't passed the DRC density test and we had to hand-place the dummies. 
           Our tips for placing the dummy is to ensure enough space around them.
         </p>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/chip_layout.png" alt="Final chip layout" style="margin-bottom: 0;">
+          <figcaption>Final chip layout</figcaption>
+        </figure>
   </section>
 
   <section id="software">
     <h2>Software & Testing Flow</h2>
-    <p class="instruction-text">For testing and demo purposes, we utilize a DE1-SOC FPGA board. The PCB and the FPGA modules are connected through the 40-pin GPIO buses.</p>
-    <img src="../images/microgpu/demo_diagram.png" alt="microGPU test diagram">
       <h3>FPGA Transmitter</h3>
+      <p style="text-align: justify;">
       As the testing flow requires a lot of data transmision from 3D obejct model files, and real-time configuration of the rendering, we built a full SoC on FPGA. One part is the ARM Cortex A9 core on the FPGA and we used it to run a Linux OS that we can communicate with the hardware through kernel modules and read USB keyboard input for our application. The other part is the FPGA fabric, which implments the transmitters.
-      <br><br>
+      </p>
         <h4>Software</h4>
-        The software consists of three parts
+        <p>The software consists of three parts</p>
         <ol class="list">
             <li> Kernel Driver: The driver includes the ioctl method that the userspace application can dispatch data to the transmitter and initiate one tranmission. It also contains the kernel module configuration files so that when the Linux system boots up, this kernel module can be loaded automatically</li>
             <li> USB Driver: This is obtained from [2] which is used to handle the USB communication with the keyboard.</li>
@@ -1066,24 +1289,28 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
                     <li>Initializes the USB keyboard context and listens for keypress events in the main loop. After the user issues a command, it invokes corresponding UART transmitter configuration functions</li>
                 </ul>
         </ol>
-        <br>
         <h4>Hardware</h4>
-        The complete FPGA hardware is instantiated using Altera Qsys, where the FPGA transmitters are connected with the ARM core through Avalon Bus.
-        <br><br>
+        <p style="text-align: justify;">The complete FPGA hardware is instantiated using Altera Qsys, where the FPGA transmitters are connected with the ARM core through Avalon Bus. <br>
         There are two custom transmitters implemented by the team on the FPGA fabric, one for the Scan Chain, and the other for UART.<br>
-        For the scan chain transmitter, there are 12 programmable register addresses that could be accessed by the kernel driver, which correspond to the 12 fileds in one scan chain request. There is also one register allocated for starting off the trasmission. This tranmitter toogles <i>phi</i>, <i>phib</i> and deserializes the packed scan chain word to signal <i>scan_in</i>. Overall, to complete one word transmission, it takes at least 91 cycles (12 + 78 + 1). However, as the SC_BIT_SHIFT and SC_LOAD stage need to drive signals to the GPIO and eventually to the chip through level shifters, these stages takes multiple (50) cycles for one bit change in our testing setup.
-        <br>
-        <img src="../images/microgpu/sc_wave.png" alt="Scan Chain Wave Form">
-        <br>
-        For the UART transmitter, there are 43 resigters as described in the IA module. After the write received to the address indicating a start, the UART tx will drive the signals following the protocol with 11520 bit/s baud rate which aligns with the chip rx.
-        <br>
+        For the scan chain transmitter, there are 12 programmable register addresses that could be accessed by the kernel driver, which correspond to the 12 fileds in one scan chain request. There is also one register allocated for starting off the trasmission. This tranmitter toogles <i>phi</i>, <i>phib</i> and deserializes the packed scan chain word to signal <i>scan_in</i>. Overall, to complete one word transmission, it takes at least 91 steps (12 + 78 + 1). However, as the <code>SC_BIT_SHIFT</code> and <code>SC_LOAD</code> stage need to drive signals to the GPIO and eventually to the chip through level shifters which the entire path could not tolerate high changing frequency, it takes multiple (50) cycles for one bit change in our testing setup resulting overall 1MHz scan chain.
+        </p>
+        <figure style="text-align: center; margin-bottom: 0;">
+          <img src="../images/microgpu/sc_wave.png" alt="Scan Chain Wave Form" style="margin-bottom: 0;">
+          <figcaption>Scan Chain Wave Form</figcaption>
+        </figure>
+        <p style="text-align: justify;">
+        For the UART transmitter, there are 43 resigters as described in the IA module. After the write received to the address indicating a start, the UART <code>tx</code> will drive the signals following the protocol with 11520 bit/s baud rate which aligns with the chip <code>rx</code>.<br>
         All the FPGA hardware runs at 50 MHz.
+        </p>
       <h3>FPGA VGA DAC</h3>
+      <p style="text-align: justify;">
       On the FPGA, the VGA DAC is used to translate the digital pixel values and VGA synchronization signals produced by the chip into the analog voltage levels required by standard VGA displays.
+      </p>
       <h3>Testing Methodology</h3>
-        <h4>Pre-silicon</h4> <p> Yangfan Wang </p>
-		<p> Pre-silicon verification focuses on the validation of the hardware generated outputs in RTL/Netlist simulation. The verification processes consistes of two parts: block-level testing and end-to-end testing. For each of the blocks in the engine core, the team developed correspoding testbenches and generated random data as inputs. The output is cross-checked with the C-Model result feeding the same configuration and input stimulus. For example, a series of 3D vertices will be sent to VS and we compare the transformed 2D vertices with the C-Model result. After each individual block has been verified and the top level properly constructed, we developed the end-to-end testbench. </p> 
-		<br>
+        <h4>Pre-silicon</h4>
+		    <p style="text-align: justify;"> 
+          Pre-silicon verification focuses on the validation of the hardware generated outputs in RTL/Netlist simulation. The verification processes consistes of two parts: block-level testing and end-to-end testing. For each of the blocks in the engine core, the team developed correspoding testbenches and generated random data as inputs. The output is cross-checked with the C-Model result feeding the same configuration and input stimulus. For example, a series of 3D vertices will be sent to VS and we compare the transformed 2D vertices with the C-Model result. After each individual block has been verified and the top level properly constructed, we developed the end-to-end testbench.
+        </p> 
 		<p>The testbench includes two components: </p>
 		<ol class="list">
 		  <li>C++ Driver: For reusability, we started with developing this driver to process model file, preparing UART config data based on input control. This part of the codes are reused in the silicon driver. For testing purposes, this driver is also responsible for constructing and saving the output frame images so that we could use it to compare with C-Model generared frames. </li>
@@ -1095,58 +1322,106 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
 			  <li> next set of UART commands generation </li>
 			  <li> run one full frame and send all the pixel color to C memory </li>
 		    </ul>
-		    The steps are synchronized using the VGA vsync and hsync signals and the capturing process is using generated VGA clk from the core so we can simulate the VGA DAC requirement as much as possible. 
+		    The steps are synchronized using the VGA <code>vsync</code> and <code>hsync</code> signals and the capturing process is using generated VGA clock from the core so we can simulate the VGA DAC requirement as much as possible. 
 		  </li>
 		</ol>
-		<br>
-		<p> The same set of testbench environment is deployed across RTL simulation, Post-Synthesis simulation with clock generator enabled, and Post-APR simulation with precise timing information. </p>
-        <h4>Post-silicon</h4> <p> Yangfan Wang, Yuntian Hu </p>
+		<p style="text-align: justify;"> The same set of testbench environment is deployed across RTL simulation, Post-Synthesis simulation with clock generator enabled, and Post-APR simulation with precise timing information. </p>
+        <h4>Post-silicon</h4> 
+            <p style="text-align: justify">
+            Post-silicon validation began with a FPGA emulation process, where we deployed the full design on an FPGA-based prototype to verify the key hardware functionality and the software behavior prior to silicon bring-up. This platform enabled early validation of the full rendering pipeline, memory interfaces, and external I/O. The FPGA demo system are throughly tested at this stage and we have the software demo programs validated as well. 
+            <br><br>
+            Following successful FPGA validation, the focus shifted to silicon bring-up using a custom breadboard-based setup. The fabricated chip was mounted on a QFP100 adapter and interfaced with external components. All 5 required level shifter circuits were built on the breadboard and connect the I/O signals to the FPGA demo system. Three power domains are provided from the power supply. 
+            <br><br>
+            Incremental testing was performed during the bring-up phase, starting with basic clock verification. In this stage, the <code>core_clk</code> was validated by only sending clock generator parameters through the scan chain. The measured clock frequency differed slightly from the values collected in post-synthesis and post-APR simulations. To better align with VGA timing and UART protocol requirements, the fc-div configuration was adjusted from (5, 2) to (17,1).
+            </p>
+        <table border="1" cellspacing="0" cellpadding="8" style="width: 100%; border-collapse: collapse;">
+        <caption style="caption-side: bottom; text-align: center; font-style: italic;">
+            Clock generator tuning
+          </caption>
+          <thead>
+          <tr>
+            <th></th>
+            <th>fc</th>
+            <th>div</th>
+            <th>frequency (Mhz)</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr><td>Simulated</td><td>17</td><td>1</td><td>259.176</td></tr>
+            <tr><td>Measured</td><td>17</td><td>1</td><td>256.770</td></tr>
+        </tbody>
+        </table>
+        </br>
+            <p style="text-align: justify">
+            After we have stabilized the clocks, the full scan chain sequence was programmed to verify the correct pipeline operations. VGA control signal and colors were checked from the oscilloscope. Finally, we have connected the FPGA to the monitor and visually verified the output videos.
+            </p>
 
   </section>
 
   <section id="pcb">
-    <!-- TODO -->
     <h2>PCB Design</h2>
-    <p class="instruction-text">[Replace with PCB design description: Detail the test board architecture, power delivery, signal integrity considerations, and measurement infrastructure.]</p>
-		<p> As part of the class project, for the Demonstration, a PCB (Printed Circuit Board) had to be designed that would integrate our GPU chip as well as any devices that would communicate with it through its communication interfaces. An overview of our PCB is given below. </p>
-		<img src="../images/microgpu/PCB_final.png" alt="microGPU PCB_final">
+		<p style="text-align: justify;"> As part of the class project, for the Demonstration, a PCB (Printed Circuit Board) had to be designed that would integrate our GPU chip as well as any devices that would communicate with it through its communication interfaces. An overview of our PCB is given below. </p>
+    <figure style="text-align: center; margin-bottom: 0;">
+      <img src="../images/microgpu/PCB_final.png" alt="microGPU PCB_final" style="margin-bottom: 0;">
+      <figcaption>microGPU final PCB</figcaption>
+    </figure>
+
     <h3>Schematic Design</h3> 
-		
-		<p> The PCB has 5 main parts: the power supply, the decoupling capacitors, the level shifters, the GPU chip and the external devices. The overall PCB schematic are given below.  </p>
-		<img src="../images/microgpu/top_schematic.png" alt="microGPU top_schematic">
-	<h4>Power Supply</h4>
-		<p> Our primary power source is power supply. The PCB requires three distinct voltage levels: 2.5V and 1V for the chip, 3.3V for FPGA. To meet these requirements, a variable LDO was chosen for the power supply. The output voltage is set by the values of the feedback resistors. Test points are incorporated to facilitate measurement of the LDO's output during testing. The schematic of the power supply is given below. </p>
-		<img src="../images/microgpu/power_supply_schematic.png" alt="microGPU power_supply_schematic">
+		<p style="text-align: justify;"> The PCB has 5 main parts: the power supply, the decoupling capacitors, the level shifters, the GPU chip and the external devices. The overall PCB schematic are given below.  </p>
+		<figure style="text-align: center; margin-bottom: 0;">
+      <img src="../images/microgpu/top_schematic.png" alt="microGPU top_schematic" style="margin-bottom: 0;">
+      <figcaption>Top schematic</figcaption>
+    </figure>
+  
+	  <h4>Power Supply</h4>
+		<p style="text-align: justify;"> Our primary power source is power supply. The PCB requires three distinct voltage levels: 2.5V and 1V for the chip, 3.3V for FPGA. To meet these requirements, a variable LDO was chosen for the power supply. The output voltage is set by the values of the feedback resistors. Test points are incorporated to facilitate measurement of the LDO's output during testing. The schematic of the power supply is given below. </p>
 
-	<h4>Level Shifters</h4>
-		<p> Since our peripherals mainly support 3.3V I/O voltage, level shifters have been incorporated into the chip's I/O to convert the 2.5V/1.0V I/O voltage to 3.3V. There are also scan_in signals, uart signals, etc. from FPGA 3.3v to chip, so a level shifter has been incorporated into the GPIO to convert the 3.3V voltage to 1.0V Chip IO. The schematic of the level shifters is given below. </p>
-		<img src="../images/microgpu/level_shifter_schematic.png" alt="microGPU level_shifter_schematic">
+    <figure style="text-align: center; margin-bottom: 0;">
+      <img src="../images/microgpu/power_supply_schematic.png" alt="microGPU power_supply_schematic" style="margin-bottom: 0;">
+      <figcaption>Power supply schematic</figcaption>
+    </figure>
 
-	<h4>Decoupling Capacitor</h4>
-		<p>  Decoupling capacitors were added to ensure a stable and clean power supply to the chip. Each power domain of the chip is equipped with a 10µF and several 0.1µF capacitors. The relevant schematic is given below. </p>
-		<img src="../images/microgpu/dcap_schematic.png" alt="microGPU dcap_schematic">
-	<h4>FPGA Header</h4>
-		<p> This is used for the connection with the FPGA board. The relevant schematic is given below. </p>
-		<img src="../images/microgpu/fpga_schematic.png" alt="microGPU fpga_schematic">
-	<h4>GPU Core</h4>
-		<p> This shows some connections to the GPU core. The relevant schematic is given below. </p>
-		<img src="../images/microgpu/GPU_core.png" alt="microGPU GPU_core">
+    <h4>Level Shifters</h4>
+      <p style="text-align: justify;"> Since our peripherals mainly support 3.3V I/O voltage, level shifters have been incorporated into the chip's I/O to convert the 2.5V I/O voltage to 3.3V, and vice versa. The schematic of the level shifters is given below. </p>
+      <figure style="text-align: center; margin-bottom: 0;">
+        <img src="../images/microgpu/level_shifter_schematic.png" alt="microGPU level_shifter_schematic" style="margin-bottom: 0;">
+        <figcaption>Level shifter schematic</figcaption>
+      </figure>
+
+    <h4>Decoupling Capacitor</h4>
+      <p style="text-align: justify;">  Decoupling capacitors were added to ensure a stable and clean power supply to the chip. Each power domain of the chip is equipped with a 10\(\mu\)F capacitor, while each input power pin is provided with a 1\(\mu\)F capacitor. The relevant schematic is given below. </p>
+      <figure style="text-align: center; margin-bottom: 0;">
+        <img src="../images/microgpu/dcap_schematic.png" alt="microGPU dcap_schematic" style="margin-bottom: 0;">
+        <figcaption>Decoupling schematic</figcaption>
+      </figure>
+    <h4>FPGA Header</h4>
+      <p style="text-align: justify;"> This is used for the connection with the FPGA board. The relevant schematic is given below. </p>
+      <figure style="text-align: center; margin-bottom: 0;">
+        <img src="../images/microgpu/fpga_schematic.png" alt="microGPU fpga_schematic" style="margin-bottom: 0;">
+        <figcaption>GPIO schematic</figcaption>
+      </figure>
+    <h4>GPU Core</h4>
+      <p style="text-align: justify;"> This shows some connections to the GPU core. The relevant schematic is given below. </p>
+      <figure style="text-align: center; margin-bottom: 0;">
+        <img src="../images/microgpu/GPU_core.png" alt="microGPU GPU_core" style="margin-bottom: 0;">
+        <figcaption>GPU_core schematic</figcaption>
+      </figure>
+
     <h3>Board Architecture</h3> 
-	   <p class="instruction-text">[Describe PCB layout, connector pinout, external components, and interface circuits.]</p>
-		<p> The PCB is organized around the central QFP-packaged renderer chip (U1), whose wide parallel data, address, and control buses are routed outward to multiple buffer/level-shifter stages (IC2–IC5), each implemented with SN74AXC8T245 bidirectional transceivers that translate between the renderer chip’s 1.8 V core I/O domain and the external connectors operating at 2.5 V or 3.3 V. 
-		<p> Along the left and bottom edges, high-density headers (J2, J3, J12, J13) expose these translated signals as clean, grouped pin banks, which each bank corresponding to one 8-bit bus segment, carrying labeled signals such as qspi_data, qspi_ctrl, or general-purpose I/O channels. Every transceiver block is paired with its own decoupling capacitors and optional domain-select jumpers that supply either 3.3 V or 2.5 V to the VCCB side depending on the required logic level. </p>
-		<p> On the right side, a set of TPS7A20 low-noise LDO regulators (IC6–IC9) generate isolated power rails (+3.7 V, +2.5 V, +1.0 V), each stabilized by input/output capacitors and fine-tuning resistors. The primary +5 V input enters through the screw terminal at the top left, feeding all regulated domains before distribution across the board. Additional capacitor arrays on the lower right provide dense high-frequency decoupling for the renderer chip’s analog and digital supply pins. </p>
-		<p> Overall, the PCB layout is cleanly partitioned into four subsystems—renderer-chip core, voltage-translation banks, regulated supply blocks, and external breakout headers—creating a structured and noise-controlled interface board where each connector pin corresponds to a level-shifted, buffered, and properly decoupled signal from the renderer chip.
- </p>
-<img src="../images/microgpu/PCB_layout.png" alt="microGPU PCB_layout">
+    <p style="text-align: justify;">
+      When arranging the components on the PCB, we placed them according to the datapath to minimize the wire length. We also distributed the decoupling capacitors and the ground vias evenly distributed across the board to ensure overall stability. 
+    </p>
+    <figure style="text-align: center; margin-bottom: 0;">
+      <img src="../images/microgpu/PCB_layout.png" alt="microGPU PCB_layout" style="margin-bottom: 0;">
+      <figcaption>PCB Layout</figcaption>
+    </figure>
  
     <h3>Power Distribution</h3>
-    <p class="instruction-text">[Explain power supply design, voltage regulators, decoupling strategy, and current monitoring.]</p>
-    <p> Our <a href="https://www.mouser.com/ProductDetail/Texas-Instruments/TPS71701DCKR?qs=QZuYiDxzHahqN0uXeRKnxg%3D%3D&utm_id=22380207736&utm_source=google&utm_medium=cpc&utm_marketing_tactic=amercorp&gad_source=1&gad_campaignid=22376567996&gbraid=0AAAAADn_wf0g5UzeCVRPp0Yhb8c27LKWG&gclid=Cj0KCQjww4TGBhCKARIsAFLXndRx8_VsZd0vdCgLvQMXXQyARwInrXAWnluTTFawSqYkY-AuB1U1ylUaAhDLEALw_wcB">LDO voltage regulator</a>]
+    <p style="text-align: justify;"> Our <a href="https://www.mouser.com/ProductDetail/Texas-Instruments/TPS71701DCKR?qs=QZuYiDxzHahqN0uXeRKnxg%3D%3D&utm_id=22380207736&utm_source=google&utm_medium=cpc&utm_marketing_tactic=amercorp&gad_source=1&gad_campaignid=22376567996&gbraid=0AAAAADn_wf0g5UzeCVRPp0Yhb8c27LKWG&gclid=Cj0KCQjww4TGBhCKARIsAFLXndRx8_VsZd0vdCgLvQMXXQyARwInrXAWnluTTFawSqYkY-AuB1U1ylUaAhDLEALw_wcB">LDO voltage regulator</a>
         accepts input voltage from 2.5V to 6.5V; thus, we used 5V power supply for prototyping and 4 AA batteries for demo. 
         The voltage regulators converts the input voltage to 1V for VDD (core) and CVDD, 2.5V for DVDD, and 3.3V for level shifter to 
         align with the FPGA I/O voltage. <br>
-        To ensure power stability, we added several decoupling capacitors (0.1u and 10u) for the three voltages. The decoupling capacitors 
+        To ensure power stability, we added several decoupling capacitors (0.1\(\mu\) and 10\(\mu\)) for the three voltages. The decoupling capacitors 
         are used for providing the burst of current when switching, avoiding voltage drop, and filtering out noise. <br>
         To ensure power stability and signal integrity, a ground plane and a power plane are added. The power plane provides a low-impedance power path, 
         so the current can be delivered quickly and with minimal voltage drop. For the signals, the ground plane provides low-impedance return 
@@ -1165,9 +1440,12 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
 
   <section id="specs">
     <h2>Chip Specifications</h2>
-    <p class="instruction-text">The chip is designed using TSMC 65nm technology with 2mm x 1mm die size including the core module and I/O pads. The chip is designed and tested to be operating with 250 MHz with rendering 24-bit colored 3D objects 60 frames per second. The maximum output display supported is 480p.</p>
+    <p style="text-align: justify;">The chip is designed using TSMC 65nm technology with 2mm x 1mm die size including the core module and I/O pads. The chip is designed and tested to be operating with 250 MHz with rendering 24-bit colored 3D objects 60 frames per second. The maximum output display supported is 480p.</p>
     
     <table class="specs-table">
+      <caption style="caption-side: bottom; text-align: center; font-style: italic;">
+            Chip Spec
+          </caption>
       <tr>
         <th>Parameter</th>
         <th>Specification</th>
@@ -1208,15 +1486,19 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
 
   </section>
 
-  <section id="conclusions"> <p> Yun-Rong Du </p>
+  <section id="conclusions">
     <h2>Conclusions</h2>
-    <p class="instruction-text">[Replace with conclusions: Summarize achievements, lessons learned, challenges overcome, and potential future improvements.]</p>
+    <p class="text-align: justify;">
+      We implemented the 3D rendering flow on hardware, and walked through optimization from frontend to system.
+    </p>
     
     <h3>Key Achievements</h3>
-    <p class="instruction-text">[List major accomplishments and successful design outcomes.]</p>
+    <p class="text-align: justify;">
+    This project successfully delivered a fully functional hardware 3D rendering pipeline fabricated in TSMC 65 nm CMOS technology, achieving real-time 480p VGA output at 60 fps with live UART control. The work encompassed the complete ASIC development lifecycle, from algorithm definition and architectural design to RTL implementation, verification, synthesis, physical design, and post-silicon validation. While inspired by open-source concepts, the project significantly extends theses ideas by developing a far more complex and fully custom system from the ground up.
+    </p>
     
     <h3>Lessons Learned</h3>
-    <p class="instruction-text"> 
+    <p style="text-align: justify;"> 
       Breadboards are suitable only for low-frequency, non-precision circuits. In scenarios involving high-speed signals or higher currents, their parasitic capacitance/inductance and poor contact reliability can significantly
   degrade circuit performance, often causing instability or complete malfunction on the breadboard. The fact that the same design worked on the PCB in a single attempt indicates that the issues stemmed from the breadboard wiring and layout rather than from the
   circuit design itself. Even when a breadboard must be used, power quality should be ensured—for example, by using an LDO to reduce supply ripple and placing proper decoupling capacitors near key components—to minimize uncertainties introduced by the prototyping
@@ -1224,17 +1506,28 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
     </p>
     
     <h3>Future Work</h3>
-    <p class="instruction-text">[Describe potential enhancements and next-generation features.]</p>
+    <ol class="list">
+  <li>
+    <strong>Texture Mapping Support</strong><br>
+    Currently, each triangle is rendered using a fixed per-triangle RGB color. Future versions could incorporate UV coordinate interpolation, texture memory, and filtered texture fetches (nearest/linear). This would allow rendering more detailed models and greatly improve visual richness.
+  </li>
+  <li>
+    <strong>Basic Ray Tracing or Hybrid Rendering</strong><br>
+    Although more computationally demanding, a small fixed-function ray–triangle intersection accelerator could be integrated to explore next-generation graphics features.
+  </li>
+  <li>
+    <strong>Higher Resolution / Higher Frequency Support</strong><br>
+    The current system supports 480p (640 × 480) at 60fps. Future revisions could optimize timing and memory to support 720p (1280×720) or 1080p (1920×1080) output.
+  </li>
+</ol>
   </section>
 
   <section id="references">
-    <!-- TODO -->
     <h2>References</h2>
-    <p class="instruction-text">[Replace with references: List academic papers, technical manuals, and other resources cited in your project.]</p>
     <ol style="margin-left: 25px; color: var(--text-gray);">
       <li style="margin-bottom: 12px;">[Reference 1: Matt Pongsagon, Tiniest GPU, https://github.com/pongsagon/tt07-tiniest-gpu/tree/main, 2024]</li>
       <li style="margin-bottom: 12px;">[Reference 2: CSEE4840 by Prof. Stephen Edwards, https://www.cs.columbia.edu/~sedwards/classes/2025/4840-spring/index.html, 2025]</li>
-      <li style="margin-bottom: 12px;">[Reference 3: Author, Title, Publication, Year]</li>
+	  <li style="margin-bottom: 12px;">[Reference 3: COMS4160 by Prof. Hadi Fadaifard, https://doc.sis.columbia.edu/subj/COMS/W4160-20251-001/]</li>
     </ol>
   </section>
 
@@ -1246,13 +1539,13 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
       Besides, we would like to thank Professor Mingoo Seok for guiding us on this project. <br>
       Thanks to the courses and professors in the EE department, 
       Advanced Logic Design by Professor Mingoo Seok, 
-      VLSI Design by professor Ken Shepard, 
-      Embedded System by Stephen Edwards,
-      which provides us with the knowledge and skills for chip design. <br>
-      Thank you TAs, Da won Kim, Mosom Jana, and Chuan-Tung Lin for the assistance on the project. 
+      VLSI Design by Professor Ken Shepard, 
+      Embedded System by Professor Stephen Edwards,
+      which provide us with substantial knowledge and skills for chip design. <br>
+      Thank you TAs, Da Won Kim, Mosom Jana, and Chuan-Tung Lin for the assistance on the project. 
       We are so lucky to have you answering our questions and handling the tape-out and PCB process. <br>
       Thank you Richard Lee for the help with the lab access and procurement. <br>
-      Also shout out to friends and seniors who gave us useful suggestions.
+      Also shout out to friends, Hsieh, Liu, and Cheng, and seniors who gave us useful suggestions. <br>
       Finally, huge thanks to the 6350 classmates and teammates for sharing experience and working together. <br>
       It has been a great journey and thanks for all the people who help along the way!
     </p>
@@ -1285,7 +1578,6 @@ The resulting clock frequency is divided by 1024 and output for oscilloscope mea
       <div class="team-member">
         <strong>Fengze Zhong</strong>
         <span>Frontend Design, Testing</span>
-        <span>fz2393@columbia.edu</span>
       </div>
     </div>
   </section>
