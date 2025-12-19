@@ -113,6 +113,56 @@
       margin-bottom: 0;
     }
     
+    /* Group Photo Section */
+    .group-photo-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      padding: 40px 30px;
+    }
+    
+    .group-photo-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .group-photo-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      border: 3px solid var(--columbia-blue);
+    }
+    
+    .group-photo-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, rgba(155, 221, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .group-photo {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    
+    .group-photo-wrapper:hover .group-photo {
+      transform: scale(1.02);
+    }
+    
+    .group-photo-caption {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 1.1em;
+      color: var(--black);
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    
     /* Compact Container */
     .container {
       max-width: 1300px;
@@ -317,6 +367,10 @@
         padding: 30px 20px;
       }
       
+      .group-photo-section {
+        padding: 30px 20px;
+      }
+      
       .project-card-header {
         padding: 24px;
       }
@@ -363,14 +417,18 @@
     </div>
   </div>
   
+  <!-- Group Photo Section -->
+  <div class="group-photo-section">
+    <div class="group-photo-container">
+      <div class="group-photo-wrapper">
+        <img src="image/group_photo.jpg" alt="Spring 2025 VLSI Design Lab Team Photo" class="group-photo">
+      </div>
+    </div>
+  </div>
+  
   <div class="container">
     <!-- Spring 2025 Projects -->
     <div class="section">
-      <div class="section-header">
-        <h2>Spring 2025 Projects</h2>
-        <p>Student chip designs fabricated in TSMC 65nm</p>
-      </div>
-      
       <div class="projects-grid">
         <a class="project-card" href="html/microgpu.html">
           <div class="project-card-header">
