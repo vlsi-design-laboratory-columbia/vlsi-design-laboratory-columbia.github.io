@@ -24,14 +24,17 @@
     
     /* Header with gradient and modern design */
     header {
-      background: linear-gradient(135deg, #5d9cec 0%, #7db3f5 50%, #9ec9f8 100%);
+      background: url('images/columbia.jpeg') center center/cover no-repeat;
       color: #ffffff;
       padding: 0;
       position: relative;
       overflow: hidden;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
     }
     
-    /* Decorative background pattern */
+    /* Decorative overlay for better text readability */
     header::before {
       content: '';
       position: absolute;
@@ -39,9 +42,26 @@
       left: 0;
       right: 0;
       bottom: 0;
+      background: linear-gradient(
+        135deg, 
+        rgba(93, 156, 236, 0.85) 0%, 
+        rgba(125, 179, 245, 0.75) 50%, 
+        rgba(158, 201, 248, 0.65) 100%
+      );
+      pointer-events: none;
+    }
+    
+    /* Additional subtle pattern overlay */
+    header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
       pointer-events: none;
     }
     
@@ -49,18 +69,19 @@
       position: relative;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 40px 40px 30px;
+      padding: 60px 40px;
       text-align: center;
       z-index: 1;
     }
     
     h1 {
-      font-size: 3.2em;
-      font-weight: 600;
+      font-size: 3.5em;
+      font-weight: 700;
       letter-spacing: -0.5px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       color: #ffffff;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+      line-height: 1.2;
     }
     
     .header-meta {
@@ -68,20 +89,25 @@
       justify-content: center;
       gap: 20px;
       flex-wrap: wrap;
-      margin-top: 10px;
-      font-size: 0.9em;
-      opacity: 0.9;
+      margin-top: 16px;
+      font-size: 1em;
+      opacity: 0.95;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     }
     
     .header-meta-item {
       display: flex;
       align-items: center;
       gap: 6px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
     }
     
     .header-meta-item::before {
-      content: '●';
-      color: rgba(255, 255, 255, 0.6);
+      content: '';
+      display: none;
     }
     
     header p {
@@ -352,7 +378,11 @@
       }
       
       header {
-        padding: 40px 20px 30px;
+        min-height: 300px;
+      }
+      
+      .header-content {
+        padding: 40px 20px;
       }
       
       .section-header h2 {
